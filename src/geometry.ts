@@ -1,0 +1,7 @@
+function isConvex(){
+
+}
+
+function ccw(){
+  
+}

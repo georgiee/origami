@@ -1,15 +1,193 @@
 import * as THREE from 'three';
+import {Tree, Node} from './core/tree';
+let math = require('mathjs');
+
+class Origami extends THREE.Object3D {
+  constructor(){
+    super();
+  }
+}
+
+
+function create(){
+  let origami = new Origami();
+
+
+
+  let v0 = new THREE.Vector3(0,0,0);
+  let v1 = new THREE.Vector3(50,0,0);
+  let v2 = new THREE.Vector3(50,50,0);
+  let v3 = new THREE.Vector3(0,50,0);
+
+  let face = new Face([v0, v1, v2, v3]);
+  let crease = new THREE.Line3(new THREE.Vector3(20,50,0), new THREE.Vector3(50,40,0))
+
+  var geometry = new THREE.Geometry();
+  geometry.vertices.push(crease.start, crease.end);
+  var line = new THREE.LineSegments( geometry );
+  origami.add(line);
+
+  let faces = face.split(crease, origami);
+  //origami.add(face.toMesh());
+  let mesh2 = face.toMesh(true)
+  mesh2.position.x = 100;
+  origami.add(mesh2);
+
+  origami.add(faces.face1.toMesh());
+  origami.add(faces.face2.toMesh());
+
+  //let helper = new THREE.FaceNormalsHelper( faces.face2.toMesh(), 50, 0x00ff00, 10 );
+  //origami.add(helper);
+  //let helper = new THREE.FaceNormalsHelper( faces.face1.toMesh(), 50, 0x00ff00, 10 );
+  //origami.add(helper);
+
+  let material = new THREE.MeshBasicMaterial( {
+     opacity: 0.5,
+     transparent: true,
+     vertexColors: THREE.FaceColors,
+     side: THREE.DoubleSide
+   } );
+
+  let mesh  = new THREE.Mesh( face.toGeometry(), material);
+  //origami.add(mesh);
+
+  return origami;
+}
+
+export default {create};
 
 
 class Face {
   public vertices = [];
+  public edges = [];
+  public triangles: Array<THREE.Triangle> = [];
+
+  constructor(v){
+    this.vertices = [...v];
+    this.triangles = [
+      new THREE.Triangle(v[0],v[1],v[2]),
+      new THREE.Triangle(v[0],v[2],v[3])
+    ]
+
+    this.edges = [
+      new THREE.Line3(v[0],v[1]),
+      new THREE.Line3(v[1],v[2]),
+      new THREE.Line3(v[2],v[3]),
+      new THREE.Line3(v[3],v[0])
+    ]
+  }
+
+  findEdge(intersection):THREE.Line3 {
+    for(let edge of this.edges){
+      let distance = edge.closestPointToPoint(intersection).distanceTo(intersection);
+      if(distance == 0){
+        return edge
+      }
+    }
+    return null;
+  }
+
+  analyze(intersections, raycaster, obj3d){
+
+    let edge1 = this.findEdge(intersections[0]);
+    let edge2 = this.findEdge(intersections[1]);
+
+    let crease = new THREE.Line3(intersections[0], intersections[1])
+    console.log('inetrsections', edge1, edge2)
+
+
+		let pMaterial = new THREE.PointsMaterial( { size: 15, vertexColors: THREE.VertexColors} );
+
+    let pGeo = new THREE.Geometry();
+
+    pGeo.colors = [
+      new THREE.Color(0xff0000),
+      new THREE.Color(0xff0000),
+      new THREE.Color(0xff0000),
+      new THREE.Color(0x00ff00),
+      new THREE.Color(0x00ff00),
+      new THREE.Color(0x00ff00),
+      new THREE.Color(0x0000ff)
+    ]
+
+    pGeo.vertices = [
+      edge1.start,
+      intersections[0],
+      edge1.end,
+
+      edge2.start,
+      intersections[1],
+      edge2.end,
+      this.vertices[0]
+    ]
+
+
+    let points = new THREE.Points( pGeo, pMaterial );
+		obj3d.add( points );
+
+
+    console.log('edge and point', edge1,intersections[0], this.edges.indexOf(edge1))
+    //CCW: edge1.end --> intersections[0] --> edge1.start
+    //CCW: edge2.end --> intersections[1] --> edge2.start
+
+    console.log('edge and point', edge2,intersections[1], this.edges.indexOf(edge2))
+  }
+
+  split(crease: THREE.Line3, obj3d){
+    let edgeMesh = this.toEdgeMesh();
+    let raycaster = new THREE.Raycaster();
+    raycaster.set(crease.start, crease.delta().normalize())
+
+    let result = raycaster.intersectObjects( [edgeMesh] );
+    if(result.length != 2){
+      throw new Error('Something is wrong with the crease on this face');
+    }else {
+
+      let intersections = [result[0].point, result[1].point];
+      this.analyze(intersections, raycaster, obj3d)
+      console.log('intersections', intersections)
+
+      console.log(this.triangles[0].containsPoint(intersections[0]));
+      console.log(this.triangles[1].containsPoint(intersections[0]));
+
+      console.log('bary', this.triangles[0].barycoordFromPoint(intersections[0]));
+      console.log('bary', this.triangles[1].barycoordFromPoint(intersections[0]));
+      //A: determine through barycentre (sign changing from center of gravity)
+      //A: use triangles
+      let face1 = new Face([result[0].point, this.vertices[0], this.vertices[1],result[1].point])
+      let face2 = new Face([result[0].point, result[1].point, this.vertices[2], this.vertices[3]])
+      return {face1, face2};
+    }
+  }
+
+  toEdgeMesh(){
+    let edges = new THREE.LineSegments( this.toEdgeGeometry());
+    return edges;
+  }
+
+  toMesh(wireframe = false){
+    let mesh = new THREE.Mesh(this.toGeometry(), new THREE.MeshBasicMaterial({wireframe}));
+    return mesh;
+  }
+
+  toEdgeGeometry(){
+    let geometry = new THREE.Geometry();
+
+    this.edges.forEach(edge => {
+      geometry.vertices.push(edge.start, edge.end);
+    });
+
+    return geometry;
+  }
 
   toGeometry(){
-    let v0
     let geometry = new THREE.Geometry();
     geometry.vertices.push(...this.vertices);
-    geometry.faces.push( new THREE.Face3( 0, 1, 2 ) );
-    geometry.faces.push( new THREE.Face3( 0, 2, 3 ) );
+
+    geometry.faces.push(
+      new THREE.Face3( 0, 1, 2 ),
+      new THREE.Face3( 0, 2, 3 ),
+    );
 
     geometry.computeFaceNormals();
     geometry.computeVertexNormals();
@@ -18,212 +196,19 @@ class Face {
   }
 }
 
-class Node {
-  step: Number;
-  left: Node;
-  right: Node;
-  constructor(public id, public data){
-  }
-}
+/*
 
-class Tree {
-  private nodes:Array<any> = [];
-  private root:Node;
 
-  constructor(){
-  }
+let tree = new Tree();
 
-  getLeafs(current = null, nodes = []){
-    if(current == null){
-      current = this.root
-    }
+tree.insert("face0")
 
-    if(current.left == null && current.right == null){
-      return [current];
-    }else {
-      let left = this.getLeafs(current.left);
-      nodes.push(...left);
+tree.splitInsert("face0", "face0-1", "face0-2")
+tree.splitInsert("face0-1", "face0-1-1","face0-1-2")
+tree.splitInsert("face0-1-1", "face0-1-1-1","face0-1-1-2")
+tree.splitInsert("face0-1-1-2", "face0-1-1-2-1","face0-1-1-2-2")
+tree.splitInsert("face0-1-2", "face0-1-2-1","face0-1-2-2")
 
-      let right = this.getLeafs(current.right);
-      nodes.push(...right);
-    }
+console.log(tree.toArray());
 
-    return nodes;
-  }
-
-  insert(node){
-    if(this.root == null) {
-      this.root = node;
-    } else{
-      let current = this.root;
-      let parent;
-
-      while(true){
-        parent = current;
-        current = parent.left;
-
-        if(current == null){
-          parent.left = node;
-          break;
-        }
-      }
-      console.log(this)
-    }
-  }
-}
-
-export default class Origami extends THREE.Object3D {
-  private faces:Array<any> = []
-  private tree: Tree;
-
-  constructor(){
-    super();
-    this.init();
-  }
-
-  init(){
-    //this.sample();
-    this.test2();
-  }
-
-  test2(){
-    this.createFaces();
-    this.createTreeFace();
-    this.createMesh();
-  }
-
-  splitFaceHorizontal(face){
-    let vertices = face.vertices;
-    let v0 = vertices[0];
-    let v1 = vertices[1];
-    let v2 = vertices[2];
-    let v3 = vertices[3];
-
-    let tmp = new THREE.Vector3();
-    let v01 = tmp.lerpVectors(v0, v1, 0.5).clone();
-    let v23 = tmp.lerpVectors(v2, v3, 0.5).clone();
-
-    let face1 = new Face();
-    face1.vertices.push(v0,v01,v23,v3);
-    let face2 = new Face();
-    face2.vertices.push(v01,v1,v2, v23);
-
-    return {face1, face2};
-  }
-
-  splitFaceVertical(face){
-    let vertices = face.vertices;
-    let v0 = vertices[0];
-    let v1 = vertices[1];
-    let v2 = vertices[2];
-    let v3 = vertices[3];
-
-    let tmp = new THREE.Vector3();
-    let v03 = tmp.lerpVectors(v0, v3, 0.5).clone();
-    let v12 = tmp.lerpVectors(v1, v2, 0.5).clone();
-
-    let face1 = new Face();
-    face1.vertices.push(v0,v1,v12,v03);
-
-    let face2 = new Face();
-    face2.vertices.push(v2,v3,v03,v12);
-
-    return {face1, face2};
-  }
-
-  createTreeFace(){
-    let tree = new Tree();
-    this.tree = tree;
-
-    let baseFace = this.createBaseFace();
-    let node = new Node('root', baseFace);
-    tree.insert(node);
-
-    //split 1
-    this.split(node);
-
-    //split 2
-    //this.split(node.left);
-    //this.split(node.right);
-
-    /*
-    //split 3
-    this.split(node.left.left);
-    this.split(node.left.right);
-
-    //split 4
-    this.split(node.right.left);
-    this.split(node.right.right);
-    */
-    console.log(tree)
-  }
-
-  split(node, horizontal = true){
-    let face = node.data;
-
-    //let {face1, face2} = this.splitFaceHorizontal(face);
-    let {face1, face2} = this.splitFaceVertical(face);
-
-    let node1 = new Node(node.id+'1', face1);
-    let node2 = new Node(node.id+'2', face2);
-
-    node.left = node1;
-    node.right = node2;
-  }
-
-  createBaseFace(){
-    var v0 = new THREE.Vector3(0,0,0);
-    var v1 = new THREE.Vector3(50,0,0);
-    var v2 = new THREE.Vector3(50,50,0);
-    var v3 = new THREE.Vector3(0,50,0);
-
-    let face = new Face();
-    face.vertices.push(v0,v1,v2,v3);
-
-    return face;
-  }
-
-  createFaces(){
-    var v0 = new THREE.Vector3(0,0,0);
-    var v1 = new THREE.Vector3(50,0,0);
-    var v2 = new THREE.Vector3(50,50,0);
-    var v3 = new THREE.Vector3(0,50,0);
-
-    let tmp = new THREE.Vector3();
-    let v01 = tmp.lerpVectors(v0, v1, 0.5).clone();
-    let v23 = tmp.lerpVectors(v2, v3, 0.5).clone();
-
-    let face = new Face();
-    face.vertices.push(v0,v1,v2,v3);
-
-    let face1 = new Face();
-    face1.vertices.push(v0,v01,v23,v3);
-    let face2 = new Face();
-    face2.vertices.push(v01,v1,v2, v23);
-
-    this.faces.push(face1, face2);
-  }
-
-  createMesh(){
-    let faces = this.tree.getLeafs();
-    faces = faces.map(node => node.data);
-
-    let tmpGeometry = new THREE.Geometry();
-
-    faces.forEach( face => {
-      tmpGeometry.merge(face.toGeometry(), new THREE.Matrix4())
-    })
-
-    let material = new THREE.MeshBasicMaterial( { wireframe: true } );
-    let mesh  = new THREE.Mesh( tmpGeometry, material);
-    this.add(mesh);
-  }
-
-  sample(){
-    let geometry = new THREE.PlaneGeometry( 100, 100, 1);
-    let material = new THREE.MeshBasicMaterial( { wireframe: true } );
-    let mesh  = new THREE.Mesh( geometry, material);
-
-    this.add(mesh);
-  }
-}
+*/

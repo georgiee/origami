@@ -1,9 +1,115 @@
 import * as THREE from 'three';
+import Origami from './origami';
+
 var OrbitControls = require('three-orbit-controls')(THREE)
 
 var camera, scene, renderer;
 var geometry, material, mesh;
 
+
+class OrigamiFace {
+  public a: THREE.Vector3;
+  public b: THREE.Vector3;
+  public c: THREE.Vector3;
+  public d: THREE.Vector3;
+
+  constructor(a, b, c, d){
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+  }
+}
+
+class Face{
+  vertices: Array<THREE.Vector3>;
+  edges: Array<Number>;
+}
+
+class Edge {
+  vertice1: THREE.Vector3;
+  vertice2: THREE.Vector3;
+}
+
+
+class Tree {
+
+}
+
+function faceToGeometry(face){
+  var geometry = new THREE.Geometry();
+
+  geometry.vertices.push(face.vertices[0]);
+  geometry.vertices.push(face.vertices[1]);
+  geometry.vertices.push(face.vertices[2]);
+  geometry.vertices.push(face.vertices[3]);
+
+  geometry.faces.push( new THREE.Face3( 0, 1, 3 ) ); // counter-clockwise winding order
+  geometry.faces.push( new THREE.Face3( 1, 2, 3 ) );
+
+  geometry.computeFaceNormals();
+  geometry.computeVertexNormals();
+
+  return geometry;
+}
+
+class Origami2 extends THREE.Object3D{
+  private faces: Array<any>;
+
+  constructor(){
+    super();
+    //this.sample();
+    this.test();
+  }
+
+  test(){
+    console.log('test');
+    var face = new Face();
+    face.vertices = [
+      new THREE.Vector3(-50, 50, 0),
+      new THREE.Vector3(50, 50, 0),
+      new THREE.Vector3(50, -50, 0),
+      new THREE.Vector3(-50, -50, 0)
+    ]
+
+    let geo = faceToGeometry(face)
+    geo.computeFaceNormals();
+
+    let material = new THREE.MeshBasicMaterial( { wireframe: true } );
+    let mesh  = new THREE.Mesh( geo, material);
+
+    this.add(mesh);
+
+    //split
+    var v1 = new THREE.Vector3(0, 50, 0);
+    var v2 = new THREE.Vector3(0, -50, 0);
+    //new Edge(v1, v2);
+
+    //edge intersect face = two faces
+    //plane through normal and edge
+    var plane = new THREE.Plane();
+    plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,0))
+
+    var m2 = new THREE.LineBasicMaterial({
+    	color: 0xff00ff
+    });
+
+    var geometry = new THREE.Geometry();
+    geometry.vertices.push(v1, v2);
+
+    var line = new THREE.Line( geometry, m2 );
+    this.add( line );
+  }
+
+  sample(){
+    let geometry = new THREE.PlaneGeometry( 100, 100, 1);
+    let material = new THREE.MeshBasicMaterial( { wireframe: true } );
+    let mesh  = new THREE.Mesh( geometry, material);
+
+    this.add(mesh);
+  }
+
+}
 
 window.addEventListener('load', function(){
   init();
@@ -14,65 +120,8 @@ window.addEventListener('load', function(){
 let mouse = new THREE.Vector2();
 
 function create(){
-  var geometry = new THREE.PlaneGeometry( 100, 100, 1);
-  var material = new THREE.MeshBasicMaterial( {
-      wireframe: true,
-      vertexColors: THREE.FaceColors} );
-
-  plane = new THREE.Mesh( geometry, material);
-  scene.add( plane );
-
-  var geometry2 = geometry.clone();
-  plane = new THREE.Mesh( geometry2, material);
-  plane.position.x = 100;
-  scene.add( plane );
-
-  console.log(geometry);
-  console.log(geometry.vertices)
-
-  function r1(vector){
-    //console.log(vector)
-
-    var rotationMatrix = new THREE.Matrix4();
-
-    var angle = Math.PI/180 * 1
-    var axis = new THREE.Vector3( 0, 1, 0 ).normalize();
-
-    let matrix = rotationMatrix.makeRotationAxis( axis, angle )
-    //matrix.multiply( plane.matrix );
-    //matrix.setPosition( new THREE.Vector3(-5,0,0) )
-
-    vector.applyMatrix4( matrix )
-  }
-
-  //r1(geometry2.vertices[1])
-
-  function animation2(){
-    window.requestAnimationFrame( animation2 );
-
-    //r1(geometry2.vertices[1])
-    tt(geometry2.vertices[1], Math.PI/180 * 1);
-
-    geometry2.verticesNeedUpdate = true
-  }
-
-  function tt(vector, radiant){
-    var around = new THREE.Vector3(-50,0,0);
-    var quaternion = new THREE.Quaternion();
-    quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), radiant);
-
-    vector.sub(around)
-    vector.applyQuaternion( quaternion );
-    vector.add(around)
-  }
-
-  tt(geometry2.vertices[1], Math.PI/180 * 135);
-  tt(geometry2.vertices[3], Math.PI/180 * 135);
-  //animation2();
-
-  //r1(geometry2.vertices[3])
-  //geometry.vertices[1].x += 100;
-  //geometry.vertices[3].x += 100;
+  let origami = new Origami();
+  scene.add(origami);
 }
 
 function init(){

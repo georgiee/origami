@@ -28,7 +28,8 @@ export default class World extends THREE.EventDispatcher {
   createRenderer(){
     let renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    //renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize( window.innerHeight, window.innerHeight );
     this.container.appendChild( renderer.domElement );
     this.renderer = renderer;
   }

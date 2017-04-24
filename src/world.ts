@@ -33,6 +33,23 @@ export default class World extends THREE.EventDispatcher {
     this.renderer = renderer;
   }
 
+  createCamera(){
+    let ratio = window.innerWidth/window.innerHeight;
+
+    let width = 200;
+    let height = 200;
+
+    var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -5000, 10000 );
+    //camera.position.x = 200;
+    //camera.position.y = 100;
+    camera.position.z = 100;
+
+    this._camera = camera;
+
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.addEventListener('change', () => this.dispatchEvent({type: 'rotate'}))
+  }
+
   init(){
     let scene = new THREE.Scene();
     scene.add( new THREE.AxisHelper( 250 ) );
@@ -44,24 +61,10 @@ export default class World extends THREE.EventDispatcher {
 
     //let camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
     //camera.position.z = 200;
-
-    let width = 1000;
-    let height = 1000;
-
-    var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -5000, 10000 );
-    camera.position.x = 200;
-		camera.position.y = 100;
-		camera.position.z = 200;
-
-    scene.add( camera );
-
-
-    this._camera = camera;
     this.scene = scene;
 
     this.createRenderer();
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.addEventListener('change', () => this.dispatchEvent({type: 'rotate'}))
+    this.createCamera();
   }
 
   start(){

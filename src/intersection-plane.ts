@@ -4,6 +4,7 @@ import * as THREE from 'three';
 export default class IntersectionPlane extends THREE.Object3D {
   private _start: THREE.Vector2;
   private _end: THREE.Vector2;
+  private mathPlane: THREE.Plane;
 
   constructor(){
     super();
@@ -51,10 +52,18 @@ export default class IntersectionPlane extends THREE.Object3D {
     //this.addArrow(vCenter, cameraNormal)
     //this.addArrow(vCenter, vNormal)
     this.addArrow(coplanarPoint, vNormal)
-
+    let s = utils.createSphere();
+    s.position.copy(coplanarPoint);
+    this.add(s)
     this.addPlane(mathPlane);
 
+    this.mathPlane = mathPlane;
   }
+
+  get plane(){
+    return this.mathPlane;
+  }
+
   addArrow(pos, direction, absolute = false){
     let arrow = utils.createArrow(0x00ff00);
     arrow.position.copy(pos);
@@ -69,7 +78,7 @@ export default class IntersectionPlane extends THREE.Object3D {
   }
 
   addPlane(mathPlane){
-    let plane = new THREE.Mesh(new THREE.PlaneGeometry(1000,1000,20,20), new THREE.MeshBasicMaterial({wireframe: true, side:THREE.DoubleSide}));
+    let plane = new THREE.Mesh(new THREE.PlaneGeometry(100,100,10,10), new THREE.MeshBasicMaterial({wireframe: true, side:THREE.DoubleSide}));
     this.planeToPlane(mathPlane, plane);
     this.add(plane)
   }

@@ -12,7 +12,17 @@ export default class Origami extends THREE.Object3D {
   private vertices = [];
 
   rotationFold(plane: THREE.Plane, angle = 0){
-    let foldingpoints = this.vertices.filter(vertex => plane.distanceToPoint(vertex) == 0);
+    let foldingpoints = this.vertices.filter(vertex => {
+      let distance = plane.distanceToPoint(vertex);
+      return parseFloat(distance.toFixed(2)) === 0
+    });
+
+    foldingpoints.forEach(vertex => {
+      let s = utils.createSphere(0x00ffff)
+      s.position.copy(vertex);
+      //this.add(s)
+    })
+
     let referencePoint = foldingpoints[0];
     let maxDistance = 0;
     let farpoint;

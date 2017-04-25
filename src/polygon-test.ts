@@ -23,7 +23,10 @@ let cuts = [
 ]
 
 cuts = [
+  [10/100,0, 10/100, 1],
   [20/100,0, 20/100, 1],
+  [30/100,0, 30/100, 1],
+  [40/100,0, 40/100, 1],
 ]
 
 function create(world){
@@ -31,6 +34,8 @@ function create(world){
   let camera = world.camera;
 
   let origami = new Origami();
+  container.add(origami);
+
   origami.addVertex(new THREE.Vector3(0,0,0));
   origami.addVertex(new THREE.Vector3(50,0,0));
   origami.addVertex(new THREE.Vector3(50,50,0));
@@ -40,7 +45,7 @@ function create(world){
   origami.addPolygon(polygon);
 
   let cutter = new IntersectionPlane();
-  container.add(cutter);
+  //container.add(cutter);
 
   cuts.forEach(cut => {
     cutter.reset();
@@ -49,7 +54,8 @@ function create(world){
     cutter.calculate(camera);
 
     origami.cut(cutter.plane);
-    origami.reflect(cutter.plane);
+    //origami.reflect(cutter.plane);
+    origami.rotationFold(cutter.plane, 35);
   })
 
 

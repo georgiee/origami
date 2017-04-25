@@ -7,9 +7,59 @@ const VERTEX_POSITION = {
   BACK: 2
 }
 
-export default class Origami {
+export default class Origami extends THREE.Object3D {
   private polygons = [];
   private vertices = [];
+
+  rotationFold(plane: THREE.Plane, angle = 0){
+    let foldingpoints = this.vertices.filter(vertex => plane.distanceToPoint(vertex) == 0);
+    let referencePoint = foldingpoints[0];
+    let maxDistance = 0;
+    let farpoint;
+
+    let collin = false;
+    foldingpoints.forEach(vertex => {
+      let distance = referencePoint.distanceTo(vertex);
+      if(distance > 0){
+        collin = true;
+        console.log('collin TRUE')
+      }
+      if(distance > maxDistance){
+        farpoint = vertex;
+        maxDistance = distance;
+      }
+    })
+
+    foldingpoints.forEach(vertex => {
+      if(vertex == farpoint) return;
+
+      let v1 = referencePoint.clone().sub(vertex);
+      let v2 = farpoint.clone().sub(vertex);
+      let v3 = referencePoint.clone().sub(farpoint);
+
+      if(v1.dot(v2) > v3.length()){
+        console.log('collin FALSE')
+        collin = false;
+      }
+    })
+
+    if(collin){
+      let axis = referencePoint.clone().sub(farpoint).normalize();
+      console.log('ok FOLD now',angle * Math.PI/180, axis);
+
+      let foldingpoints = this.vertices.forEach(vertex => {
+        if(this.vertexPosition(vertex, plane) == VERTEX_POSITION.FRONT){
+          //var axis = new THREE.Vector3( 0, 1, 0 );
+          console.log('before', vertex.clone())
+          vertex.sub( referencePoint ).applyAxisAngle( axis, angle * Math.PI/180 ).add( referencePoint );
+          console.log('after', vertex.clone())
+        }
+      })
+    }
+    console.log('distance', maxDistance, farpoint);
+
+    console.log('foldingpoints', foldingpoints);
+  }
 
   addVertex(v: THREE.Vector3){
     this.vertices.push(v);

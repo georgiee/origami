@@ -22,9 +22,9 @@ let cuts = [
   [0, 25/100, 1, 25/100],
 ]
 
-//cuts = [
-//  [25/100, -1, 25/100, 1]
-//]
+cuts = [
+  [20/100,0, 20/100, 1],
+]
 
 function create(world){
   const gui = new dat.GUI();
@@ -40,7 +40,7 @@ function create(world){
   origami.addPolygon(polygon);
 
   let cutter = new IntersectionPlane();
-  //container.add(cutter);
+  container.add(cutter);
 
   cuts.forEach(cut => {
     cutter.reset();
@@ -49,7 +49,9 @@ function create(world){
     cutter.calculate(camera);
 
     origami.cut(cutter.plane);
+    origami.reflect(cutter.plane);
   })
+
 
   container.add(origami.toMesh());
 

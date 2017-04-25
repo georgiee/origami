@@ -1,4 +1,11 @@
 import * as THREE from 'three';
+import utils from './utils';
+
+const VERTEX_POSITION = {
+  COPLANAR: 0,
+  FRONT: 1,
+  BACK: 2
+}
 
 export default class Origami {
   private polygons = [];
@@ -10,6 +17,24 @@ export default class Origami {
 
   addPolygon(polygon){
     this.polygons.push(polygon);
+  }
+
+  reflect(plane){
+    this.vertices.forEach(vertex => {
+      if(this.vertexPosition(vertex, plane) == VERTEX_POSITION.FRONT){
+        console.log('reflect1', vertex.clone())
+        console.log(plane.normal)
+        let vertexReflected = this.reflectVertex(vertex, plane);
+        vertex.copy(vertexReflected);
+      }
+    })
+  }
+
+  reflectVertex(vertex, plane){
+    let projected = plane.projectPoint(vertex);
+    let v2 = new THREE.Vector3().subVectors(projected, vertex);
+    let newPos = projected.clone().add(v2)
+    return newPos;
   }
 
   toGeometry(){
@@ -32,7 +57,7 @@ export default class Origami {
 
       geometry.vertices.push(...polygonVertices);
       geometry.faces.push(...faces);
-      geometry.translate(0,0,counter * 10);
+      //geometry.translate(0,0,counter * 10);
 
       combinedGeometry.merge(geometry, new THREE.Matrix4());
       counter++
@@ -74,6 +99,19 @@ export default class Origami {
 
   canCut(index, plane){
     return this.isNonDegenerate(index);
+  }
+
+  vertexPosition(vertex, plane){
+    let distance = plane.distanceToPoint(vertex);
+    if(distance == 0 ){
+      return VERTEX_POSITION.COPLANAR;
+    }else {
+      if(distance > 0){
+        return VERTEX_POSITION.FRONT;
+      }else{
+        return VERTEX_POSITION.BACK;;
+      }
+    }
   }
 
   cutPolygon(index, plane){

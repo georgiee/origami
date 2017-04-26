@@ -11,6 +11,9 @@ const VERTEX_POSITION = {
 export default class Origami extends THREE.Object3D {
   private polygons = [];
   private vertices = [];
+  private cutpolygonNodes = [];
+  private cutpolygonPairs = [];
+  private lastCutPolygons = [];
 
   markPolygon(index, color = 0xffff00, size = 2){
     console.log('mark markPolygon', index, this.polygons.length)
@@ -34,7 +37,6 @@ export default class Origami extends THREE.Object3D {
   polygonSelect(plane, index){
     //this.markPolygon(index,0x00ff00, 1)
     let count = this.polygons.length;
-    this.test();
 
     let selection = [index];
     for(let i = 0; i < 1;i++ ){
@@ -49,6 +51,8 @@ export default class Origami extends THREE.Object3D {
 
           let poly2 = this.polygons[ii];
           //this.markPolygon(ii)
+          let vAll = [...poly1, ...poly2].map(index => this.indexToVertex(index));
+          console.log('vAll', vAll);
 
           let vertices = intersection(poly1, poly2);
           this.markVertices(vertices);
@@ -67,21 +71,23 @@ export default class Origami extends THREE.Object3D {
     selection.forEach(index => {this.markPolygon(index)});
     return selection;
   }
-  test(){
-    let index = 0;
-    let count = this.polygons.length;
-    let poly1 = this.polygons[index];
 
-    for(let ii = 0; ii < count; ii++){
-        let poly2 = this.polygons[ii];
-        let shared = this.getSharedVertices(poly1, poly2);
-        if(shared.length > 0){
-          console.log('result', shared, ii)
+  prune(){
+    //TODO: check if connected, otherwise overlapping vertex would be welded
+    let threshold = 0.0001;
 
+    let findNearOnes = (vertex1, index1) => {
+      this.vertices.forEach((vertex2, index2) => {
+        if(index1 == index2) return;
+        if(vertex1.distanceTo(vertex2) < threshold){
+          //console.log(vertex1, 'same as ', vertex2, index1, index2);
         }
-      }
+      })
+    }
 
-
+    this.vertices.forEach((vertex, index) => {
+      findNearOnes(vertex, index);
+    })
   }
 
   getSharedVertices(poly1, poly2){
@@ -94,7 +100,16 @@ export default class Origami extends THREE.Object3D {
     return parseFloat(distance.toFixed(2)) === 0;
   }
 
-  rotationFold(plane: THREE.Plane, angle = 0){
+  crease(plane){
+      this.fold(plane, 0);
+  }
+
+  fold(plane: THREE.Plane, angle = 0){
+    this.shrink();
+    this.cutpolygonNodes = [];
+
+    this.cut(plane);
+
     let foldingpoints = this.vertices.filter(vertex => {
       let distance = plane.distanceToPoint(vertex);
       return parseFloat(distance.toFixed(2)) === 0
@@ -157,6 +172,10 @@ export default class Origami extends THREE.Object3D {
   }
 
   reflect(plane){
+    this.shrink();
+    this.cutpolygonNodes = [];
+    this.cut(plane);
+
     this.vertices.forEach(vertex => {
       if(this.vertexPosition(vertex, plane) == VERTEX_POSITION.FRONT){
         let vertexReflected = this.reflectVertex(vertex, plane);
@@ -192,6 +211,8 @@ export default class Origami extends THREE.Object3D {
 
       geometry.vertices.push(...polygonVertices);
       geometry.faces.push(...faces);
+
+      geometry.computeFaceNormals();
       //geometry.translate(0,0,counter * 10);
 
       combinedGeometry.merge(geometry, new THREE.Matrix4());
@@ -200,10 +221,33 @@ export default class Origami extends THREE.Object3D {
 
     return combinedGeometry;
   }
+  shrink(){
+    this.polygons = this.polygons.filter(polygon => polygon.length > 0);
+  }
 
   toMesh(){
     let geometry = this.toGeometry();
-    let mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({wireframe: true}));
+
+    let materials =[
+        new THREE.MeshBasicMaterial({
+        color:0xff0000,
+        side: THREE.FrontSide,
+        transparent: true,
+        opacity: 0.8
+      }),
+      new THREE.MeshBasicMaterial({
+        color:0x0000ff,
+        side: THREE.BackSide,
+        transparent: true,
+        opacity: 0.8
+      }),
+      new THREE.MeshBasicMaterial({
+        wireframe: true,
+        color: 0xffff00,
+        side: THREE.DoubleSide
+      })
+    ]
+    let mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, materials)
 
     return mesh;
   }
@@ -288,6 +332,23 @@ export default class Origami extends THREE.Object3D {
         let divided = this.planeBetweenPoints(plane,vertex,vertex2);
 
         if(divided){
+          console.log('cut', i, j)
+          console.log('vertices are being cutted, check cuts from before', this.cutpolygonNodes)
+          //was this pair cutted before? reuse
+          for(let node of this.cutpolygonNodes){
+            if(node[0] == polygonIndices[i] && node[1] == polygonIndices[j]){
+              console.warn('found cut from before')
+              newpoly1.push(node[2]);
+              newpoly2.push(node[2]);
+              break;
+            }else if(node[0] == polygonIndices[j] && node[1] == polygonIndices[i]){
+              console.warn('found cut from before')
+              newpoly1.push(node[2]);
+              newpoly2.push(node[2]);
+              break;
+            }
+          }
+
           let direction = vertex.clone().sub(vertex2);
           let line = new THREE.Line3(vertex, vertex2);
 
@@ -298,14 +359,17 @@ export default class Origami extends THREE.Object3D {
 
             newpoly1.push(this.verticesSize - 1);
             newpoly2.push(this.verticesSize - 1);
+            this.cutpolygonNodes.push([polygonIndices[i],polygonIndices[j], this.verticesSize - 1 ])
           }
 
         }
       }
     }
-
+    console.log('this.cutpolygonNodes', this.cutpolygonNodes);
     this.polygons[index] = newpoly1;
     this.addPolygon(newpoly2);
+
+    console.log('this.vertices length', this.vertices.length)
   }
 
   planeBetweenPoints(plane:THREE.Plane, v1, v2){
@@ -316,9 +380,11 @@ export default class Origami extends THREE.Object3D {
   }
 
   cut(plane){
+    console.info('new cut')
     this.polygons.forEach((polygon, index) => {
       this.cutPolygon(index, plane);
     })
+    this.cutpolygonNodes = []
 
   }
 }

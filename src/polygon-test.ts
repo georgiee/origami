@@ -26,7 +26,7 @@ cuts = [
   [0, 25/100, 1, 25/100],
   [0,0, 50/100, 50/100],
   [40/100,0, 40/100, 1],
-  [20/100,0, 20/100, 1],
+  [20/100,0, 20/100, 1]
 ]
 
 function create(world){
@@ -53,14 +53,20 @@ function create(world){
     cutter.setEnd(cut[2], cut[3]);
     cutter.calculate(camera);
 
-    origami.cut(cutter.plane);
     //origami.reflect(cutter.plane);
-    origami.rotationFold(cutter.plane, 35);
+    //origami.crease(cutter.plane);
+    origami.fold(cutter.plane, 30);
   })
 
-  
+  origami.shrink();
+  origami.prune();
 
-  origami.polygonSelect(cutter.plane, 0);
+  /*cutter.reset();
+  cutter.setStart(25/100,0);
+  cutter.setEnd(25/100,1);
+  cutter.calculate(camera);*/
+
+  //origami.polygonSelect(cutter.plane, 0);
 
   container.add(origami.toMesh());
 

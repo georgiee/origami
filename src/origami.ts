@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import utils from './utils';
+import {difference, intersection, some} from 'lodash';
 
 const VERTEX_POSITION = {
   COPLANAR: 0,
@@ -10,6 +11,88 @@ const VERTEX_POSITION = {
 export default class Origami extends THREE.Object3D {
   private polygons = [];
   private vertices = [];
+
+  markPolygon(index, color = 0xffff00, size = 2){
+    console.log('mark markPolygon', index, this.polygons.length)
+    this.markVertices(this.polygons[index],color,size)
+
+  }
+
+  markVertices(list, color = 0xff00ff, size = 2){
+      list.map(index => this.vertices[index])
+      .forEach(vertex => {
+        let s = utils.createSphere(color, size)
+        s.position.copy(vertex);
+        this.add(s)
+      })
+  }
+
+  indexToVertex(index){
+    return this.vertices[index];
+  }
+
+  polygonSelect(plane, index){
+    //this.markPolygon(index,0x00ff00, 1)
+    let count = this.polygons.length;
+    this.test();
+
+    let selection = [index];
+    for(let i = 0; i < 1;i++ ){
+      let elem = selection[i];
+      let poly1 = this.polygons[elem];
+
+      //test with all polygons
+      for(let ii = 0; ii < count; ii++){
+          if(selection.indexOf(ii) != -1) {
+            continue;
+          }
+
+          let poly2 = this.polygons[ii];
+          //this.markPolygon(ii)
+
+          let vertices = intersection(poly1, poly2);
+          this.markVertices(vertices);
+          //3,4 are same?!
+
+          let connected = vertices
+            .map(index => this.indexToVertex(index))
+            .some(vertex => this.pointIsCoplanar(vertex, plane) === false)
+
+          if(connected){
+            selection.push(ii);
+          }
+
+      }
+    }
+    selection.forEach(index => {this.markPolygon(index)});
+    return selection;
+  }
+  test(){
+    let index = 0;
+    let count = this.polygons.length;
+    let poly1 = this.polygons[index];
+
+    for(let ii = 0; ii < count; ii++){
+        let poly2 = this.polygons[ii];
+        let shared = this.getSharedVertices(poly1, poly2);
+        if(shared.length > 0){
+          console.log('result', shared, ii)
+
+        }
+      }
+
+
+  }
+
+  getSharedVertices(poly1, poly2){
+    return poly1
+      .filter(index => poly2.indexOf(index) != -1)
+  }
+
+  pointIsCoplanar(point, plane){
+    let distance = plane.distanceToPoint(point);
+    return parseFloat(distance.toFixed(2)) === 0;
+  }
 
   rotationFold(plane: THREE.Plane, angle = 0){
     let foldingpoints = this.vertices.filter(vertex => {
@@ -32,7 +115,6 @@ export default class Origami extends THREE.Object3D {
       let distance = referencePoint.distanceTo(vertex);
       if(distance > 0){
         collin = true;
-        console.log('collin TRUE')
       }
       if(distance > maxDistance){
         farpoint = vertex;
@@ -48,30 +130,25 @@ export default class Origami extends THREE.Object3D {
       let v3 = referencePoint.clone().sub(farpoint);
 
       if(v1.dot(v2) > v3.length()){
-        console.log('collin FALSE')
         collin = false;
       }
     })
 
     if(collin){
       let axis = referencePoint.clone().sub(farpoint).normalize();
-      console.log('ok FOLD now',angle * Math.PI/180, axis);
 
       let foldingpoints = this.vertices.forEach(vertex => {
         if(this.vertexPosition(vertex, plane) == VERTEX_POSITION.FRONT){
           //var axis = new THREE.Vector3( 0, 1, 0 );
-          console.log('before', vertex.clone())
           vertex.sub( referencePoint ).applyAxisAngle( axis, angle * Math.PI/180 ).add( referencePoint );
-          console.log('after', vertex.clone())
         }
       })
     }
-    console.log('distance', maxDistance, farpoint);
-
-    console.log('foldingpoints', foldingpoints);
   }
 
   addVertex(v: THREE.Vector3){
+    //if(Math.abs(v.y -21.47238002427889) < 0.01){
+    //}
     this.vertices.push(v);
   }
 
@@ -82,8 +159,6 @@ export default class Origami extends THREE.Object3D {
   reflect(plane){
     this.vertices.forEach(vertex => {
       if(this.vertexPosition(vertex, plane) == VERTEX_POSITION.FRONT){
-        console.log('reflect1', vertex.clone())
-        console.log(plane.normal)
         let vertexReflected = this.reflectVertex(vertex, plane);
         vertex.copy(vertexReflected);
       }

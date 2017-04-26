@@ -45,7 +45,7 @@ function create(world){
   origami.addPolygon(polygon);
 
   let cutter = new IntersectionPlane();
-  //container.add(cutter);
+  container.add(cutter);
 
   cuts.forEach(cut => {
     cutter.reset();
@@ -58,6 +58,9 @@ function create(world){
     origami.rotationFold(cutter.plane, 35);
   })
 
+  
+
+  origami.polygonSelect(cutter.plane, 0);
 
   container.add(origami.toMesh());
 

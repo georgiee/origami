@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 function createSphere(color = 0xff0000,size = 2){
-  let s = new THREE.Mesh(new THREE.SphereGeometry(size, 10, 10), new THREE.MeshBasicMaterial({color}))
+  let s = new THREE.Mesh(new THREE.SphereGeometry(size, 10, 10), new THREE.MeshBasicMaterial({wireframe:true,color}))
   return s;
 }
 

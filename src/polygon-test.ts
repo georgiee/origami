@@ -60,12 +60,21 @@ function create(world){
     cutter.calculate(camera);
 
     //origami.reflect(cutter.plane);
-    origami.crease(cutter.plane);
+    //origami.crease(cutter.plane);
+    //origami.fold(cutter.plane, 110);
     origami.fold(cutter.plane, 30);
   })
 
-  origami.shrink();
-  origami.prune();
+  cutter.setStart(25/100,0);
+  cutter.setEnd(25/100,1);
+  cutter.calculate(camera);
+
+  origami.cut(cutter.plane);
+
+
+
+  //origami.shrink();
+  //origami.prune();
 
   /*cutter.reset();
   cutter.setStart(25/100,0);

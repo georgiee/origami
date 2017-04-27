@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import utils from './utils';
 import {difference, intersection, some} from 'lodash';
+import * as chroma from 'chroma-js';
 
 const VERTEX_POSITION = {
   COPLANAR: 0,
@@ -160,6 +161,8 @@ export default class Origami extends THREE.Object3D {
           vertex.sub( referencePoint ).applyAxisAngle( axis, angle * Math.PI/180 ).add( referencePoint );
         }
       })
+    }else {
+      console.warn("can't fold, would tear");
     }
   }
   addVertex2D(v:THREE.Vector3){
@@ -232,7 +235,11 @@ export default class Origami extends THREE.Object3D {
       let combinedGeometry = new THREE.Geometry();
       let counter = 1;
 
+      let palette = chroma.scale(['yellow', 'orangered']).mode('lch');
+
       this.polygons.forEach((polygon, index) => {
+        let currentColor = new THREE.Color(palette(index/this.polygons.length).hex());
+
         if(this.isNonDegenerate(index) === false || polygon.length < 3){
           return;
         }
@@ -243,17 +250,16 @@ export default class Origami extends THREE.Object3D {
           return this.vertices2d[index].clone()
         });
 
+
         for(let i = 0; i< polygonVertices.length;i++){
-          geometry.vertices.push(polygonVertices[i], polygonVertices[(i + 1)%polygonVertices.length]);  
+          geometry.vertices.push(polygonVertices[i], polygonVertices[(i + 1)%polygonVertices.length]);
+          geometry.colors.push(currentColor, currentColor);
         }
-
-        console.log('polygonVertices', polygonVertices)
-
+        //geometry.translate(0,0, 10 * index);
 
         combinedGeometry.merge(geometry, new THREE.Matrix4());
         counter++
       })
-      console.log('combinedGeometry', combinedGeometry);
       return combinedGeometry;
     }
 
@@ -266,13 +272,13 @@ export default class Origami extends THREE.Object3D {
 
     let materials =[
         new THREE.MeshBasicMaterial({
-        color:0xff0000,
+        color: chroma('aquamarine').luminance(0.5).hex(),
         side: THREE.FrontSide,
         transparent: true,
         opacity: 0.8
       }),
       new THREE.MeshBasicMaterial({
-        color:0x0000ff,
+        color: chroma('hotpink').luminance(0.5).hex(),
         side: THREE.BackSide,
         transparent: true,
         opacity: 0.8
@@ -368,17 +374,13 @@ export default class Origami extends THREE.Object3D {
         let divided = this.planeBetweenPoints(plane,vertex,vertex2);
 
         if(divided){
-          console.log('cut', i, j)
-          console.log('vertices are being cutted, check cuts from before', this.cutpolygonNodes)
           //was this pair cutted before? reuse
           for(let node of this.cutpolygonNodes){
             if(node[0] == polygonIndices[i] && node[1] == polygonIndices[j]){
-              console.warn('found cut from before')
               newpoly1.push(node[2]);
               newpoly2.push(node[2]);
               break;
             }else if(node[0] == polygonIndices[j] && node[1] == polygonIndices[i]){
-              console.warn('found cut from before')
               newpoly1.push(node[2]);
               newpoly2.push(node[2]);
               break;
@@ -395,11 +397,16 @@ export default class Origami extends THREE.Object3D {
 
             let weight1 = meet.clone().sub(vertex2).length();
             let weight2 = meet.clone().sub(vertex).length();
-            this.addVertex2D(new THREE.Vector3(
-              (vertex.x * weight1 + vertex2.x * weight2)/(weight1 + weight2),
-              (vertex.y * weight1 + vertex2.y * weight2)/(weight1 + weight2),
+
+
+            let vertex2D_1  = this.vertices2d[polygonIndices[i]];
+            let vertex2D_2  = this.vertices2d[polygonIndices[j]];
+            let vector2d = new THREE.Vector3(
+              (vertex2D_1.x * weight1 + vertex2D_2.x * weight2)/(weight1 + weight2),
+              (vertex2D_1.y * weight1 + vertex2D_2.y * weight2)/(weight1 + weight2),
               0
-            ));
+            )
+            this.addVertex2D(vector2d);
 
             newpoly1.push(this.verticesSize - 1);
             newpoly2.push(this.verticesSize - 1);
@@ -409,11 +416,8 @@ export default class Origami extends THREE.Object3D {
         }
       }
     }
-    console.log('this.cutpolygonNodes', this.cutpolygonNodes);
     this.polygons[index] = newpoly1;
     this.addPolygon(newpoly2);
-
-    console.log('this.vertices length', this.vertices.length)
   }
 
   planeBetweenPoints(plane:THREE.Plane, v1, v2){
@@ -424,7 +428,6 @@ export default class Origami extends THREE.Object3D {
   }
 
   cut(plane){
-    console.info('new cut')
     this.polygons.forEach((polygon, index) => {
       this.cutPolygon(index, plane);
     })
@@ -435,7 +438,8 @@ export default class Origami extends THREE.Object3D {
     let geometry = this.toGeometryPlane();
 
     let material = new THREE.LineBasicMaterial( {
-     color: 0xffff00
+     vertexColors: THREE.VertexColors,
+     color: 0xffffff
     } );
 
    var line = new THREE.LineSegments( geometry, material );

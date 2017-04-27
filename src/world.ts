@@ -41,7 +41,6 @@ export default class World extends THREE.EventDispatcher {
     let height = 200;
 
     var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -5000, 10000 );
-    //camera.position.x = 200;
     //camera.position.y = 100;
     camera.position.z = 100;
 

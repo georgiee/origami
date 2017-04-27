@@ -29,6 +29,7 @@ cuts = [
   [20/100,0, 20/100, 1]
 ]
 
+
 function create(world){
   const gui = new dat.GUI();
   let camera = world.camera;
@@ -41,11 +42,16 @@ function create(world){
   origami.addVertex(new THREE.Vector3(50,50,0));
   origami.addVertex(new THREE.Vector3(0,50,0));
 
+  origami.addVertex2D(new THREE.Vector3(0,0,0));
+  origami.addVertex2D(new THREE.Vector3(50,0,0));
+  origami.addVertex2D(new THREE.Vector3(50,50,0));
+  origami.addVertex2D(new THREE.Vector3(0,50,0));
+
   let polygon = [0,1,2,3];
   origami.addPolygon(polygon);
 
   let cutter = new IntersectionPlane();
-  container.add(cutter);
+  //container.add(cutter);
 
   cuts.forEach(cut => {
     cutter.reset();
@@ -54,7 +60,7 @@ function create(world){
     cutter.calculate(camera);
 
     //origami.reflect(cutter.plane);
-    //origami.crease(cutter.plane);
+    origami.crease(cutter.plane);
     origami.fold(cutter.plane, 30);
   })
 
@@ -69,6 +75,7 @@ function create(world){
   //origami.polygonSelect(cutter.plane, 0);
 
   container.add(origami.toMesh());
+  origami.toPlaneView();
 
   return container;
 }

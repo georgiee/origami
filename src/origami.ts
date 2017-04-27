@@ -11,6 +11,8 @@ const VERTEX_POSITION = {
 export default class Origami extends THREE.Object3D {
   private polygons = [];
   private vertices = [];
+  private vertices2d = [];
+
   private cutpolygonNodes = [];
   private cutpolygonPairs = [];
   private lastCutPolygons = [];
@@ -160,6 +162,9 @@ export default class Origami extends THREE.Object3D {
       })
     }
   }
+  addVertex2D(v:THREE.Vector3){
+    this.vertices2d.push(v);
+  }
 
   addVertex(v: THREE.Vector3){
     //if(Math.abs(v.y -21.47238002427889) < 0.01){
@@ -221,6 +226,37 @@ export default class Origami extends THREE.Object3D {
 
     return combinedGeometry;
   }
+
+
+    toGeometryPlane(){
+      let combinedGeometry = new THREE.Geometry();
+      let counter = 1;
+
+      this.polygons.forEach((polygon, index) => {
+        if(this.isNonDegenerate(index) === false || polygon.length < 3){
+          return;
+        }
+
+        let geometry = new THREE.Geometry();
+
+        let polygonVertices = polygon.map(index => {
+          return this.vertices2d[index].clone()
+        });
+
+        for(let i = 0; i< polygonVertices.length;i++){
+          geometry.vertices.push(polygonVertices[i], polygonVertices[(i + 1)%polygonVertices.length]);  
+        }
+
+        console.log('polygonVertices', polygonVertices)
+
+
+        combinedGeometry.merge(geometry, new THREE.Matrix4());
+        counter++
+      })
+      console.log('combinedGeometry', combinedGeometry);
+      return combinedGeometry;
+    }
+
   shrink(){
     this.polygons = this.polygons.filter(polygon => polygon.length > 0);
   }
@@ -357,6 +393,14 @@ export default class Origami extends THREE.Object3D {
             let meet = plane.intersectLine(line);
             this.addVertex(meet);
 
+            let weight1 = meet.clone().sub(vertex2).length();
+            let weight2 = meet.clone().sub(vertex).length();
+            this.addVertex2D(new THREE.Vector3(
+              (vertex.x * weight1 + vertex2.x * weight2)/(weight1 + weight2),
+              (vertex.y * weight1 + vertex2.y * weight2)/(weight1 + weight2),
+              0
+            ));
+
             newpoly1.push(this.verticesSize - 1);
             newpoly2.push(this.verticesSize - 1);
             this.cutpolygonNodes.push([polygonIndices[i],polygonIndices[j], this.verticesSize - 1 ])
@@ -385,6 +429,18 @@ export default class Origami extends THREE.Object3D {
       this.cutPolygon(index, plane);
     })
     this.cutpolygonNodes = []
+
+  }
+  toPlaneView(){
+    let geometry = this.toGeometryPlane();
+
+    let material = new THREE.LineBasicMaterial( {
+     color: 0xffff00
+    } );
+
+   var line = new THREE.LineSegments( geometry, material );
+   line.position.x = 60;
+   this.add(line);
 
   }
 }

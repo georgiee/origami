@@ -69,13 +69,10 @@ export default class IntersectionPlane extends THREE.Object3D {
 
     //this.addArrow(v1, cameraNormal)
     //this.addArrow(v2, cameraNormal)
-    this.addArrow(v1, v2.clone().sub(v1), true)
+    //this.addArrow(v1, v2.clone().sub(v1), true)
     //this.addArrow(vCenter, cameraNormal)
     //this.addArrow(vCenter, vNormal)
     this.addArrow(coplanarPoint, vNormal)
-    let s = utils.createSphere();
-    s.position.copy(coplanarPoint);
-    this.add(s)
     this.addPlane(mathPlane);
 
     this.mathPlane = mathPlane;

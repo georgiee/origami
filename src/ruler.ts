@@ -19,6 +19,7 @@ class Ruler extends THREE.Object3D {
   constructor(){
     super();
     this.init();
+    window.addEventListener('keyup', (event) => this.enable());
   }
 
   enable(){
@@ -26,6 +27,7 @@ class Ruler extends THREE.Object3D {
     this.world.controls.enabled = false;
     enableMouse(this.world);
   }
+
   disable(){
     this.enabled = false;
     this.world.controls.enabled = true;
@@ -68,11 +70,11 @@ class Ruler extends THREE.Object3D {
     this.add(cutter);
 
     let startMarker = utils.createSphere();
-    this.add(startMarker);
+    //this.add(startMarker);
     this.startMarker = startMarker;
 
     let endMarker = utils.createSphere();
-    this.add(endMarker);
+    //this.add(endMarker);
     this.endMarker = endMarker;
 
     var material = new THREE.LineBasicMaterial( {

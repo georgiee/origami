@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as dat from 'dat.gui/build/dat.gui';
 import utils from './utils';
-import IntersectionPlane from './intersection-plane';
+
 import Origami from './origami';
 import Ruler from './ruler';
 
@@ -36,6 +36,7 @@ cuts = [
 
 function create(world){
   const ruler = Ruler.init(world);
+  let cutter = ruler.cutter;
 
   const gui = new dat.GUI();
   let camera = world.camera;
@@ -56,7 +57,6 @@ function create(world){
   let polygon = [0,1,2,3];
   origami.addPolygon(polygon);
 
-  let cutter = new IntersectionPlane();
   container.add(cutter);
 
   cuts.forEach(cut => {
@@ -88,10 +88,8 @@ function create(world){
       cutter.setEnd(ruler.end.x, ruler.end.y);
       cutter.calculate(camera);
 
-      origami.fold(cutter.plane, 110);
-      origami.updateMesh();
-      origami.updatePlaneView();
-      console.log('cutter updated')
+
+      origami.update();
     }
 
     if(event.key == 'f'){
@@ -99,9 +97,8 @@ function create(world){
       cutter.setEnd(ruler.end.x, ruler.end.y);
       cutter.calculate(camera);
 
-      origami.reflect(cutter.plane);
-      origami.updateMesh();
-      origami.updatePlaneView();
+
+      origami.update();
     }
   })
 
@@ -116,9 +113,44 @@ function create(world){
   //origami.polygonSelect(cutter.plane, 0);
 
   container.add(origami);
-  origami.updateMesh();
-  origami.updatePlaneView();
+  origami.update();
 
+  guiData.angle = 75;
+
+  guiData.fold = function(){
+    console.log('cut with angle', guiData.angle);
+    origami.fold(cutter.plane, guiData.angle);
+  }
+
+  guiData.reflect = function(){
+    origami.reflect(cutter.plane);
+  }
+
+  guiData.crease = function(){
+    origami.crease(cutter.plane);
+  }
+
+  gui.add(guiData,'crease');
+  gui.add(guiData,'reflect');
+  gui.add(guiData,'fold');
+  gui.add(guiData,'angle', 0, 360, 15);
+
+  function replay(x1, y1, x2, y2, options, action = 'fold'){
+    ruler.cut(x1,y1,x2,y2);
+
+    if(action === 'fold'){
+      origami.fold(ruler.cutter.plane, options.angle);
+    }
+  }
+
+  replay(0.30584192439862545,0.5292096219931272,-0.16151202749140892,0.14432989690721654, {angle: 120})
+
+  //A: works
+  //0.3986254295532645,0.5463917525773196,-0.07560137457044669,0.0068728522336769515
+  
+  //origami.debug();
+
+  //replay(0.4914089347079038,0.5670103092783505,-0.10996563573883167,-0.05154639175257736, {angle: 135}, 'fold')
   return container;
 }
 

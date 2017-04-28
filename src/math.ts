@@ -13,4 +13,10 @@ function getProjectedPosition(x, y, camera){
   return v3;
 }
 
-export default { getProjectedPosition };
+function planeBetweenPoints(plane: THREE.Plane, v1, v2){
+  let delta1 = plane.distanceToPoint(v1);
+  let delta2 = plane.distanceToPoint(v2);
+
+  return Math.sign(delta1) != Math.sign(delta2);
+}
+export default { getProjectedPosition, planeBetweenPoints };

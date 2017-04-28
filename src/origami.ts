@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import utils from './utils';
+import math from './math';
 import {difference, intersection, some} from 'lodash';
 import * as chroma from 'chroma-js';
 
@@ -19,11 +20,16 @@ export default class Origami extends THREE.Object3D {
   private lastCutPolygons = [];
   private _mesh;
   private _planeView;
+  private debugging = false;
 
   markPolygon(index, color = 0xffff00, size = 2){
     console.log('mark markPolygon', index, this.polygons.length)
     this.markVertices(this.polygons[index],color,size)
 
+  }
+
+  debug(enable = true){
+    this.debugging = enable;
   }
 
   markVertices(list, color = 0xff00ff, size = 2){
@@ -109,6 +115,14 @@ export default class Origami extends THREE.Object3D {
       this.fold(plane, 0);
   }
 
+  showPoint(point, color = 0x00ffff){
+    if(this.debugging){
+      let s = utils.createSphere(color)
+      s.position.copy(point);
+      this.add(s)
+    }
+  }
+
   fold(plane: THREE.Plane, angle = 0){
     this.shrink();
     this.cutpolygonNodes = [];
@@ -120,39 +134,45 @@ export default class Origami extends THREE.Object3D {
       return parseFloat(distance.toFixed(2)) === 0
     });
 
-    foldingpoints.forEach(vertex => {
-      let s = utils.createSphere(0x00ffff)
-      s.position.copy(vertex);
-      //this.add(s)
-    })
+    foldingpoints.forEach(vertex => this.showPoint(vertex, 0x00ff00));
 
     let referencePoint = foldingpoints[0];
     let maxDistance = 0;
     let farpoint;
 
+    // start self-collision testing
     let collin = false;
     foldingpoints.forEach(vertex => {
       let distance = referencePoint.distanceTo(vertex);
       if(distance > 0){
         collin = true;
+        //1. ok found at least two points on the plane to rotate around
       }
+
       if(distance > maxDistance){
         farpoint = vertex;
         maxDistance = distance;
       }
-    })
+    });
 
-    foldingpoints.forEach(vertex => {
-      if(vertex == farpoint) return;
+    this.showPoint(farpoint, 0xffff00);
 
-      let v1 = referencePoint.clone().sub(vertex);
-      let v2 = farpoint.clone().sub(vertex);
+    console.log('foldingpoints', foldingpoints);
+    for(let i = 1; i<foldingpoints.length;i++){
+      let foldingPoint = foldingpoints[i];
+      if(foldingPoint == farpoint){
+        continue;
+      }
+
+      let v1 = referencePoint.clone().sub(foldingPoint);
+      let v2 = farpoint.clone().sub(foldingPoint);
       let v3 = referencePoint.clone().sub(farpoint);
 
       if(v1.dot(v2) > v3.length()){
         collin = false;
+        break;
       }
-    })
+    }
 
     if(collin){
       let axis = referencePoint.clone().sub(farpoint).normalize();
@@ -166,7 +186,10 @@ export default class Origami extends THREE.Object3D {
     }else {
       console.warn("can't fold, would tear");
     }
+
+    this.update();
   }
+
   addVertex2D(v:THREE.Vector3){
     this.vertices2d.push(v);
   }
@@ -192,6 +215,8 @@ export default class Origami extends THREE.Object3D {
         vertex.copy(vertexReflected);
       }
     })
+
+    this.update();
   }
 
   reflectVertex(vertex, plane){
@@ -269,6 +294,11 @@ export default class Origami extends THREE.Object3D {
     this.polygons = this.polygons.filter(polygon => polygon.length > 0);
   }
 
+  update(){
+    this.updateMesh();
+    this.updatePlaneView();
+  }
+
   updateMesh(){
     if(this._mesh){
       this.remove(this._mesh);
@@ -308,9 +338,25 @@ export default class Origami extends THREE.Object3D {
         side: THREE.DoubleSide
       })
     ]
+
+
+
     let mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, materials)
 
-    return mesh;
+    let pointGeometry = new THREE.Geometry();
+    pointGeometry.vertices.push(...this.vertices);
+
+    let points = new THREE.Points(pointGeometry, new THREE.PointsMaterial({
+      sizeAttenuation: false,
+      size: 10,
+      color: 0xffff00
+    }));
+
+    let group = new THREE.Group();
+    group.add(mesh);
+    group.add(points);
+
+    return group;
   }
 
   get verticesSize(){
@@ -338,8 +384,50 @@ export default class Origami extends THREE.Object3D {
   }
 
   canCut(index, plane){
-    return this.isNonDegenerate(index);
+    if(this.isNonDegenerate(index)){
+      let inner = false;
+      let outer = false;
+      let vertices = this.polygonToVertices(this.polygons[index]);
+      let normal = plane.normal;
+      let coplanarPoint = plane.coplanarPoint();
+
+      for(let i = 0; i < vertices.length; i++){
+        let vertex = vertices[i];
+        let normalLength = Math.sqrt(Math.max(1, normal.lengthSq()));
+        //TODO: Same as distanceToPlane?
+        if(vertex.dot(normal)/normalLength > coplanarPoint.dot(normal)/normalLength + 0.00000001){
+          inner = true;
+        }else if(vertex.dot(normal)/normalLength < coplanarPoint.dot(normal)/normalLength - 0.00000001){
+          outer = true;
+        }
+
+        if (inner && outer) {
+            return true;
+        }
+
+      };
+    }
+
+    return false;
   }
+
+  /*
+  boolean inner = false, outer = false;
+            for (int i = 0; i < polygons.get(polygonIndex).size(); i++) {
+                if (xxx / Math.sqrt(Math.max(Geometry.scalar_product(pnormal, pnormal), 1)) > Geometry.scalar_product(ppoint, pnormal)
+                                / Math.sqrt(Math.max(Geometry.scalar_product(pnormal, pnormal), 1)) + 0.00000001) {
+                    inner = true;
+                }
+                else if (xxx/ Math.sqrt(Math.max(Geometry.scalar_product(pnormal, pnormal), 1)) < Geometry.scalar_product(
+                                ppoint, pnormal) / Math.sqrt(Math.max(Geometry.scalar_product(pnormal, pnormal), 1))
+                                - 0.00000001) {
+                    outer = true;
+                }
+                if (inner && outer) {
+                    return true;
+                }
+            }
+  */
 
   vertexPosition(vertex, plane){
     let distance = plane.distanceToPoint(vertex);
@@ -355,11 +443,13 @@ export default class Origami extends THREE.Object3D {
   }
 
   cutPolygon(index, plane){
+    console.info('cutPolygon------>', index)
+
     if(this.canCut(index, plane) === false){
-        return false;
+      console.log('cant cut polygon #', index);
+      return false;
     }
 
-    console.info('cutPolygon------>')
     let polygonIndices = this.polygons[index];
     let polygonVertices = this.polygonToVertices(polygonIndices);
 
@@ -390,7 +480,7 @@ export default class Origami extends THREE.Object3D {
           newpoly2.push(polygonIndices[i]);
         }
 
-        let divided = this.planeBetweenPoints(plane,vertex,vertex2);
+        let divided = math.planeBetweenPoints(plane,vertex,vertex2);
 
         if(divided){
           //was this pair cutted before? reuse
@@ -439,12 +529,7 @@ export default class Origami extends THREE.Object3D {
     this.addPolygon(newpoly2);
   }
 
-  planeBetweenPoints(plane:THREE.Plane, v1, v2){
-    let delta1 = plane.distanceToPoint(v1);
-    let delta2 = plane.distanceToPoint(v2);
 
-    return Math.sign(delta1) != Math.sign(delta2);
-  }
 
   cut(plane){
     this.polygons.forEach((polygon, index) => {

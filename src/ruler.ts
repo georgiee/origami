@@ -2,6 +2,7 @@ import World from './world';
 import * as THREE from 'three';
 import math from './math';
 import utils from './utils';
+import IntersectionPlane from './intersection-plane';
 
 class Ruler extends THREE.Object3D {
   private startPoint: THREE.Vector2;
@@ -13,11 +14,13 @@ class Ruler extends THREE.Object3D {
   private camera;
   private enabled = false;
   private world;
+  public cutter;
 
   constructor(){
     super();
     this.init();
   }
+
   enable(){
     this.enabled = true;
     this.world.controls.enabled = false;
@@ -27,6 +30,20 @@ class Ruler extends THREE.Object3D {
     this.enabled = false;
     this.world.controls.enabled = true;
     disableMouse();
+  }
+
+  cutNow(){
+    console.log("cut @", [this.start.x, this.start.y, this.end.x, this.end.y].join(','));
+    this.cut(this.start.x, this.start.y, this.end.x, this.end.y);
+  }
+
+  cut(x1, y1, x2, y2){
+    let { cutter } = this;
+    cutter.reset();
+
+    cutter.setStart(x1, y1);
+    cutter.setEnd(x2, y2);
+    cutter.calculate(this.camera);
   }
 
   setWorld(world){
@@ -46,6 +63,10 @@ class Ruler extends THREE.Object3D {
   }
 
   init(){
+    let cutter = new IntersectionPlane();
+    this.cutter = cutter;
+    this.add(cutter);
+
     let startMarker = utils.createSphere();
     this.add(startMarker);
     this.startMarker = startMarker;
@@ -83,7 +104,7 @@ class Ruler extends THREE.Object3D {
   saveTo(xGlobal, yGlobal){
     if(!this.enabled) return;
 
-    let {x, y} = globalToLocal(xGlobal, yGlobal, this.world.domElement);
+    this.cutNow();
     this.disable();
   }
 

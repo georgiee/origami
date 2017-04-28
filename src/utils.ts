@@ -1,5 +1,22 @@
 import * as THREE from 'three';
 
+function globalToLocal(x,y,element){
+  let boundingRect = element.getBoundingClientRect();
+
+  let width = boundingRect.right - boundingRect.left;
+  let height = boundingRect.bottom - boundingRect.top;
+  let x1 = x - boundingRect.left;
+  let y1 = y - boundingRect.top;
+
+
+  x1 = Math.max(Math.min(x1, width), boundingRect.left)
+  y1 = Math.max(Math.min(y1, height), boundingRect.top)
+
+  x1 = x1/width*2 - 1;
+  y1 = y1/height* 2 - 1;
+  return { x: x1, y: -y1 };
+}
+
 function createSphere(color = 0xff0000,size = 2){
   let s = new THREE.Mesh(new THREE.SphereGeometry(size, 10, 10), new THREE.MeshBasicMaterial({wireframe:true,color}))
   return s;
@@ -88,5 +105,6 @@ export default {
   planeToPlane,
   createSphereFrom2D,
   getMouseScreenCoordinates,
-  getProjectedPosition
+  getProjectedPosition,
+  globalToLocal
 }

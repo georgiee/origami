@@ -41,6 +41,10 @@ export default class Origami extends THREE.Object3D {
       })
   }
 
+  getVertices(){
+    return this.vertices;
+  }
+
   indexToVertex(index){
     return this.vertices[index];
   }

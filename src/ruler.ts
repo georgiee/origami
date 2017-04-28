@@ -98,7 +98,7 @@ class Ruler extends THREE.Object3D {
   setCenter(xGlobal, yGlobal){
     if(!this.enabled) return;
 
-    let {x, y} = globalToLocal(xGlobal, yGlobal, this.world.domElement);
+    let {x, y} = utils.globalToLocal(xGlobal, yGlobal, this.world.domElement);
     this.startPoint = new THREE.Vector2(x, y)
     this.update();
   }
@@ -112,7 +112,7 @@ class Ruler extends THREE.Object3D {
 
   moveTo(xGlobal, yGlobal){
     if(!this.enabled) return;
-    let {x, y} = globalToLocal(xGlobal, yGlobal, this.world.domElement);
+    let {x, y} = utils.globalToLocal(xGlobal, yGlobal, this.world.domElement);
     this.endPoint = new THREE.Vector2(x, y);
     this.update();
   }
@@ -181,20 +181,5 @@ function init(world: World){
   return ruler;
 }
 
-function globalToLocal(x,y,element){
-  let boundingRect = element.getBoundingClientRect();
 
-  let width = boundingRect.right - boundingRect.left;
-  let height = boundingRect.bottom - boundingRect.top;
-  let x1 = x - boundingRect.left;
-  let y1 = y - boundingRect.top;
-
-
-  x1 = Math.max(Math.min(x1, width), boundingRect.left)
-  y1 = Math.max(Math.min(y1, height), boundingRect.top)
-
-  x1 = x1/width*2 - 1;
-  y1 = y1/height* 2 - 1;
-  return { x: x1, y: -y1 };
-}
 export default { init };

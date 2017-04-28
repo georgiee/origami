@@ -18,12 +18,29 @@ export default class IntersectionPlane extends THREE.Object3D {
     this._end = new THREE.Vector2(x,y);
   }
 
-  getNormal(camera){
+  getNormal(camera, rulerPoint1){
     //make 2d line orthogonal, proejct again and calculate normal
     let vOrtho1 = this.getProjectedPosition(-this._start.y, this._start.x, camera);
     let vOrtho2 = this.getProjectedPosition(-this._end.y, this._end.x, camera);
+    let normal = vOrtho2.clone().sub(vOrtho1).normalize();
 
-    return vOrtho2.clone().sub(vOrtho1).normalize();
+    let delta = camera.position.dot(normal) - rulerPoint1.dot(normal);
+    if(delta > 0){
+      console.log('invert normal');
+      return normal.negate();
+    }
+
+    return normal;
+  }
+
+  adjustNormal(normal, coplanarPoint, camera){
+    let delta = camera.position.dot(normal) - coplanarPoint.dot(normal);
+    if(delta > 0){
+      return normal.multiplyScalar(-1);
+
+    }
+
+    return normal;
   }
 
   reset(){
@@ -39,13 +56,17 @@ export default class IntersectionPlane extends THREE.Object3D {
     let v1 = this.getProjectedPosition(this._start.x, this._start.y, camera);
     let v2 = this.getProjectedPosition(this._end.x, this._end.y, camera);
 
-    let vCenter = this.getProjectedPosition(center.x,center.y, camera);
-    let vNormal = this.getNormal(camera);
-
     let mathPlane = new THREE.Plane()
-    mathPlane.setFromNormalAndCoplanarPoint(vNormal, vCenter).normalize();
 
+    let vCenter = this.getProjectedPosition(center.x,center.y, camera);
+    let vNormal = this.getNormal(camera, v1);
+
+    mathPlane.setFromNormalAndCoplanarPoint(vNormal, vCenter).normalize();
     var coplanarPoint = mathPlane.coplanarPoint();
+
+    //vNormal = this.adjustNormal(vNormal, coplanarPoint, camera)
+
+
     //this.addArrow(v1, cameraNormal)
     //this.addArrow(v2, cameraNormal)
     this.addArrow(v1, v2.clone().sub(v1), true)

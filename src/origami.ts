@@ -17,6 +17,8 @@ export default class Origami extends THREE.Object3D {
   private cutpolygonNodes = [];
   private cutpolygonPairs = [];
   private lastCutPolygons = [];
+  private _mesh;
+  private _planeView;
 
   markPolygon(index, color = 0xffff00, size = 2){
     console.log('mark markPolygon', index, this.polygons.length)
@@ -267,6 +269,23 @@ export default class Origami extends THREE.Object3D {
     this.polygons = this.polygons.filter(polygon => polygon.length > 0);
   }
 
+  updateMesh(){
+    if(this._mesh){
+      this.remove(this._mesh);
+    }
+
+    this._mesh = this.toMesh();
+    this.add(this._mesh);
+  }
+
+  updatePlaneView(){
+    if(this._planeView){
+      this.remove(this._planeView);
+    }
+    this._planeView = this.toPlaneView()
+    this.add(this._planeView);
+  }
+
   toMesh(){
     let geometry = this.toGeometry();
 
@@ -434,6 +453,7 @@ export default class Origami extends THREE.Object3D {
     this.cutpolygonNodes = []
 
   }
+
   toPlaneView(){
     let geometry = this.toGeometryPlane();
 
@@ -444,7 +464,7 @@ export default class Origami extends THREE.Object3D {
 
    var line = new THREE.LineSegments( geometry, material );
    line.position.x = 60;
-   this.add(line);
 
+   return line;
   }
 }

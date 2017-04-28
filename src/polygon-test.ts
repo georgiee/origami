@@ -3,15 +3,16 @@ import * as dat from 'dat.gui/build/dat.gui';
 import utils from './utils';
 import IntersectionPlane from './intersection-plane';
 import Origami from './origami';
+import Ruler from './ruler';
 
 let container = new THREE.Object3D();
 let guiData:any = {}
 
 /* TODO
+0: Fix Plane Normal if it points in the wrong direction :-)
 1. polygonSelect to select all polygons connected to a polygon (but not on the reflecting plane)
-2. reflect vertices from polygons along plane normal
-3. cutpolygon_pairs + last_cut_polygons to reunited cutted vertices from cutting step before
 */
+
 let cuts = [
   [25/100, -1, 25/100, 1],
   [0, 25/100, 1, 25/100],
@@ -29,8 +30,13 @@ cuts = [
   [20/100,0, 20/100, 1]
 ]
 
+cuts = [
+  //[0, 25/100, 1, 25/100]
+];
 
 function create(world){
+  const ruler = Ruler.init(world);
+
   const gui = new dat.GUI();
   let camera = world.camera;
 
@@ -51,10 +57,9 @@ function create(world){
   origami.addPolygon(polygon);
 
   let cutter = new IntersectionPlane();
-  //container.add(cutter);
+  container.add(cutter);
 
   cuts.forEach(cut => {
-    cutter.reset();
     cutter.setStart(cut[0],cut[1]);
     cutter.setEnd(cut[2], cut[3]);
     cutter.calculate(camera);
@@ -67,11 +72,38 @@ function create(world){
 
   cutter.setStart(25/100,0);
   cutter.setEnd(25/100,1);
-  cutter.calculate(camera);
+  //cutter.calculate(camera);
 
-  origami.cut(cutter.plane);
+  //origami.cut(cutter.plane);
 
+  //cutter.reset();
 
+  window.addEventListener('keyup', function(event){
+    if(event.key == 'r'){
+      ruler.enable();
+    }
+
+    if(event.key == 'x'){
+      cutter.setStart(ruler.start.x, ruler.start.y);
+      cutter.setEnd(ruler.end.x, ruler.end.y);
+      cutter.calculate(camera);
+
+      origami.fold(cutter.plane, 110);
+      origami.updateMesh();
+      origami.updatePlaneView();
+      console.log('cutter updated')
+    }
+
+    if(event.key == 'f'){
+      cutter.setStart(ruler.start.x, ruler.start.y);
+      cutter.setEnd(ruler.end.x, ruler.end.y);
+      cutter.calculate(camera);
+
+      origami.reflect(cutter.plane);
+      origami.updateMesh();
+      origami.updatePlaneView();
+    }
+  })
 
   //origami.shrink();
   //origami.prune();
@@ -83,8 +115,9 @@ function create(world){
 
   //origami.polygonSelect(cutter.plane, 0);
 
-  container.add(origami.toMesh());
-  origami.toPlaneView();
+  container.add(origami);
+  origami.updateMesh();
+  origami.updatePlaneView();
 
   return container;
 }

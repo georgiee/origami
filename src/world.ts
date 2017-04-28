@@ -1,13 +1,14 @@
 
 import * as THREE from 'three';
 var OrbitControls = require('three-orbit-controls')(THREE)
+import TrackbackControls from './trackback-controls';
 
 export default class World extends THREE.EventDispatcher {
   private mouse = new THREE.Vector2();
   private scene: THREE.Scene;
   private renderer;
   private container;
-  private controls;
+  public controls;
   private _camera;
   private _camera2;
 
@@ -19,6 +20,10 @@ export default class World extends THREE.EventDispatcher {
 
     this.init();
 
+  }
+
+  get domElement(){
+    return this.renderer.domElement;
   }
 
   add(object){
@@ -47,6 +52,7 @@ export default class World extends THREE.EventDispatcher {
     this._camera = camera;
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    ///this.controls = new TrackbackControls(this.camera, this.renderer.domElement);
     this.controls.addEventListener('change', () => this.dispatchEvent({type: 'rotate'}))
   }
 
@@ -78,6 +84,7 @@ export default class World extends THREE.EventDispatcher {
 
   render(){
     window.requestAnimationFrame( this.render );
+    //this.controls.update();
     this.step();
   }
 

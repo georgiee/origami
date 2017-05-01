@@ -19,7 +19,11 @@ class Ruler extends THREE.Object3D {
   constructor(){
     super();
     this.init();
-    window.addEventListener('keyup', (event) => this.enable());
+    window.addEventListener('keyup', (event) => {
+      if(event.key == 'r'){
+        this.enable()
+      }
+    });
   }
 
   enable(){

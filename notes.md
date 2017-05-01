@@ -1,3 +1,15 @@
+Geometry
+Handle cutting, folding, creasing
+
+Renderer
+Update visuals given a Geometry
+
+Ruler
+Handling snapping & cut plane creation
+
+
+
+
 1. Get the camera position
 vector.setFromMatrixPosition(camera.matrixWorld)
 

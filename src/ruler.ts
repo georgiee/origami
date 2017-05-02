@@ -1,4 +1,4 @@
-import World from './world';
+import {World} from './world';
 import * as THREE from 'three';
 import math from './math';
 import utils from './utils';

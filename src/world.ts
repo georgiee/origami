@@ -3,7 +3,7 @@ import * as THREE from 'three';
 var OrbitControls = require('three-orbit-controls')(THREE)
 import TrackbackControls from './trackback-controls';
 
-export default class World extends THREE.EventDispatcher {
+export class World extends THREE.EventDispatcher {
   private mouse = new THREE.Vector2();
   private scene: THREE.Scene;
   private renderer;
@@ -96,3 +96,18 @@ export default class World extends THREE.EventDispatcher {
     return this._camera2;
   }
 }
+
+
+let world;
+
+function getInstance(){
+  if(world){
+    return world;
+  }
+  world = new World();
+  world.start();
+
+  return world;
+}
+
+export default { getInstance }

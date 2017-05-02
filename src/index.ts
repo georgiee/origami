@@ -8,9 +8,7 @@ import OrigamiRunner from './refactor/index';
 
 function run(){
 
-  const world = new World();
-  world.start();
-
+  let world = World.getInstance();
   OrigamiRunner.run(world);
 
   //world.add(RulerTest.create(world));

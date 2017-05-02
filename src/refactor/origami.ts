@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import OrigamiShape from "./origami-shape";
 import OrigamiMesh from "./origami-mesh";
 import Ruler from "./ruler/ruler";
-import World from './../world';
+import {World} from './../world';
+import {Snapper} from './ruler/snapper';
 
 export default class Origami extends THREE.Object3D {
   private shape: OrigamiShape;
@@ -22,7 +23,10 @@ export default class Origami extends THREE.Object3D {
 
       this.add(this.mesh);
 
-      this.ruler = new Ruler(this.world);
+      let snapper = new Snapper(this.shape);
+      snapper.start();
+
+      this.ruler = new Ruler(this.world, snapper);
       this.ruler.addEventListener('enabled', () => {
         this.world.controls.enabled = false;
       })
@@ -36,7 +40,9 @@ export default class Origami extends THREE.Object3D {
       });
       //this.ruler.enable();
 
+
       this.add(this.ruler);
+      this.add(snapper);
     }
 
 

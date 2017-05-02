@@ -1,10 +1,11 @@
 import * as THREE from 'three'
 import utils from '../../utils';
 import math from '../../math';
-import World from '../../world';
+import {World} from '../../world';
 import RulerHelper from "./ruler-helper";
 import MouseControls from './mouse-controls';
 import PlaneHelper from './plane-helper';
+import {Snapper} from './snapper';
 
 export default class Ruler extends THREE.Object3D {
   private enabled: Boolean = false;
@@ -14,9 +15,9 @@ export default class Ruler extends THREE.Object3D {
   private controls: MouseControls;
   private planeHelper: PlaneHelper;
   private currentPlane: THREE.Plane;
-
-  constructor(private world: World){
+  constructor(private world: World, private snapper: Snapper){
     super();
+    this.snapper = snapper;
     this.init();
   }
 
@@ -27,11 +28,14 @@ export default class Ruler extends THREE.Object3D {
   init(){
     this.controls = new MouseControls();
     this.controls.addEventListener('move', (event:any) => {
-      this.moveTo(event.x, event.y);
+      let point = this.getTargetPosition(event.x, event.y);
+      this.moveTo(point.x, point.y);
     })
 
     this.controls.addEventListener('start', (event:any) => {
-      this.setCenter(event.x, event.y);
+      console.log('this.snapper.hasSnaped()', this.snapper.hasSnaped());
+      let point = this.getTargetPosition(event.x, event.y);
+      this.setCenter(point.x, point.y);
     })
 
     this.controls.addEventListener('complete', (event:any) => {
@@ -43,6 +47,20 @@ export default class Ruler extends THREE.Object3D {
 
     this.planeHelper = new PlaneHelper();
     this.add(this.planeHelper);
+  }
+
+  getTargetPosition(x, y){
+    let mouseLocal = utils.globalToLocal(x, y, this.world.domElement);
+    let point = new THREE.Vector3(mouseLocal.x, mouseLocal.y);
+
+    this.snapper.findNearestFromMouse(x, y);
+
+    if(this.snapper.hasSnaped()){
+      point = this.snapper.getSnappedPosition();
+      point = point.clone().project(this.camera);
+    }
+
+    return point;
   }
 
   enable(){
@@ -114,26 +132,23 @@ export default class Ruler extends THREE.Object3D {
     return mathPlane;
   }
 
-  setCenter(xGlobal, yGlobal){
+  setCenter(x, y){
     if(!this.enabled) return;
-
-    let {x, y} = utils.globalToLocal(xGlobal, yGlobal, this.world.domElement);
     this.startPoint = this.endPoint = new THREE.Vector2(x, y)
 
     this.update();
   }
 
-  moveTo(xGlobal, yGlobal){
+  moveTo(x, y){
     if(!this.enabled) return;
-    let {x, y} = utils.globalToLocal(xGlobal, yGlobal, this.world.domElement);
     this.endPoint = new THREE.Vector2(x, y);
 
     this.update();
   }
 
   update(){
-    let p1:THREE.Vector3 = math.getProjectedPosition(this.startPoint.x, this.startPoint.y, this.camera);
-    let p2:THREE.Vector3 = math.getProjectedPosition(this.endPoint.x, this.endPoint.y, this.camera);
+    let p1:THREE.Vector3 = this.getProjectedPosition(this.startPoint.x, this.startPoint.y);
+    let p2:THREE.Vector3 = this.getProjectedPosition(this.endPoint.x, this.endPoint.y);
 
     this.rulerHelper.update(p1, p2);
   }

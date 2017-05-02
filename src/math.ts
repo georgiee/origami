@@ -19,4 +19,29 @@ function planeBetweenPoints(plane: THREE.Plane, v1, v2){
 
   return Math.sign(delta1) != Math.sign(delta2);
 }
-export default { getProjectedPosition, planeBetweenPoints };
+
+
+
+function planeBetweenPoints2(plane: THREE.Plane, v1, v2){
+  const EPSILON = 0.0001;
+
+  let delta1 = plane.distanceToPoint(v1);
+  if(Math.abs(delta1) < EPSILON){
+      delta1 = 0;
+  }
+
+  let delta2 = plane.distanceToPoint(v2);
+
+  if(Math.abs(delta2) < EPSILON){
+      delta2 = 0;
+  }
+
+  if(delta1 == 0 || delta2 == 0){
+    //at least one vertex plane, skip
+    return false;
+  }
+
+  return Math.sign(delta1) != Math.sign(delta2);
+}
+
+export default { getProjectedPosition, planeBetweenPoints, planeBetweenPoints2 };

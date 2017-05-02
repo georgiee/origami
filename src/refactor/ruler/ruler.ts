@@ -33,7 +33,6 @@ export default class Ruler extends THREE.Object3D {
     })
 
     this.controls.addEventListener('start', (event:any) => {
-      console.log('this.snapper.hasSnaped()', this.snapper.hasSnaped());
       let point = this.getTargetPosition(event.x, event.y);
       this.setCenter(point.x, point.y);
     })
@@ -107,7 +106,6 @@ export default class Ruler extends THREE.Object3D {
     let delta = camera.position.dot(normal) - rulerPoint1.dot(normal);
 
     if(delta > 0){
-      console.log('invert normal');
       return normal.negate();
     }
 

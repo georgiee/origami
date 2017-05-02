@@ -31,7 +31,7 @@ export default class RulerHelper extends THREE.Object3D {
 
   createMarker(size = 5, color = 0xffffff){
     let s = new THREE.Mesh(new THREE.SphereGeometry(size, 10, 10), new THREE.MeshBasicMaterial({wireframe:true, color}));
-    this.add(s);
+    //this.add(s);
     return s;
   }
 

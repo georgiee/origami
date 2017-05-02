@@ -37,6 +37,8 @@ export default class Origami extends THREE.Object3D {
 
       this.ruler.addEventListener('completed', (event:any) => {
         console.log('handle new plane', event.plane)
+        this.shape.cut(event.plane);
+        this.mesh.update();
       });
       //this.ruler.enable();
 

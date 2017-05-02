@@ -14,7 +14,7 @@ class OrigamiMesh extends THREE.Object3D {
     init(){
       this.group = new THREE.Group();
       this.add(this.group);
-      
+
       this.materials =[
           new THREE.MeshBasicMaterial({
           color: chroma('aquamarine').luminance(0.5).hex(),
@@ -27,12 +27,12 @@ class OrigamiMesh extends THREE.Object3D {
           side: THREE.BackSide,
           transparent: true,
           opacity: 0.8
-        }),
+        })/*,
         new THREE.MeshBasicMaterial({
           wireframe: true,
           color: 0xffff00,
           side: THREE.DoubleSide
-        })
+        })*/
       ]
     }
 
@@ -52,11 +52,42 @@ class OrigamiMesh extends THREE.Object3D {
         color: 0xffff00
       }));
 
+      let lines = new THREE.LineSegments(this.toLineGeometry(), new THREE.LineBasicMaterial());
 
       this.group.add(mesh);
+      this.group.add(lines);
       this.group.add(points);
     }
 
+    toLineGeometry(){
+      let combinedGeometry = new THREE.Geometry();
+      let counter = 1;
+
+      let palette = chroma.scale(['yellow', 'orangered']).mode('lch');
+
+      this.shape.getPolygons().forEach((polygon, index) => {
+        if(this.shape.isNonDegenerate(index) === false || polygon.length < 3){
+          return;
+        }
+
+        let geometry = new THREE.Geometry();
+
+        let vertices = this.shape.getVertices();
+
+        let polygonVertices = polygon.map(index => {
+          return vertices[index].clone()
+        });
+
+
+        for(let i = 0; i< polygonVertices.length;i++){
+          geometry.vertices.push(polygonVertices[i], polygonVertices[(i + 1)%polygonVertices.length]);
+        }
+
+        combinedGeometry.merge(geometry, new THREE.Matrix4());
+        counter++
+      })
+      return combinedGeometry;
+    }
 
     toGeometry(){
       let combinedGeometry = new THREE.Geometry();
@@ -65,12 +96,16 @@ class OrigamiMesh extends THREE.Object3D {
         let geometry = new THREE.Geometry();
         let vertices = this.shape.getVertices();
 
+        if(this.shape.isNonDegenerate(index) === false || polygon.length < 3){
+          return;
+        }
+
         let polygonVertices = polygon.map(index => {
           return vertices[index].clone()
         });
 
-
         let triangles = THREE.ShapeUtils.triangulate(polygonVertices, true);
+
         let faces = triangles.map(triangle => new THREE.Face3(triangle[0], triangle[1], triangle[2]));
 
         geometry.vertices.push(...polygonVertices);

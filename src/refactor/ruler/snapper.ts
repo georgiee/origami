@@ -57,7 +57,7 @@ export class Snapper extends THREE.Object3D {
 
   findNearestVertex(screenX, screenY){
     let world = World.getInstance();
-    let vertices = this.shape.getVertices();
+    let vertices = this.shape.getAlignmentPoints();
     let screenCoords = new THREE.Vector3(screenX, screenY, 0)
     let matched = false;
     let vertexFound;

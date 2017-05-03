@@ -1,5 +1,14 @@
 import * as THREE from 'three';
 import math from '../math';
+import utils from '../utils';
+import World from '../world';
+
+const VERTEX_POSITION = {
+  COPLANAR: 0,
+  FRONT: 1,
+  BACK: 2
+}
+
 
 export default class OrigamiShape {
   private polygons = [];
@@ -190,6 +199,117 @@ export default class OrigamiShape {
     }
 
     return false;
+  }
+
+
+  shrink(){
+    this.polygons = this.polygons.filter(polygon => polygon.length > 0);
+  }
+
+  reflect(plane){
+    this.shrink();
+    this.cutpolygonNodes = [];
+    this.cut(plane);
+
+    this.vertices.forEach(vertex => {
+      if(this.vertexPosition(vertex, plane) == VERTEX_POSITION.FRONT){
+        let vertexReflected = this.reflectVertex(vertex, plane);
+        vertex.copy(vertexReflected);
+      }
+    })
+
+  }
+
+  reflectVertex(vertex, plane){
+    let projected = plane.projectPoint(vertex);
+    let v2 = new THREE.Vector3().subVectors(projected, vertex);
+    let newPos = projected.clone().add(v2)
+    return newPos;
+  }
+
+
+  showPoint(point, color = 0x00ffff){
+    /*let s = utils.createSphere(color)
+    s.position.copy(point);
+
+    World.getInstance().add(s)*/
+  }
+
+  fold(plane: THREE.Plane, angle = 0){
+    this.shrink();
+    this.cutpolygonNodes = [];
+
+    this.cut(plane);
+    let foldingpoints = this.vertices.filter(vertex => {
+      let distance = plane.distanceToPoint(vertex);
+      return parseFloat(distance.toFixed(2)) === 0
+    });
+
+    foldingpoints.forEach(vertex => this.showPoint(vertex, 0x00ff00));
+    let referencePoint = foldingpoints[0];
+    let maxDistance = 0;
+    let farpoint;
+
+    // start self-collision testing
+    let collin = false;
+    foldingpoints.forEach(vertex => {
+      let distance = referencePoint.distanceTo(vertex);
+      if(distance > 0){
+        collin = true;
+        //1. ok found at least two points on the plane to rotate around
+      }
+
+      if(distance > maxDistance){
+        farpoint = vertex;
+        maxDistance = distance;
+      }
+    });
+
+    for(let i = 1; i<foldingpoints.length;i++){
+      let foldingPoint = foldingpoints[i];
+      if(foldingPoint == farpoint){
+        continue;
+      }
+
+      let v1 = referencePoint.clone().sub(foldingPoint);
+      let v2 = farpoint.clone().sub(foldingPoint);
+      let v3 = referencePoint.clone().sub(farpoint);
+
+      if(v1.dot(v2) > v3.length()){
+        collin = false;
+        break;
+      }
+    }
+
+    if(collin){
+      this.showPoint(referencePoint, 0xff0000);
+
+      let axis = referencePoint.clone().sub(farpoint).normalize();
+      let foldingpoints = this.vertices.forEach(vertex => {
+        if(this.vertexPosition(vertex, plane) == VERTEX_POSITION.FRONT){
+          this.showPoint(vertex, 0xffff00);
+
+          let v2 = vertex.clone().sub( referencePoint ).applyAxisAngle( axis, angle * Math.PI/180 ).add( referencePoint );
+          vertex.copy(v2);
+
+        }
+      })
+    }else {
+      console.warn("can't fold, would tear");
+    }
+  }
+
+  vertexPosition(vertex, plane){
+    let distance = plane.distanceToPoint(vertex);
+    if(distance == 0 ){
+      return VERTEX_POSITION.COPLANAR;
+    }else {
+      if(distance > 0){
+        return VERTEX_POSITION.FRONT;
+      }else{
+        return VERTEX_POSITION.BACK;;
+      }
+    }
   }
 
   getAlignmentPoints(){

@@ -105,7 +105,7 @@ export default class Ruler extends THREE.Object3D {
     let normal = vOrtho2.clone().sub(vOrtho1).normalize();
     let delta = camera.position.dot(normal) - rulerPoint1.dot(normal);
 
-    if(delta > 0){
+    if(delta < 0){
       return normal.negate();
     }
 

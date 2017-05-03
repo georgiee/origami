@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import OrigamiShape from './origami-shape';
 import * as chroma from 'chroma-js';
 
+
+
 class OrigamiMesh extends THREE.Object3D {
   private materials;
   private group;
@@ -118,7 +120,6 @@ class OrigamiMesh extends THREE.Object3D {
 
       return combinedGeometry;
     }
-
 }
 
 export default OrigamiMesh;

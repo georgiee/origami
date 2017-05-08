@@ -22,15 +22,15 @@ function run2(world){
 
 function createSquare(){
   let geometry = new OrigamiShape();
-  geometry.addVertex(new THREE.Vector3(0,0,0));
-  geometry.addVertex(new THREE.Vector3(50,0,0));
-  geometry.addVertex(new THREE.Vector3(50,50,0));
-  geometry.addVertex(new THREE.Vector3(0,50,0));
+  geometry.addVertex(new THREE.Vector3(-25,-25,0));
+  geometry.addVertex(new THREE.Vector3(25,-25,0));
+  geometry.addVertex(new THREE.Vector3(25,25,0));
+  geometry.addVertex(new THREE.Vector3(-25,25,0));
 
-  geometry.addVertex2D(new THREE.Vector3(0,0,0));
-  geometry.addVertex2D(new THREE.Vector3(50,0,0));
-  geometry.addVertex2D(new THREE.Vector3(50,50,0));
-  geometry.addVertex2D(new THREE.Vector3(0,50,0));
+  geometry.addVertex2D(new THREE.Vector3(-25,-25,0));
+  geometry.addVertex2D(new THREE.Vector3(25,-25,0));
+  geometry.addVertex2D(new THREE.Vector3(25,25,0));
+  geometry.addVertex2D(new THREE.Vector3(-25,25,0));
 
   geometry.addPolygon([0,1,2,3]);
 

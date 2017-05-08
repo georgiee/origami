@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 import OrigamiShape from './origami-shape';
 import * as chroma from 'chroma-js';
-
-
+import World from './../world';
 
 class OrigamiMesh extends THREE.Object3D {
   private materials;
   private group;
+  private currentGeometry;
 
   constructor(private shape: OrigamiShape){
     super();
@@ -38,6 +38,19 @@ class OrigamiMesh extends THREE.Object3D {
       ]
     }
 
+    getWorldCenter(){
+      let geometry = this.currentGeometry;
+
+      var middle = new THREE.Vector3();
+      geometry.computeBoundingBox();
+      middle.x = (geometry.boundingBox.max.x + geometry.boundingBox.min.x) / 2;
+      middle.y = (geometry.boundingBox.max.y + geometry.boundingBox.min.y) / 2;
+      middle.z = (geometry.boundingBox.max.z + geometry.boundingBox.min.z) / 2;
+
+      //mesh.localToWorld( middle );
+      return middle;
+    }
+
     update(){
       this.group.remove(...this.group.children);
 
@@ -59,6 +72,8 @@ class OrigamiMesh extends THREE.Object3D {
       this.group.add(mesh);
       this.group.add(lines);
       this.group.add(points);
+
+      this.currentGeometry = geometry;
     }
 
     toLineGeometry(){

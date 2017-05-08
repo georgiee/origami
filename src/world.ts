@@ -1,7 +1,7 @@
 
 import * as THREE from 'three';
-var OrbitControls = require('three-orbit-controls')(THREE)
-import TrackbackControls from './trackback-controls';
+var OrbitControls = require('./vendor/three-orbit-controls')(THREE)
+//import { CombinedCamera } from './vendor/combined-camera';
 
 export class World extends THREE.EventDispatcher {
   private mouse = new THREE.Vector2();
@@ -22,6 +22,10 @@ export class World extends THREE.EventDispatcher {
 
   }
 
+  center(point: THREE.Vector3) {
+    this.controls.focus(point);
+  }
+
   get domElement(){
     return this.renderer.domElement;
   }
@@ -34,7 +38,7 @@ export class World extends THREE.EventDispatcher {
     let renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio( window.devicePixelRatio );
     //renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.setSize( window.innerHeight, window.innerHeight );
+    renderer.setSize( 1000, 1000 );
     this.container.appendChild( renderer.domElement );
     this.renderer = renderer;
   }
@@ -42,18 +46,19 @@ export class World extends THREE.EventDispatcher {
   createCamera(){
     let ratio = window.innerWidth/window.innerHeight;
 
-    let width = 200;
-    let height = 200;
+    let width = 1000;
+    let height = 1000;
 
-    var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -5000, 10000 );
-    //camera.position.y = 100;
-    camera.position.z = 100;
-
+    var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 0, 10000 );
     this._camera = camera;
+    this._camera.position.z = 100;
+    //this._camera.position.x = 25;
+    //this._camera.position.y = -25;
 
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    ///this.controls = new TrackbackControls(this.camera, this.renderer.domElement);
+    this.controls = new OrbitControls(this._camera, this.renderer.domElement);
+    //this.controls.focus(new THREE.Vector3(25,25,0));
     this.controls.addEventListener('change', () => this.dispatchEvent({type: 'rotate'}))
+    this.controls.zoom(4);
   }
 
   init(){
@@ -66,7 +71,6 @@ export class World extends THREE.EventDispatcher {
     scene.add( light );
 
     //let camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-    //camera.position.z = 200;
     this.scene = scene;
 
     this.createRenderer();
@@ -100,7 +104,7 @@ export class World extends THREE.EventDispatcher {
 
 let world;
 
-function getInstance(){
+export function getInstance() : World{
   if(world){
     return world;
   }

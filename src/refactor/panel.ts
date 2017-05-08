@@ -19,7 +19,11 @@ function reflect(){
   origami.reflect();
 }
 
-let methods = { crease, fold, reflect };
+function center(){
+  origami.center();
+}
+
+let methods = { crease, fold, reflect, center };
 
 let properties = {
   angle: 0
@@ -35,6 +39,7 @@ export function initOrigami(instance){
   gui.add(methods, 'crease').name('Crease');
   gui.add(methods, 'reflect').name('Reflect');
   gui.add(methods, 'fold').name('Fold');
+  gui.add(methods, 'center').name('Center');
 }
 
 function attach(){

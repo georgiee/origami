@@ -18,13 +18,13 @@ export class Snapper extends THREE.Object3D {
     this.handleMouseMove = throttle(this.handleMouseMove.bind(this), 100);
 
     let geometry = new THREE.Geometry();
-    geometry.vertices.push(new THREE.Vector3(0,0, -100));
+    geometry.vertices.push(new THREE.Vector3(0,0, 0));
 
     let material = new THREE.PointsMaterial({size: 3, color: 0xffb6c1});
     this.point = new THREE.Points( geometry, material );
     this.add( this.point );
 
-    this.hide();
+    this.show();
   }
   start(){
     document.addEventListener('mousemove', this.handleMouseMove);
@@ -36,7 +36,7 @@ export class Snapper extends THREE.Object3D {
     if(this.hasSnaped()){
       this.show();
     }else {
-      this.hide();
+      //this.hide();
     }
   }
 
@@ -80,7 +80,15 @@ export class Snapper extends THREE.Object3D {
   }
 
   updatePosition(point){
-    this.point.position.set(point.x, point.y, 100);
+    let geometry:any = this.point.geometry;
+    let v = geometry.vertices[geometry.vertices.length - 1];
+    console.log(v);
+    v.copy(point);
+
+    geometry.verticesNeedUpdate = true;
+    console.log('point', point)
+    //console.log('test', new THREE.Vector3(25,25,0).applyMatrix4(this.modelViewMatrix));
+    //this.point.position.set(point.x, point.y, point.z);
   }
 
   show(){

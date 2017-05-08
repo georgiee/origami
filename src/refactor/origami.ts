@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import OrigamiShape from "./origami-shape";
 import OrigamiMesh from "./origami-mesh";
 import Ruler from "./ruler/ruler";
-import {World} from './../world';
+import {World, getInstance as getWorld } from './../world';
 import {Snapper} from './ruler/snapper';
 import * as Panel from './panel';
 
@@ -18,19 +18,33 @@ export default class Origami extends THREE.Object3D {
       this.init();
     }
 
+    center(){
+      let world = getWorld();
+      world.center(this.mesh.getWorldCenter());
+    }
+
     fold(angle){
       this.shape.fold(this.currentPlane, angle);
       this.mesh.update();
+
+      this.center();
     }
 
     reflect(){
       this.shape.reflect(this.currentPlane);
       this.mesh.update();
+
+      this.center();
     }
 
     crease(){
-      this.shape.fold(this.currentPlane, 0);
-      this.mesh.update();
+      console.log(this.mesh.localToWorld(new THREE.Vector3(25,25,0)));
+
+      console.log(this.mesh.localToWorld(new THREE.Vector3(25,25,0)));
+
+
+      //this.shape.fold(this.currentPlane, 0);
+      //this.mesh.update();
     }
 
     initRuler(){
@@ -59,7 +73,6 @@ export default class Origami extends THREE.Object3D {
 
       this.mesh = new OrigamiMesh(this.shape);
       this.mesh.update();
-
       this.add(this.mesh);
       this.add(this.ruler);
     }

@@ -20,6 +20,10 @@ export default class OrigamiShape {
     return this.vertices;
   }
 
+  getVertices2d(){
+    return this.vertices2d;
+  }
+
   getPolygons(){
     return this.polygons;
   }

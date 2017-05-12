@@ -24,7 +24,7 @@ export class Snapper extends THREE.Object3D {
     this.point = new THREE.Points( geometry, material );
     this.add( this.point );
 
-    this.show();
+    this.hide();
   }
   start(){
     document.addEventListener('mousemove', this.handleMouseMove);
@@ -36,7 +36,7 @@ export class Snapper extends THREE.Object3D {
     if(this.hasSnaped()){
       this.show();
     }else {
-      //this.hide();
+      this.hide();
     }
   }
 

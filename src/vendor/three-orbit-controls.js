@@ -884,7 +884,6 @@ module.exports = function( THREE ) {
 			}
 
 			this.focus = function(target){
-				console.log('focus ',target)
 				scope.target.copy( target );
 				scope.update();
 			}

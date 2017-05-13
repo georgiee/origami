@@ -1,9 +1,18 @@
 import test.*;
 import java.io.*;
 
-public class HelloWorld {
+public class OrigamiReader {
     public static void main(String[] args) { 
-        InputStream inputStream = HelloWorld.class.getClassLoader().getResourceAsStream("crane.ori");
+        String sourceFileName = args[0];
+        
+        if(sourceFileName.length() == 0){
+            System.out.println("Need a source file");
+            return;
+        }
+
+        String outputFileName = sourceFileName + ".decoded";
+
+        InputStream inputStream = OrigamiReader.class.getClassLoader().getResourceAsStream(sourceFileName);
         java.util.ArrayList<Byte> bytesb = new java.util.ArrayList<>();
         int fisbyte;
         try {
@@ -20,7 +29,7 @@ public class HelloWorld {
             //System.out.println(getStringFromInputStream(str));
             
             OutputStream outputStream = null;
-            outputStream = new FileOutputStream(new File("crane.ori.plane"));
+            outputStream = new FileOutputStream(new File(outputFileName));
 
             int read = 0;
             byte[] bytes2 = new byte[1024];
@@ -39,7 +48,7 @@ public class HelloWorld {
             }
 
         }catch (Exception ex) {
-        System.out.println("error");    
+         System.out.println("error");    
         }
 
         

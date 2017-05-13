@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import OrigamiShape from './origami-shape';
 import * as chroma from 'chroma-js';
-import World from './../world';
+import World from './world';
 
 class OrigamiMesh extends THREE.Object3D {
   private materials;

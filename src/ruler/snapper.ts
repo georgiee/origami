@@ -1,8 +1,9 @@
 import * as THREE from 'three';
-import OrigamiShape from '../origami-shape';
+import OrigamiShape from './../origami-shape';
+
 import { throttle }  from 'lodash';
-import utils from '../../utils';
-import World from '../../world';
+import utils from './../utils';
+import World from './../world';
 
 const THRESHOLD = 0.05;
 const THRESHOLD_CLEAR = 0.1;
@@ -82,11 +83,9 @@ export class Snapper extends THREE.Object3D {
   updatePosition(point){
     let geometry:any = this.point.geometry;
     let v = geometry.vertices[geometry.vertices.length - 1];
-    console.log(v);
     v.copy(point);
 
     geometry.verticesNeedUpdate = true;
-    console.log('point', point)
     //console.log('test', new THREE.Vector3(25,25,0).applyMatrix4(this.modelViewMatrix));
     //this.point.position.set(point.x, point.y, point.z);
   }

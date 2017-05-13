@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import utils from '../../utils';
-import math from '../../math';
-import {World} from '../../world';
+import utils from '../utils';
+import math from '../math';
+import {World} from '../world';
 import RulerHelper from "./ruler-helper";
 import MouseControls from './mouse-controls';
 import PlaneHelper from './plane-helper';

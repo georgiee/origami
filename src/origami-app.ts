@@ -1,0 +1,51 @@
+import * as THREE from 'three';
+import World from './world';
+import OrigamiMesh from './origami-mesh';
+import Origami from './origami';
+import * as Panel from './panel';
+
+
+export class OrigamiApp {
+  private world;
+  private origami;
+
+  constructor(){
+    console.log('OrigamiApp')
+    Panel.create();
+
+    this.world = World.getInstance();
+
+    this.build();
+    this.test();
+
+    Panel.initOrigami(this.origami);
+
+  }
+
+  test(){
+    //plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(200.0,0.0,0.0), new THREE.Vector3(200.0,0.0,0.0));
+    this.origami.reflect(new THREE.Plane(new THREE.Vector3(1,0.0,0.0), 0));
+    console.log(this.origami)
+    let plane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 12.5)
+    this.origami.foldIndex(plane, 90, 2);
+    //this.origami.foldIndex(plane, -90, 3);
+  }
+
+  build(){
+    let origami = new Origami(this.world);
+    this.origami = origami;
+    this.world.add(origami);
+
+    let ruler = origami.getRuler();
+    window.addEventListener('keyup', (event) => {
+      if(event.key == 't'){
+        ruler.enable()
+      }
+    });
+    //3d view
+    //creases view
+    //ruler
+    //debug panel
+    //automation
+  }
+}

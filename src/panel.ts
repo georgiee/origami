@@ -4,19 +4,19 @@ const guiData = {};
 let attached = false;
 let gui;
 let origami;
-
+let currentPlane;
 
 
 function crease(){
-  origami.crease();
+  origami.crease(currentPlane);
 }
 
 function fold(){
-  origami.fold(properties.angle);
+  origami.fold(currentPlane, properties.angle);
 }
 
 function reflect(){
-  origami.reflect();
+  origami.reflect(currentPlane);
 }
 
 function center(){
@@ -34,6 +34,13 @@ export function create(){
 
 export function initOrigami(instance){
   origami = instance
+  let ruler = origami.getRuler();
+  console.log('ruler', ruler, instance)
+
+  ruler.addEventListener('completed', (event:any) => {
+    currentPlane = event.plane;
+  });
+
   gui.add(properties, 'angle', 0, 360, 15).name('Angle');
 
   gui.add(methods, 'crease').name('Crease');

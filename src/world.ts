@@ -82,6 +82,16 @@ export class World extends THREE.EventDispatcher {
   }
 
   step(){
+    let renderer = this.renderer;
+
+    //renderer.clear();
+		//renderer.setScissorTest( true );
+		//renderer.setScissor( 0, 0, 500, 1000 );
+		//renderer.render( this.scene, this.camera );
+		//renderer.setScissor( 500, 0, 500, 1000  );
+		//renderer.render( this.scene, camera );
+
+		//renderer.setScissorTest( false );
     this.renderer.render( this.scene, this.camera);
     this.dispatchEvent({type: 'render'});
   }

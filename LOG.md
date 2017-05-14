@@ -11,6 +11,20 @@ For the second part, the parsing of the file format, I chose ruby. I love ruby, 
 170513
 Finally got the commands from the original source converted. I save them to a json file for the moment. Have to figure out how to do folding and reflection on single polygons before using the given data. So that's what I am doing now. I wondered all the day why the internal fold with a polygonIndex doesn't seem to do any cuts. But hours later I recognized, it's creasing within the UI calling function just before calling the folding action (see OrigiamiScriptTerminal).
 
+I also  put some efforts into creating a polygon list holding class to have vertices and polygons in one place instead of mixing them with the origami cutting logic.
+Well I should have thought more over this. I wanted to gradually move over to this new datat structure and therefore used it at some place. Stupid that that containsIndex()
+to determine if a vertex is inside a polygon was not workign as expected. I didn't thought of it so I spend far too much time finding that stupid error.
+Learning of this: Do one thing and never do such a core functionality on the sideline.
+
+170514
+Debugging the new foldIndex function. It works but the merging of non affected polygons is somehow broken and merges the wrong polygons. Well in the creasing pattern (vertices2d)
+it looks good but in the 3d view it just looks plain wrong.
+
+Really? Really? Debugging for at least 6 hours and I found that I got the selecting algorithm wrong by a sign error.
+if(Math.abs(distance) > 0.0001) vs if(Math.abs(distance) > 0.0001). Stupid but as it's working pretty solid now it's one of those lovely errors to find🙏
+
+And I tried RxJS once again. Wanted to create a unique stream of vertices from grouped polygon indices [[0,1],[0,2]] -> [[1,2,3,4,5,6,7,8]].
+But well like the thousand times before. RxJS is hard because you can't find the right operator without knowing the full set. Next time I get you rxjs.
 
 ## Fun with
 + floating round errors: distanceToPlane(vertex) is not always 0 event if the vertex is on the plane

@@ -3,6 +3,7 @@ import math from './math';
 import utils from './utils';
 import World from './world';
 import { PolygonList } from './polygon';
+import * as Rx from 'rxjs/Rx';
 
 const VERTEX_POSITION = {
   COPLANAR: 0,
@@ -14,6 +15,7 @@ const VERTEX_POSITION = {
 export default class OrigamiShape {
   private polygonList: PolygonList;
   private polygons = [];
+  private highlightedVertices = [];
   private vertices = [];
   private vertices2d = [];
   private cutpolygonNodes = [];
@@ -40,7 +42,7 @@ export default class OrigamiShape {
     this.vertices.forEach(v1 => {
       let distance = v1.distanceToManhattan(v);
       if(distance < 0.0001){
-        console.log(distance, v1, 'seems equal to', v);
+        //console.log(distance, v1, 'seems equal to', v);
       }
     })
     this.vertices.push(v);
@@ -57,11 +59,9 @@ export default class OrigamiShape {
   }
 
   cut(plane: THREE.Plane){
-    console.log('this.verticesSize before', this.verticesSize);
     this.polygons.forEach((polygon, index) => {
       this.cutPolygon(index, plane);
     })
-    console.log('this.verticesSize after', this.verticesSize);
   }
 
   polygonToVertices(polygon){
@@ -178,7 +178,7 @@ export default class OrigamiShape {
 
     this.cutpolygonPairs.push([index, this.polygons.length]);
     this.lastCutPolygons.push(this.polygons[index]);
-
+    console.log('atfer cut: ', 'cutpolygonPairs', this.cutpolygonPairs, 'lastCutPolygons', this.lastCutPolygons)
     this.polygons[index] = newpoly1;
     this.addPolygon(newpoly2);
   }
@@ -285,7 +285,7 @@ export default class OrigamiShape {
                 let vertex = this.vertices[polygon[ii]];
                 let distance = plane.distanceToPoint(vertex);
 
-                if(Math.abs(distance) < 0.0001){
+                if(Math.abs(distance) > 0.0001){
                   selection.push(i);
                   break;
                 }
@@ -305,22 +305,24 @@ export default class OrigamiShape {
     World.getInstance().add(s)
   }
 
+  getHighlight(index){
+    return this.highlightedVertices[index];
+  }
+
+  highlightPoint(index, color = 0x00ffff){
+    this.highlightedVertices[index] = new THREE.Color(color);
+  }
+
   foldIndex(plane: THREE.Plane, angle = 0, polygonIndex = -1){
     this.fold(plane, 0);
     let selection = this.polygonSelect(plane, polygonIndex);
 
     selection.forEach(selection => {
-      let polygon = this.polygonList.get(selection);
-      polygon.getPoints().forEach(point => {
-        //this.showPoint(point, 0xff00ff);
+      let polygon = this.polygons[selection];
+      polygon.forEach(index => {
+        this.highlightPoint(index, 0xff00ff);
       })
 
-    })
-    console.log('is affected -- ', selection.length)
-
-    //console.log(this.polygonList)
-    this.polygonList.get(2).getPoints().forEach(point => {
-      //this.showPoint(point, 0xff00ff);
     })
 
     let foldingpoints = this.vertices.filter((vertex, index) => {
@@ -333,14 +335,13 @@ export default class OrigamiShape {
       }
     });
 
-    console.log('foldingpoints', foldingpoints)
     let referencePoint = foldingpoints[0];
     let maxDistance = 0;
     let farpoint;
 
     // start self-collision testing
     let collin = false;
-    foldingpoints.forEach(vertex => {
+    foldingpoints.forEach((vertex, index) => {
 
       let distance = referencePoint.distanceTo(vertex);
       if(distance > 0){
@@ -354,11 +355,17 @@ export default class OrigamiShape {
       }
     });
 
+
+
     for(let i = 1; i<foldingpoints.length;i++){
       let foldingPoint = foldingpoints[i];
+
       if(foldingPoint == farpoint){
         continue;
       }
+
+
+
 
       let v1 = referencePoint.clone().sub(foldingPoint);
       let v2 = farpoint.clone().sub(foldingPoint);
@@ -374,7 +381,6 @@ export default class OrigamiShape {
       //this.showPoint(referencePoint, 0xff0000);
 
       let axis = referencePoint.clone().sub(farpoint).normalize();
-      console.log('---selection', selection)
       this.vertices.forEach((vertex, index) => {
         //this.showPoint(vertex,0x00ff00);
         //console.log('foldingpoints', index)
@@ -383,10 +389,8 @@ export default class OrigamiShape {
           let polygon = this.polygons[selection[i]]
           //console.log('test index', index, polygon.containsIndex(index))
           if(polygon.indexOf(index) !== -1){
-            console.log('------- polygon', polygon, index)
             let v2 = vertex.clone().sub( referencePoint ).applyAxisAngle( axis, angle * Math.PI/180 ).add( referencePoint );
             vertex.copy(v2);
-            this.showPoint(vertex,0x00ff00);
             break;
           }
         }
@@ -394,29 +398,26 @@ export default class OrigamiShape {
       })
     }
 
-    console.log('cutpolygonPairs', this.cutpolygonPairs, this.lastCutPolygons)
-    console.log('selection', selection)
+
+
     this.cutpolygonPairs.forEach((pair, index) => {
+      //if not part of the selection make this polygon like the one before, the other part will be removed in the next loop.
       if(!(selection.indexOf(pair[0]) !== -1 || selection.indexOf(pair[1]) !== -1)){
-        this.polygons[pair[1]] = this.lastCutPolygons[index];
+        this.polygons[pair[0]] = this.lastCutPolygons[index];
       }
     })
 
+
     this.cutpolygonPairs.forEach((pair, index) => {
       if(!(selection.indexOf(pair[0]) !== -1 || selection.indexOf(pair[1]) !== -1)) {
-        this.polygons[pair[0]] = [];
+        this.polygons[pair[1]] = [];
       }
     })
 
     this.cutpolygonPairs = [];
     this.lastCutPolygons = [];
 
-    this.polygons.map(polygon => {
-      polygon.map(vertex => {
-        //this.showPoint(this.vertices[vertex],0x1000f0);
-      })
-    })
-    //this.shrinkWithIndex(polygonIndex);
+
   }
 
   fold(plane: THREE.Plane, angle = 0){

@@ -27,7 +27,26 @@ export class OrigamiCreases extends THREE.Object3D {
 
    var line = new THREE.LineSegments( geometry, material );
 
-   return line;
+   let pointGeometry = new THREE.Geometry();
+   let vertices = this.shape.getVertices2d();
+   vertices.forEach((vertex, index) => {
+     pointGeometry.vertices.push(vertex);
+     let color = this.shape.getHighlight(index) ? this.shape.getHighlight(index) : new THREE.Color(0xffffff);
+     pointGeometry.colors.push(color);
+
+   })
+
+   let points = new THREE.Points(pointGeometry, new THREE.PointsMaterial({
+     sizeAttenuation: false,
+     size: 10,
+     vertexColors: THREE.VertexColors
+   }));
+
+   let group = new THREE.Group();
+   group.add(line);
+   group.add(points);
+
+   return group;
   }
 
   toGeometryPlane(){
@@ -54,7 +73,10 @@ export class OrigamiCreases extends THREE.Object3D {
 
 
       for(let i = 0; i< polygonVertices.length;i++){
-        geometry.vertices.push(polygonVertices[i], polygonVertices[(i + 1)%polygonVertices.length]);
+        let index1 = polygonVertices[i];
+        let index2 = polygonVertices[(i + 1)%polygonVertices.length];
+        geometry.vertices.push(index1, index2);
+
         geometry.colors.push(currentColor, currentColor);
       }
       //geometry.translate(0,0, 10 * index);

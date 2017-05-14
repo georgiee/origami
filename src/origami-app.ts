@@ -28,6 +28,10 @@ export class OrigamiApp {
     console.log(this.origami)
     let plane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 12.5)
     this.origami.foldIndex(plane, 90, 2);
+    //this.origami.fold(plane, 90);
+
+    let ruler = this.origami.getRuler()
+    ruler.show(plane);
     //this.origami.foldIndex(plane, -90, 3);
   }
 

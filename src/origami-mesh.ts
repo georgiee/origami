@@ -59,12 +59,23 @@ class OrigamiMesh extends THREE.Object3D {
       let mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, this.materials)
 
       let pointGeometry = new THREE.Geometry();
-      pointGeometry.vertices.push(...this.shape.getVertices());
+
+      let vertices = this.shape.getVertices();
+      vertices.forEach((vertex, index) => {
+        if(this.shape.getHighlight(index)){
+          pointGeometry.vertices.push(vertex);
+          let color = this.shape.getHighlight(index);
+          pointGeometry.colors.push(color);
+        }
+
+
+      })
+
 
       let points = new THREE.Points(pointGeometry, new THREE.PointsMaterial({
         sizeAttenuation: false,
         size: 10,
-        color: 0xffff00
+        vertexColors: THREE.VertexColors
       }));
 
       let lines = new THREE.LineSegments(this.toLineGeometry(), new THREE.LineBasicMaterial());

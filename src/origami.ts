@@ -35,6 +35,7 @@ export default class Origami extends THREE.Object3D {
     }
 
     foldIndex(plane: THREE.Plane, angle, index){
+      //debugger;
       this.shape.foldIndex(plane || this.currentPlane, angle, index);
       this.update()
 

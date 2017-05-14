@@ -94,7 +94,16 @@ function planeToPlane(mathPlane, plane){
     var focalPoint = new THREE.Vector3().copy(coplanarPoint).add(mathPlane.normal);
     plane.lookAt(focalPoint);
     plane.position.copy(coplanarPoint);
+
+    return plane;
 }
+
+
+function getPlaneMesh(mathPlane){
+  let plane = new THREE.Mesh(new THREE.PlaneGeometry(100,100,10,10), new THREE.MeshBasicMaterial({wireframe: true, side:THREE.DoubleSide}));
+  return planeToPlane(mathPlane, plane);
+}
+
 
 export default {
   createArrow,
@@ -106,5 +115,6 @@ export default {
   createSphereFrom2D,
   getMouseScreenCoordinates,
   getProjectedPosition,
-  globalToLocal
+  globalToLocal,
+  getPlaneMesh
 }

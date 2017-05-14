@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import utils from './utils';
 import OrigamiShape from "./origami-shape";
 import OrigamiMesh from "./origami-mesh";
 import {OrigamiCreases} from './origami-creases';
@@ -15,7 +16,7 @@ export default class Origami extends THREE.Object3D {
   private creasing: OrigamiCreases;
   private ruler: Ruler;
   private currentPlane:THREE.Plane;
-
+  private debugMarker;
     constructor(private world: World, initialShape?:OrigamiShape){
       super();
       this.shape = initialShape ? initialShape : createSquare();
@@ -93,6 +94,7 @@ export default class Origami extends THREE.Object3D {
       this.mesh = new OrigamiMesh(this.shape);
 
       this.creasing = new OrigamiCreases(this.shape);
+      this.creasing.addEventListener('polygon-selected', this.handlePolygonSelected.bind(this));
       this.creasing.position.x = 60;
 
       this.add(this.mesh);
@@ -100,6 +102,61 @@ export default class Origami extends THREE.Object3D {
       this.add(this.creasing);
 
       this.update()
+    }
+
+    handlePolygonSelected({index, point}){
+      //vertices = vertexIndices.map(index => vertices[index]);
+      //vertices2d = vertexIndices.map(index => vertices2d[index]);
+      console.log('handlePolygonSelected', index, point);
+      //console.log(vertices, vertices2d)
+      let result = this.getPointOnOrigami(index, point)
+      if(!this.debugMarker){
+        this.debugMarker = utils.createSphere();
+        this.add(this.debugMarker);
+      }
+
+      this.debugMarker.position.copy(result);
+    }
+
+    getPointOnOrigami(index, point){
+      let polygons = this.shape.getPolygons();
+      let vertices = this.shape.getVertices();
+      let vertices2d = this.shape.getVertices2d();
+
+      let vertexIndices = polygons[index];;
+
+      let orig = vertices[vertexIndices[0]];
+      let orig_2d = vertices2d[vertexIndices[0]];
+
+      for(let i = 0; i < vertexIndices.length;i++){
+        for(let j = 0;j < vertexIndices.length;j++){
+          let point1Index = vertexIndices[i];
+          let point1 = vertices[vertexIndices[i]];
+          let point1_2d = vertices2d[vertexIndices[i]];
+
+          let point2Index = vertexIndices[j];
+          let point2 = vertices[vertexIndices[j]];
+          let point2_2d = vertices2d[vertexIndices[j]];
+
+          let base1 = point1.clone().sub(orig)
+          let base2 = point2.clone().sub(orig)
+
+          if(base1.clone().cross(base2).lengthSq() > 0){
+              base1.normalize();
+              base2.normalize();
+
+              let base1_2d = point1_2d.clone().sub(orig_2d).normalize();
+              let base2_2d = point2_2d.clone().sub(orig_2d).normalize();
+
+              let det = base1_2d.x * base2_2d.y - base1_2d.y * base2_2d.x;
+              let coord1 = point.clone().sub(orig_2d).dot(new THREE.Vector3(base2_2d.y/det, -base2_2d.x/det, 0));
+              let coord2 = point.clone().sub(orig_2d).dot(new THREE.Vector3(-base1_2d.y/det, base1_2d.x/det, 0));
+              let result = orig.clone()
+              result.add(base1.setLength(coord1).add(base2.setLength(coord2)));
+              return result;
+          }
+        }
+      }
     }
 
     getRuler(){

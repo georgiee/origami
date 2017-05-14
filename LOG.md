@@ -26,5 +26,7 @@ if(Math.abs(distance) > 0.0001) vs if(Math.abs(distance) > 0.0001). Stupid but a
 And I tried RxJS once again. Wanted to create a unique stream of vertices from grouped polygon indices [[0,1],[0,2]] -> [[1,2,3,4,5,6,7,8]].
 But well like the thousand times before. RxJS is hard because you can't find the right operator without knowing the full set. Next time I get you rxjs.
 
+
+get projection of 2d point on origami completed
 ## Fun with
 + floating round errors: distanceToPlane(vertex) is not always 0 event if the vertex is on the plane

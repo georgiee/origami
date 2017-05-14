@@ -1,10 +1,63 @@
 import * as THREE from 'three';
 import * as chroma from 'chroma-js';
+import utils from './utils';
+import { distanceSquaredToLineSegment } from './math';
+
+import World from './world';
 
 export class OrigamiCreases extends THREE.Object3D {
   private currentView: THREE.Object3D;
+  private polygonMarker: THREE.Object3D;
+  private selectedPolygon: number = -1;
   constructor(private shape){
     super()
+    this.handleMouseClick = this.handleMouseClick.bind(this);
+    this.init();
+  }
+  init(){
+    this.polygonMarker = utils.createSphere();
+    this.enableSelectPolygon();
+  }
+
+  enableSelectPolygon(){
+    document.addEventListener('dblclick', this.handleMouseClick);
+  }
+
+  disableSelectPolygon(){
+    //document.removeEventListener('click', <any>this.handleMouseClick);
+  }
+
+  handleMouseClick({clientX, clientY}){
+    let point = this.getLocalPoint(clientX, clientY);
+
+    this.selectedPolygon = this.shape.findPolygon2D(point);
+
+    if(this.selectedPolygon >=0){
+      this.add(this.polygonMarker);
+      this.polygonMarker.position.copy(point);
+    }else{
+      this.remove(this.polygonMarker);
+    }
+
+    this.dispatchEvent({type:'polygon-selected', index: this.selectedPolygon, point })
+  }
+
+  isStrictlyNonDegenerate(index){
+    return true;
+  }
+
+  getLocalPoint(clientX, clientY){
+    let world = World.getInstance();
+    let {x, y} = utils.globalToLocal(clientX, clientY, world.domElement);
+
+    let screenCoords = new THREE.Vector3(x, y, world.camera.near)
+    let plane = new THREE.Plane(new THREE.Vector3(0,0,1), 0);
+
+    let raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(screenCoords, world.camera);
+    let result = raycaster.ray.intersectPlane(plane)
+    this.worldToLocal(result);
+    return result;
   }
 
   update(){

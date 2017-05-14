@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import math from './math';
+import { polygonContains } from './math';
+
 import utils from './utils';
 import World from './world';
 import { PolygonList } from './polygon';
@@ -558,4 +560,22 @@ export default class OrigamiShape {
 
     return points;
   }
+
+  findPolygon2D(point){
+    let polygons = this.getPolygons();
+    let vertices2d = this.getVertices2d();
+
+    let polys = polygons
+      .map(list => list.map(index => [vertices2d[index].x, vertices2d[index].y]));
+
+    for(let i = 0; i< polys.length; i++){
+      let contains = polygonContains([point.x, point.y], polys[i]);
+
+      if(contains){
+        return i;
+      }
+    }
+    return -1;
+  }
+
 }

@@ -54,10 +54,13 @@ def convert_file(filename)
 end
 
 def convert_number(values)
-    int =  (values[0] << 8) + values[1]
-    frac =  (values[2] << 8) + values[3]
-    value = int + sgn(int) * frac.to_f/256/256
+    int =  (values[0]) + values[1]
+    puts "int #{int}"
 
+    frac =  (values[2]) + values[3]
+    puts "frace #{frac}"
+    value = int + sgn(int) * frac.to_f/256/256
+    
     value
 end
 
@@ -67,11 +70,11 @@ ORIGINS = [[0,0,0], [400,0,0], [0,400,0], [0,0,400]]
 def parse_command(bytes)
     puts "\n\n ** processing command *** \n\n"
     puts "--- #{bytes.unpack("@0H8")} #{bytes.unpack("@4H8")} #{bytes.unpack("@8H8")} #{bytes.unpack("@12H8")} #{bytes.length}" 
-    header = bytes.unpack("@0C4")
+    header = bytes.unpack("@0c4")
     header2 = bytes.unpack("@0H8").shift
-    xbytes = bytes.unpack("@4C4")
-    ybytes = bytes.unpack("@8C4")
-    zbytes = bytes.unpack("@12C4")
+    xbytes = bytes.unpack("@4c2c2")
+    ybytes = bytes.unpack("@8c2c2")
+    zbytes = bytes.unpack("@12c2c2")
     
     puts "header: #{header.to_s}"
     puts "xbytes: #{xbytes.to_s}"
@@ -193,4 +196,4 @@ def parse_command(bytes)
 
 end
 
-convert_file("test3.ori.decoded")
+convert_file("test.ori.decoded")

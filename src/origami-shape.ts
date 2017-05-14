@@ -5,7 +5,6 @@ import { polygonContains } from './math';
 import utils from './utils';
 import World from './world';
 import { PolygonList } from './polygon';
-import * as Rx from 'rxjs/Rx';
 
 const VERTEX_POSITION = {
   COPLANAR: 0,
@@ -263,7 +262,7 @@ export default class OrigamiShape {
   }
 
   reflectIndex(plane, index){
-    this.fold(plane, 0);
+    //this.fold(plane, 0);
 
     const selection = this.polygonSelect(plane, index);
     selection.forEach(selection => {
@@ -340,7 +339,7 @@ export default class OrigamiShape {
   }
 
   foldIndex(plane: THREE.Plane, angle = 0, polygonIndex = -1){
-    this.fold(plane, 0);
+    //this.fold(plane, 0);
     let selection = this.polygonSelect(plane, polygonIndex);
 
     selection.forEach(selection => {
@@ -522,6 +521,51 @@ export default class OrigamiShape {
         return VERTEX_POSITION.FRONT;
       }else{
         return VERTEX_POSITION.BACK;;
+      }
+    }
+  }
+
+
+  getPointOnOrigami(point){
+    let polygonIndex = this.findPolygon2D(point);
+    if(polygonIndex < 0) return null;
+
+    let polygons = this.getPolygons();
+    let vertices = this.getVertices();
+    let vertices2d = this.getVertices2d();
+
+    let vertexIndices = polygons[polygonIndex];
+
+    let orig = vertices[vertexIndices[0]];
+    let orig_2d = vertices2d[vertexIndices[0]];
+
+    for(let i = 0; i < vertexIndices.length;i++){
+      for(let j = 0;j < vertexIndices.length;j++){
+        let point1Index = vertexIndices[i];
+        let point1 = vertices[vertexIndices[i]];
+        let point1_2d = vertices2d[vertexIndices[i]];
+
+        let point2Index = vertexIndices[j];
+        let point2 = vertices[vertexIndices[j]];
+        let point2_2d = vertices2d[vertexIndices[j]];
+
+        let base1 = point1.clone().sub(orig)
+        let base2 = point2.clone().sub(orig)
+
+        if(base1.clone().cross(base2).lengthSq() > 0){
+            base1.normalize();
+            base2.normalize();
+
+            let base1_2d = point1_2d.clone().sub(orig_2d).normalize();
+            let base2_2d = point2_2d.clone().sub(orig_2d).normalize();
+
+            let det = base1_2d.x * base2_2d.y - base1_2d.y * base2_2d.x;
+            let coord1 = point.clone().sub(orig_2d).dot(new THREE.Vector3(base2_2d.y/det, -base2_2d.x/det, 0));
+            let coord2 = point.clone().sub(orig_2d).dot(new THREE.Vector3(-base1_2d.y/det, base1_2d.x/det, 0));
+            let result = orig.clone()
+            result.add(base1.setLength(coord1).add(base2.setLength(coord2)));
+            return result;
+        }
       }
     }
   }

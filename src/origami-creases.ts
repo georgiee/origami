@@ -37,6 +37,7 @@ export class OrigamiCreases extends THREE.Object3D {
       this.polygonMarker.position.copy(point);
     }else{
       this.remove(this.polygonMarker);
+      point = null;
     }
 
     this.dispatchEvent({type:'polygon-selected', index: this.selectedPolygon, point })

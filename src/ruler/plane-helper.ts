@@ -23,7 +23,7 @@ export default class PlaneHelper extends THREE.Object3D {
   fromPlane(mathPlane){
     this.reset();
 
-    let plane = new THREE.Mesh(new THREE.PlaneGeometry(100,100,10,10), new THREE.MeshBasicMaterial({wireframe: true, side:THREE.DoubleSide}));
+    let plane = new THREE.Mesh(new THREE.PlaneGeometry(1000,1000,10,10), new THREE.MeshBasicMaterial({wireframe: true, side:THREE.DoubleSide}));
     this.planeToPlane(mathPlane, plane);
 
     this.add(plane)

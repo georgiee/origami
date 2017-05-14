@@ -27,7 +27,8 @@ export class OrigamiApp {
     this.origami.reflect(new THREE.Plane(new THREE.Vector3(1,0.0,0.0), 0));
     console.log(this.origami)
     let plane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 12.5)
-    this.origami.foldIndex(plane, 90, 2);
+    plane = new THREE.Plane(new THREE.Vector3(0.8944271909999161, -0.44721359549995804, 0), 11.180339736142775)
+    this.origami.reflectIndex(plane, 2);
     //this.origami.fold(plane, 90);
 
     let ruler = this.origami.getRuler()

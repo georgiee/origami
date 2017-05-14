@@ -260,6 +260,30 @@ export default class OrigamiShape {
 
   }
 
+  reflectIndex(plane, index){
+    this.fold(plane, 0);
+
+    const selection = this.polygonSelect(plane, index);
+    selection.forEach(selection => {
+      let polygon = this.polygons[selection];
+      polygon.forEach(index => {
+        this.highlightPoint(index, 0xff00ff);
+      })
+    })
+
+    this.vertices.forEach((vertex, index) => {
+      selection.forEach(selection => {
+        let polygon = this.polygons[selection];
+        if(polygon.indexOf(index) !== -1){
+          let vertexReflected = this.reflectVertex(vertex, plane);
+          vertex.copy(vertexReflected);
+        }
+      })
+    })
+
+    this.mergeUnaffectedPolygons(selection)
+  }
+
   reflectVertex(vertex, plane){
     let projected = plane.projectPoint(vertex);
     let v2 = new THREE.Vector3().subVectors(projected, vertex);
@@ -399,7 +423,10 @@ export default class OrigamiShape {
     }
 
 
+    this.mergeUnaffectedPolygons(selection)
+  }
 
+  mergeUnaffectedPolygons(selection){
     this.cutpolygonPairs.forEach((pair, index) => {
       //if not part of the selection make this polygon like the one before, the other part will be removed in the next loop.
       if(!(selection.indexOf(pair[0]) !== -1 || selection.indexOf(pair[1]) !== -1)){
@@ -416,8 +443,6 @@ export default class OrigamiShape {
 
     this.cutpolygonPairs = [];
     this.lastCutPolygons = [];
-
-
   }
 
   fold(plane: THREE.Plane, angle = 0){

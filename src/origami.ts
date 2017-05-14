@@ -49,6 +49,13 @@ export default class Origami extends THREE.Object3D {
 
     //  this.center();
     }
+    reflectIndex(plane: THREE.Plane, index){
+      //debugger;
+      this.shape.reflectIndex(plane || this.currentPlane, index);
+      this.update()
+
+      //this.center();
+    }
 
     crease(plane: THREE.Plane){
       this.shape.fold(plane || this.currentPlane, 0);

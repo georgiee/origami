@@ -202,7 +202,7 @@ def parse_command(bytes)
 end
 #--- ["01000000"] ["00c80000"] ["00c80000"] ["00000000"] 16
 #--- ["11000000"] ["008d55bf"] ["feab3676"] ["00000000"] 16
-convert_file("butterfly.ori.decoded")
+convert_file("files/star.ori.decoded")
 # puts 0xff & (400 >> 8) #--> 1
 # puts 0xff & (400) #--> 144
 # puts 0xff & (0xc8) #-->200

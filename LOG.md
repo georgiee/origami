@@ -26,6 +26,15 @@ The only thing is: When I switch over to the crane playbook which is the bird ba
 This means: My indices are not the same as in the given file format (I think because I'm not tidying up empty polygons yet)
 and even if I manually select the correct polygon index to reflect it is just doing nothing. So back to debug mode. But that's half of the fun isn't it ?! 🙌
 
+Funny bug in `reflectIndex`. I don't break the inner loop over the selection.
+So I basically search over every index. Then I iterate over the whole list of involved polygons (selected). if some of them contains the vertex
+it's involved in the selected polygon folding action. But if I don't cancel the inner loop I immediately reflect my vertex back and nothign happens.
+Stupid🤦‍♀️
+
+Ok it seems that every base function (reflect, fold) is working now. Reading the existing save files form the other app works too
+but the index still mismatch. I will look into this next time working on this. I'm eager to do so, because my UI sucks at the moment.
+It is easier to use an existing set of folding commands instead of building my own set from my paper origami sources.
+
 ## 170516
 Problem: NULL Error when raycasting. But only when I'm using the very large setup to match the 400x400 setup from the original sources.
 Solution: Raycasting is using the camera position (as I set it with setFromCamera). In my setup the camera is at 100. So if I rotate the object

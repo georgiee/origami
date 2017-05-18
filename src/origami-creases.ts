@@ -5,6 +5,8 @@ import { distanceSquaredToLineSegment } from './math';
 
 import World from './world';
 
+const DEBUG = false;
+
 export class OrigamiCreases extends THREE.Object3D {
   private currentView: THREE.Object3D;
   private polygonMarker: THREE.Object3D;
@@ -102,7 +104,10 @@ export class OrigamiCreases extends THREE.Object3D {
 
    let group = new THREE.Group();
    group.add(line);
-   //group.add(points);
+
+   if(DEBUG){
+     group.add(points);
+   }
 
    return group;
   }

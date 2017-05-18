@@ -40,6 +40,11 @@ export default class Origami extends THREE.Object3D {
       this.update()
     }
 
+    resetCamera(){
+      let world = getWorld();
+      world.resetCamera();
+    }
+
     center(){
       let world = getWorld();
       world.center(this.mesh.getWorldCenter());
@@ -56,8 +61,8 @@ export default class Origami extends THREE.Object3D {
         this.foldIndex(plane || this.currentPlane, angle, index);
       }else {
         this.shape.fold(plane || this.currentPlane, angle);
-        this.update()
       }
+      this.update()
 
       //this.center();
     }
@@ -66,7 +71,6 @@ export default class Origami extends THREE.Object3D {
       console.log('foldIndex')
       //debugger;
       this.shape.foldIndex(plane || this.currentPlane, angle, index);
-      this.update()
 
       //this.center();
     }
@@ -83,8 +87,9 @@ export default class Origami extends THREE.Object3D {
         this.reflectIndex(plane || this.currentPlane, index);
       }else{
         this.shape.reflect(plane || this.currentPlane);
-        this.update()
       }
+      this.update()
+
     //  this.center();
     }
 
@@ -92,7 +97,6 @@ export default class Origami extends THREE.Object3D {
       //debugger;
       console.log('reflectIndex', plane, index)
       this.shape.reflectIndex(plane || this.currentPlane, index);
-      this.update()
 
       //this.center();
     }

@@ -22,8 +22,11 @@ function reflect(){
 function center(){
   origami.center();
 }
+function resetCamera(){
+  origami.resetCamera();
+}
 
-let methods = { crease, fold, reflect, center };
+let methods = { crease, fold, reflect, center, resetCamera };
 
 let properties = {
   angle: 0
@@ -46,6 +49,7 @@ export function initOrigami(instance){
   gui.add(methods, 'reflect').name('Reflect');
   gui.add(methods, 'fold').name('Fold');
   gui.add(methods, 'center').name('Center');
+  gui.add(methods, 'resetCamera').name('Reset Camera');
 }
 
 function attach(){

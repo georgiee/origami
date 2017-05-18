@@ -43,12 +43,14 @@ export class World extends THREE.EventDispatcher {
     this.container.appendChild( renderer.domElement );
     this.renderer = renderer;
   }
-
+  resetCamera(){
+    this.controls.reset();
+  }
   createCamera(){
     let ratio = window.innerWidth/window.innerHeight;
 
-    let width = 1000 * 8;
-    let height = 1000 * 8;
+    let width = 1000 * 2;
+    let height = 1000 * 2;
 
     var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 );
     this._camera = camera;
@@ -56,9 +58,9 @@ export class World extends THREE.EventDispatcher {
     //this._camera.position.y = -25;
 
     this.controls = new OrbitControls(this._camera, this.renderer.domElement);
-    this.controls.focus(new THREE.Vector3(0,200,0));
+    //this.controls.focus(new THREE.Vector3(0,200,0));
     this.controls.addEventListener('change', () => this.dispatchEvent({type: 'rotate'}))
-    this.controls.zoom(4);
+    //this.controls.zoom(4);
   }
 
   init(){

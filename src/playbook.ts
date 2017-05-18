@@ -7,11 +7,12 @@ export class Playbook {
 
   run(instructions){
     let instructions2 = [{"command":"FOLD_REFLECTION","ppoint":[400-354.9988708496094,0.0,0.0],"pnormal":[-45.001129150390625,0.0,0.0]}]
-    this.play(instructions.slice(0,7))
+    console.log(instructions.length)
+    this.play(instructions)
   }
 
-  play(list){
-    list.forEach(data => this.runCommand(data))
+  play(list, count = -1){
+    list.slice(0, count).forEach(data => this.runCommand(data))
   }
   getPlane({pnormal, ppoint}){
     let normal = new THREE.Vector3().fromArray(pnormal).normalize();

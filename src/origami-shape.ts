@@ -257,6 +257,8 @@ export default class OrigamiShape {
   }
 
   reflectIndex(plane, index){
+    this.highlightedVertices = []
+
     //this.fold(plane, 0);
 
     const selection = this.polygonSelect(plane, index);
@@ -268,12 +270,15 @@ export default class OrigamiShape {
     })
 
     this.vertices.forEach((vertex, index) => {
-      selection.forEach(selection => {
+      selection.every(selection => {
         let polygon = this.polygons[selection];
         if(polygon.indexOf(index) !== -1){
           let vertexReflected = this.reflectVertex(vertex, plane);
           vertex.copy(vertexReflected);
+          return false; //break the loop
         }
+
+        return true;
       })
     })
 

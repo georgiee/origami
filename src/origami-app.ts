@@ -5,7 +5,7 @@ import Origami from './origami';
 import * as Panel from './panel';
 import { Playbook } from './playbook';
 
-import * as craneInstructions from './playbooks/crane-playbook.json';
+import * as craneInstructions from './playbooks/crane.json';
 import * as birdInstructions from './playbooks/bird.json';
 import * as squareInstructions from './playbooks/square.json';
 
@@ -28,7 +28,8 @@ export class OrigamiApp {
 
   test(){
     let playbook = new Playbook(this.origami);
-    //playbook.run(birdInstructions);
+    //playbook.run(craneInstructions);
+    playbook.run(birdInstructions);
 
     //plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(200.0,0.0,0.0), new THREE.Vector3(200.0,0.0,0.0));
     //this.origami.reflect(new THREE.Plane(new THREE.Vector3(1,0.0,0.0), 0));

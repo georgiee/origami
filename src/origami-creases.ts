@@ -40,6 +40,7 @@ export class OrigamiCreases extends THREE.Object3D {
       point = null;
     }
 
+    console.log('selectedPolygon', this.selectedPolygon);
     this.dispatchEvent({type:'polygon-selected', index: this.selectedPolygon, point })
   }
 
@@ -56,7 +57,10 @@ export class OrigamiCreases extends THREE.Object3D {
 
     let raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(screenCoords, world.camera);
+    //debugger;
+    //console.log(raycaster.ray.direction.negate())
     let result = raycaster.ray.intersectPlane(plane)
+    //debugger;
     this.worldToLocal(result);
     return result;
   }
@@ -98,7 +102,7 @@ export class OrigamiCreases extends THREE.Object3D {
 
    let group = new THREE.Group();
    group.add(line);
-   group.add(points);
+   //group.add(points);
 
    return group;
   }

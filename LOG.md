@@ -1,3 +1,55 @@
+## 170518
+Finally got the number thing straight. I mean I always expected some overflowing integer but I couldn't get my head around how to reproduce it in ruby
+without having a number example from java. Today I was in the mood to hack some java code together, outputting all the numbers at the command block section of the file format.
+
+It's basically a signed short value overflow into negative values - where my ruby part never overflowed nor did my unpacking strategy
+with different signed integer size get me anywhere. I think when I tried unpacking with bytes.unpack("@4cC3") I was really near.
+I get a -2 instead of a 254 for example. But the thing is": short java unsigned has the range of -32,768 to 32,767.
+This woudl mean I have to use the 16bit unpacking directive (S or s). But this would only mean that it is also expecting more bytes and not only the single byte I provide
+per number. Solution: Just unpack the bytes as usual 8bit values unsigned and then do the overflowing manually.
+That's the wodnerful piece of overflowing in ruby I found. And now every number fits and I can go on applying all commands from the given file
+inside my own web based origami application.
+
+```
+def force_overflow_signed(i)
+  force_overflow_unsigned(i + 2**15) - 2**15
+end
+
+def force_overflow_unsigned(i)
+  i % 2**16   # or equivalently: i & 0xffffffff
+end
+```
+
+So and how does this work? Well the bird base just works!! This is an awesome feeling as it means my algorithms are just working very good to this point.
+The only thing is: When I switch over to the crane playbook which is the bird base + crane specifics it fails at the moment where it tris to do a index based reflection.
+
+This means: My indices are not the same as in the given file format (I think because I'm not tidying up empty polygons yet)
+and even if I manually select the correct polygon index to reflect it is just doing nothing. So back to debug mode. But that's half of the fun isn't it ?! 🙌
+
+## 170516
+Problem: NULL Error when raycasting. But only when I'm using the very large setup to match the 400x400 setup from the original sources.
+Solution: Raycasting is using the camera position (as I set it with setFromCamera). In my setup the camera is at 100. So if I rotate the object
+in front of the camera it is projected as usual but in reality it is beind the camera. It's not visible because of the orthographic camera.
+Behind the camera means my ray shoots in the wrong direction.
+
+I have to fix my camera distance (with z, no effect on the projection but clipping) or adjust the ray accordingly.
+
+Things to do:
++ My polygons quickly degenerate (vertices reflected far away, non drawable triangles,). Maybe I forgot some checks?
++ I also found that shrinkWithIndex is not in use.
++ Show the (potential) folding line in the creasing pattern. Is there a shortcut by using the vertices2D or do I have to do a full (temporay) crease to find the folding line?
++ Check the file format with the bit float bit conversion again.
++ Fix the creasing view in a separate viewport with a separate camera.
++ Allow the camera to move without changing the reuslt of the ruler. Currently the plane is misaligned then.
+It's fine from the view of the camera, but wrong from the view of the origiami - reflecting for example results in two sides not laying on each other liek usual.
+
+
+commandBlock(int foid, double[] ppoint, double[] pnormal, int polygonIndex, int phi) {
+  is the place where the command is transformed to bytes. Might help with decoding.
+
+## 170515
+Too much Origami on the weekend. Eyes hurting.
+
 ## 170514
 Debugging the new foldIndex function. It works but the merging of non affected polygons is somehow broken and merges the wrong polygons. Well in the creasing pattern (vertices2d)
 it looks good but in the 3d view it just looks plain wrong.
@@ -41,8 +93,8 @@ get projection of 2d point on origami completed
 Finally got the commands from the original source converted. I save them to a json file for the moment. Have to figure out how to do folding and reflection on single polygons before using the given data. So that's what I am doing now. I wondered all the day why the internal fold with a polygonIndex doesn't seem to do any cuts. But hours later I recognized, it's creasing within the UI calling function just before calling the folding action (see OrigiamiScriptTerminal).
 
 I also  put some efforts into creating a polygon list holding class to have vertices and polygons in one place instead of mixing them with the origami cutting logic.
-Well I should have thought more over this. I wanted to gradually move over to this new datat structure and therefore used it at some place. Stupid that that containsIndex()
-to determine if a vertex is inside a polygon was not workign as expected. I didn't thought of it so I spend far too much time finding that stupid error.
+Well I should have thought more over this. I wanted to gradually move over to this new data structure and therefore used it at some place. Stupid that that containsIndex()
+to determine if a vertex is inside a polygon was not working as expected. I didn't thought of it so I spend far too much time finding that stupid error.
 Learning of this: Do one thing and never do such a core functionality on the sideline.
 
 ## 170416 - 170513

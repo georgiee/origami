@@ -45,11 +45,15 @@ export default class Origami extends THREE.Object3D {
       world.center(this.mesh.getWorldCenter());
     }
 
-    fold(plane: THREE.Plane, angle){
+    fold(plane: THREE.Plane, angle, index?){
       if(this.selectedPoint2D){
         this.crease(plane || this.currentPlane);
         let polygonIndex = this.shape.findPolygon2D(this.selectedPoint2D)
+        console.log('polygonIndex', polygonIndex)
         this.foldIndex(plane || this.currentPlane, angle, polygonIndex)
+      }else if (index){
+        this.crease(plane || this.currentPlane);
+        this.foldIndex(plane || this.currentPlane, angle, index);
       }else {
         this.shape.fold(plane || this.currentPlane, angle);
         this.update()
@@ -59,6 +63,7 @@ export default class Origami extends THREE.Object3D {
     }
 
     foldIndex(plane: THREE.Plane, angle, index){
+      console.log('foldIndex')
       //debugger;
       this.shape.foldIndex(plane || this.currentPlane, angle, index);
       this.update()
@@ -127,7 +132,7 @@ export default class Origami extends THREE.Object3D {
       let polygonIndex = -1;
 
       if(point){
-        let polygonIndex = this.shape.findPolygon2D(this.selectedPoint2D)
+        polygonIndex = this.shape.findPolygon2D(this.selectedPoint2D)
       }
 
       if(polygonIndex < 0){

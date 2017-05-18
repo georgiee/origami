@@ -82,7 +82,7 @@ class OrigamiMesh extends THREE.Object3D {
 
       this.group.add(mesh);
       this.group.add(lines);
-      this.group.add(points);
+      //this.group.add(points);
 
       this.currentGeometry = geometry;
     }

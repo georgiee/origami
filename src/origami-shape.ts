@@ -86,10 +86,10 @@ export default class OrigamiShape {
   }
 
   cutPolygon(index, plane){
-    console.info('cutPolygon------>', index)
+    //console.info('cutPolygon------>', index)
 
     if(this.canCut(index, plane) === false){
-      console.warn('cant cut polygon #', index);
+      //console.warn('cant cut polygon #', index);
       return false;
     }
 
@@ -179,7 +179,6 @@ export default class OrigamiShape {
 
     this.cutpolygonPairs.push([index, this.polygons.length]);
     this.lastCutPolygons.push(this.polygons[index]);
-    console.log('atfer cut: ', 'cutpolygonPairs', this.cutpolygonPairs, 'lastCutPolygons', this.lastCutPolygons)
     this.polygons[index] = newpoly1;
     this.addPolygon(newpoly2);
   }
@@ -218,7 +217,6 @@ export default class OrigamiShape {
   }
 
   shrinkWithIndex(index){
-    console.log('shrinkWithIndex', index, this.polygons)
     const tmp = this.polygons[index];
     this.removePolygon(index);
 
@@ -229,14 +227,11 @@ export default class OrigamiShape {
         i--;
       }
     }
-    console.log('after', this.polygons);
     while (index > this.polygons.length) {
       this.addPolygon([]);
      }
 
     this.polygons[index] = tmp;
-
-    console.log('after', this.polygons);
   }
 
   removePolygon(index){
@@ -508,7 +503,7 @@ export default class OrigamiShape {
         }
       })
     }else {
-      console.warn("can't fold, would tear");
+      //console.warn("can't fold, would tear");
     }
   }
 
@@ -614,7 +609,6 @@ export default class OrigamiShape {
 
     for(let i = 0; i< polys.length; i++){
       let contains = polygonContains([point.x, point.y], polys[i]);
-
       if(contains){
         return i;
       }

@@ -6,15 +6,8 @@ export class Playbook {
   constructor(private origami: Origami){}
 
   run(instructions){
-    console.log('run instructions', instructions);
-    //this.runCommand(instructions[0]);
-    //this.runCommand(instructions[1]);
-    //this.runCommand(instructions[3]);
-    let instructions2 = [{"command":"FOLD_REFLECTION","ppoint":[-11.391571044921875,-16.4395751953125,-280.6202697753906],"pnormal":[-411.3915710449219,-16.4395751953125,-280.6202697753906]}]
-    this.play(instructions2)
-    //this.play(instructions.slice(0,4))
-    //this.runCommand(instructions[3]);
-    //this.runCommand(instructions[4]);
+    let instructions2 = [{"command":"FOLD_REFLECTION","ppoint":[400-354.9988708496094,0.0,0.0],"pnormal":[-45.001129150390625,0.0,0.0]}]
+    this.play(instructions.slice(0,7))
   }
 
   play(list){
@@ -36,11 +29,21 @@ export class Playbook {
     ruler.show(plane);
 
     switch(data.command){
-      case "FOLD_REFLECTION": this.foldReflection(plane)
+      case "FOLD_REFLECTION": this.foldReflection(plane);break;
+      case "FOLD_REFLECTION_P": this.foldReflection(plane, data.polygonIndex);break;
+      case "FOLD_ROTATION_P": this.foldRotation(plane, data.phi, data.polygonIndex);break;
+      case "FOLD_CREASE": this.crease(plane);break;
     }
   }
+  foldRotation(plane, angle, index?){
+    this.origami.fold(plane, angle, index )
+  }
+  foldReflection(plane, index = null){
+    console.log('foldReflection', index)
+    this.origami.reflect(plane, index);
+  }
 
-  foldReflection(plane){
-    this.origami.reflect(plane);
+  crease(plane){
+    this.origami.crease(plane);
   }
 }

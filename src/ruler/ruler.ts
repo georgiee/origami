@@ -81,7 +81,6 @@ export default class Ruler extends THREE.Object3D {
 
   completed(){
     this.currentPlane = this.calculate();
-    console.log('this.currentPlane', this.currentPlane)
     this.planeHelper.fromPlane(this.currentPlane);
 
     this.disable();

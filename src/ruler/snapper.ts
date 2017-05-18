@@ -21,7 +21,9 @@ export class Snapper extends THREE.Object3D {
     let geometry = new THREE.Geometry();
     geometry.vertices.push(new THREE.Vector3(0,0, 0));
 
-    let material = new THREE.PointsMaterial({size: 3, color: 0xffb6c1});
+    let material = new THREE.PointsMaterial({
+      sizeAttenuation: false,
+      size: 10, color: 0xffb6c1});
     this.point = new THREE.Points( geometry, material );
     this.add( this.point );
 

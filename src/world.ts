@@ -50,14 +50,13 @@ export class World extends THREE.EventDispatcher {
     let width = 1000 * 8;
     let height = 1000 * 8;
 
-    var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 * 8 );
+    var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 );
     this._camera = camera;
-    this._camera.position.z = 100;
-    //this._camera.position.x = 25;
+    this._camera.position.z = 1000;
     //this._camera.position.y = -25;
 
     this.controls = new OrbitControls(this._camera, this.renderer.domElement);
-    //this.controls.focus(new THREE.Vector3(25,25,0));
+    this.controls.focus(new THREE.Vector3(0,200,0));
     this.controls.addEventListener('change', () => this.dispatchEvent({type: 'rotate'}))
     this.controls.zoom(4);
   }

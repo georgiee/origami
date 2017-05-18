@@ -393,7 +393,6 @@ module.exports = function( THREE ) {
 
 				scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / dollyScale ) );
 				scope.object.updateProjectionMatrix();
-				console.log(scope.object.zoom)
 				zoomChanged = true;
 
 			} else {

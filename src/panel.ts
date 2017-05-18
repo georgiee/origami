@@ -35,7 +35,6 @@ export function create(){
 export function initOrigami(instance){
   origami = instance
   let ruler = origami.getRuler();
-  console.log('ruler', ruler, instance)
 
   ruler.addEventListener('completed', (event:any) => {
     currentPlane = event.plane;

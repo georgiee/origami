@@ -202,7 +202,14 @@ def parse_command(bytes)
 end
 #--- ["01000000"] ["00c80000"] ["00c80000"] ["00000000"] 16
 #--- ["11000000"] ["008d55bf"] ["feab3676"] ["00000000"] 16
-convert_file("files/star.ori.decoded")
+#convert_file("files/bird.ori.decoded")
+if ARGV.length == 0
+    throw new Error("Not File give")
+else
+    puts "processing ARGV[0]"
+    convert_file ARGV[0]
+end
+
 # puts 0xff & (400 >> 8) #--> 1
 # puts 0xff & (400) #--> 144
 # puts 0xff & (0xc8) #-->200

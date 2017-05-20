@@ -1,6 +1,6 @@
 import java.util.Arrays;
 
-import test.*;
+import util.*;
 import java.io.*;
 
 public class OrigamiReader {
@@ -14,10 +14,12 @@ public class OrigamiReader {
 
         String outputFileName = sourceFileName + ".decoded";
 
-        InputStream inputStream = OrigamiReader.class.getClassLoader().getResourceAsStream(sourceFileName);
         java.util.ArrayList<Byte> bytesb = new java.util.ArrayList<>();
-        int fisbyte;
+            int fisbyte;
+            
         try {
+            InputStream inputStream = new FileInputStream(sourceFileName);
+            
             while ((fisbyte = inputStream.read()) != -1) {
                 bytesb.add((byte) fisbyte);
             }
@@ -43,7 +45,7 @@ public class OrigamiReader {
                 buffer.write(bytes2, 0, read);
             }
 
-            test(str2);
+            //test(str2);
 
             if (outputStream != null) {
                 try {

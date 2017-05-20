@@ -6,8 +6,6 @@ export class Playbook {
   constructor(private origami: Origami){}
 
   run(instructions){
-    let instructions2 = [{"command":"FOLD_REFLECTION","ppoint":[400-354.9988708496094,0.0,0.0],"pnormal":[-45.001129150390625,0.0,0.0]}]
-    console.log(instructions.length)
     this.play(instructions)
   }
 

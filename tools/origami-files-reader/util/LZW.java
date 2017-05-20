@@ -1,4 +1,4 @@
-package test;
+package util;
 
 public class LZW {
 

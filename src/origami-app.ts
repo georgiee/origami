@@ -5,7 +5,6 @@ import Origami from './origami';
 import * as Panel from './panel';
 import { Playbook } from './playbook';
 import * as playbooks from './playbooks/index';
-import { controller } from './panel';
 
 export class OrigamiApp {
   private world;
@@ -26,11 +25,9 @@ export class OrigamiApp {
 
   test(){
     let playbook = new Playbook(this.origami);
-    //playbook.run(craneInstructions);
     playbook.run(playbooks.miura);
-    controller.progress.onChange(value => {
-      console.log('changed')
-    })
+
+
     //plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(200.0,0.0,0.0), new THREE.Vector3(200.0,0.0,0.0));
     //this.origami.reflect(new THREE.Plane(new THREE.Vector3(1,0.0,0.0), 0));
 

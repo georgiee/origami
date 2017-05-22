@@ -1,3 +1,17 @@
+## 170522
+Today I added some testing tools.
+A new folder in dat gui to use the previously created playbook with a slider to jump to any given step.
+I also extended the creases view to display a set of polygon indices for better debugging if a polygon if at the expected place
+as I have still the problem that the polygon index from the external file format is not always matching with my set of polygons.
+
+Result: I got the wonderful miura fold working today.
+The last polygonIndex was wrong. It was 37 but in my set it was 52 - I concluded this by watching the very uniform pattern
+together with the previous polygon indices. The polygon 37 was just on a very random place so I knew it was wrong. I picked
+a more sane polygon - Nr. 52 - and the last two steps worked. Feels good to see my ported algorithms working.
+
+Next challenge will be to optimize the cleanup process of degenerated polygons so it finally matches with
+the file format and then I'm also sure that my cleanup is good enough for my own shapes and experiments.
+
 ## 170518
 Finally got the number thing straight. I mean I always expected some overflowing integer but I couldn't get my head around how to reproduce it in ruby
 without having a number example from java. Today I was in the mood to hack some java code together, outputting all the numbers at the command block section of the file format.
@@ -7,7 +21,7 @@ with different signed integer size get me anywhere. I think when I tried unpacki
 I get a -2 instead of a 254 for example. But the thing is": short java unsigned has the range of -32,768 to 32,767.
 This woudl mean I have to use the 16bit unpacking directive (S or s). But this would only mean that it is also expecting more bytes and not only the single byte I provide
 per number. Solution: Just unpack the bytes as usual 8bit values unsigned and then do the overflowing manually.
-That's the wodnerful piece of overflowing in ruby I found. And now every number fits and I can go on applying all commands from the given file
+That's the wonderful piece of overflowing in ruby I found. And now every number fits and I can go on applying all commands from the given file
 inside my own web based origami application.
 
 ```

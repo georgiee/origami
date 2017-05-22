@@ -27,6 +27,17 @@ export default class OrigamiShape {
     this.polygonList = new PolygonList();
   }
 
+  reset() {
+    this.polygons = [];
+    this.highlightedVertices = [];
+    this.vertices = [];
+    this.vertices2d = [];
+    this.cutpolygonNodes = [];
+    this.cutpolygonPairs = [];
+    this.lastCutPolygons = [];
+
+  }
+
   getVertices(){
     return this.vertices;
   }

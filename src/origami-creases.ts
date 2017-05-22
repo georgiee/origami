@@ -11,6 +11,8 @@ export class OrigamiCreases extends THREE.Object3D {
   private currentView: THREE.Object3D;
   private polygonMarker: THREE.Object3D;
   private selectedPolygon: number = -1;
+  private highlightedVertices;
+
   constructor(private shape){
     super()
     this.handleMouseClick = this.handleMouseClick.bind(this);
@@ -33,6 +35,7 @@ export class OrigamiCreases extends THREE.Object3D {
     let point = this.getLocalPoint(clientX, clientY);
 
     this.selectedPolygon = this.shape.findPolygon2D(point);
+    console.log('this.selectedPolygon', this.selectedPolygon);
 
     if(this.selectedPolygon >=0){
       this.add(this.polygonMarker);
@@ -42,7 +45,6 @@ export class OrigamiCreases extends THREE.Object3D {
       point = null;
     }
 
-    console.log('selectedPolygon', this.selectedPolygon);
     this.dispatchEvent({type:'polygon-selected', index: this.selectedPolygon, point })
   }
 
@@ -75,9 +77,38 @@ export class OrigamiCreases extends THREE.Object3D {
 
     this.currentView = currentView;
     this.add(currentView)
+
+    //this.showPolygons([21, 37]);
+  }
+
+  showPolygons(indices){
+    console.log('showPolygons', indices)
+    let polygons = this.shape.getPolygons();
+    let vertices = indices.reduce((accu, index) => {
+
+      if(polygons.length > index){
+          return accu.concat(polygons[index])
+      }else{
+        return accu;
+      }
+
+    }, []);
+
+    if(this.highlightedVertices){
+      this.remove(this.highlightedVertices);
+    }
+
+    this.highlightedVertices = this.createHighlightedVertices(vertices);
+    this.add(this.highlightedVertices);
   }
 
   toMesh(){
+   let group = new THREE.Group();
+   group.add(this.createLines());
+   return group;
+  }
+
+  createLines(){
     let geometry = this.toGeometryPlane();
 
     let material = new THREE.LineBasicMaterial( {
@@ -86,30 +117,28 @@ export class OrigamiCreases extends THREE.Object3D {
     } );
 
    var line = new THREE.LineSegments( geometry, material );
+   return line;
+  }
 
-   let pointGeometry = new THREE.Geometry();
-   let vertices = this.shape.getVertices2d();
-   vertices.forEach((vertex, index) => {
-     pointGeometry.vertices.push(vertex);
-     let color = this.shape.getHighlight(index) ? this.shape.getHighlight(index) : new THREE.Color(0xffffff);
-     pointGeometry.colors.push(color);
+  createHighlightedVertices(highlightedVertices){
+    let pointGeometry = new THREE.Geometry();
+    let vertices = this.shape.getVertices2d();
+    vertices.forEach((vertex, index) => {
 
-   })
+      if(highlightedVertices.indexOf(index) != -1){
+        pointGeometry.vertices.push(vertex);
+        pointGeometry.colors.push(new THREE.Color(0xffffff));
+      }
 
-   let points = new THREE.Points(pointGeometry, new THREE.PointsMaterial({
-     sizeAttenuation: false,
-     size: 10,
-     vertexColors: THREE.VertexColors
-   }));
+    })
 
-   let group = new THREE.Group();
-   group.add(line);
+     let points = new THREE.Points(pointGeometry, new THREE.PointsMaterial({
+       sizeAttenuation: false,
+       size: 10,
+       vertexColors: THREE.VertexColors
+     }));
 
-   if(DEBUG){
-     group.add(points);
-   }
-
-   return group;
+     return points;
   }
 
   toGeometryPlane(){

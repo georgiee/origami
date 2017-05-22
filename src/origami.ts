@@ -20,8 +20,30 @@ export default class Origami extends THREE.Object3D {
   private selectedPoint2D;
     constructor(private world: World, initialShape?:OrigamiShape){
       super();
-      this.shape = initialShape ? initialShape : createSquare2();
+      this.shape = new OrigamiShape();
       this.init();
+    }
+
+    highlightPolygon(index){
+      console.log('highlightPolygon')
+      this.creasing.showPolygons([index]);
+    }
+
+    reset(){
+      this.shape.reset();
+
+      this.shape.addVertex(new THREE.Vector3(0,0,0));
+      this.shape.addVertex(new THREE.Vector3(400,0,0));
+      this.shape.addVertex(new THREE.Vector3(400,400,0));
+      this.shape.addVertex(new THREE.Vector3(0, 400, 0));
+
+      this.shape.addVertex2D(new THREE.Vector3(0,0,0));
+      this.shape.addVertex2D(new THREE.Vector3(400,0,0));
+      this.shape.addVertex2D(new THREE.Vector3(400,400,0));
+      this.shape.addVertex2D(new THREE.Vector3(0, 400, 0));
+
+      this.shape.addPolygon([0,1,2,3]);
+      this.update()
     }
 
     init(){
@@ -37,7 +59,7 @@ export default class Origami extends THREE.Object3D {
       this.add(this.ruler);
       this.add(this.creasing);
 
-      this.update()
+      this.reset();
     }
 
     resetCamera(){
@@ -54,7 +76,6 @@ export default class Origami extends THREE.Object3D {
       if(this.selectedPoint2D){
         this.crease(plane || this.currentPlane);
         let polygonIndex = this.shape.findPolygon2D(this.selectedPoint2D)
-        console.log('polygonIndex', polygonIndex)
         this.foldIndex(plane || this.currentPlane, angle, polygonIndex)
       }else if (index){
         this.crease(plane || this.currentPlane);
@@ -63,16 +84,10 @@ export default class Origami extends THREE.Object3D {
         this.shape.fold(plane || this.currentPlane, angle);
       }
       this.update()
-
-      //this.center();
     }
 
     foldIndex(plane: THREE.Plane, angle, index){
-      console.log('foldIndex')
-      //debugger;
       this.shape.foldIndex(plane || this.currentPlane, angle, index);
-
-      //this.center();
     }
 
 
@@ -95,7 +110,6 @@ export default class Origami extends THREE.Object3D {
 
     reflectIndex(plane: THREE.Plane, index){
       //debugger;
-      console.log('reflectIndex', plane, index)
       this.shape.reflectIndex(plane || this.currentPlane, index);
 
       //this.center();

@@ -25,8 +25,11 @@ function center(){
 function resetCamera(){
   origami.resetCamera();
 }
+function reset() {
+  origami.reset();
+}
 
-let methods = { crease, fold, reflect, center, resetCamera };
+let methods = { crease, fold, reflect, center, resetCamera, reset };
 
 let properties = {
   angle: 0,
@@ -51,6 +54,16 @@ export function initOrigami(instance){
 
 }
 
+function updateDisplay(){
+  for (var i = 0; i < Object.keys(gui.__folders).length; i++) {
+      var key = Object.keys(gui.__folders)[i];
+      for (var j = 0; j < gui.__folders[key].__controllers.length; j++ )
+      {
+          gui.__folders[key].__controllers[j].updateDisplay();
+      }
+  }
+}
+
 function init(){
   gui = new dat.GUI({ autoPlace: false });
 
@@ -60,9 +73,7 @@ function init(){
   gui.add(methods, 'fold').name('Fold');
   gui.add(methods, 'center').name('Center');
   gui.add(methods, 'resetCamera').name('Reset Camera');
-
-
-  controller.progress = gui.add(properties, 'progress', 0, 1);
+  gui.add(methods, 'reset').name('Reset');
 }
 
 init();
@@ -77,4 +88,4 @@ function attach(){
 }
 
 
-export {gui, controller};
+export {gui, controller, updateDisplay};

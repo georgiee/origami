@@ -18,7 +18,7 @@ export default class RulerHelper extends THREE.Object3D {
 
     let geometry = new THREE.Geometry();
     geometry.vertices.push(new THREE.Vector3(), new THREE.Vector3());
-    let lineMesh = new THREE.Line( geometry, material );
+    let lineMesh = new THREE.LineSegments( geometry, material );
     this.add(lineMesh);
     this.lineMesh = lineMesh;
 
@@ -35,11 +35,19 @@ export default class RulerHelper extends THREE.Object3D {
     return s;
   }
 
-  update(p1: THREE.Vector3, p2: THREE.Vector3){
+  update(p1: THREE.Vector3, p2: THREE.Vector3, plane: THREE.Plane){
     if(p1 && p2){
       let geometry: any = this.lineMesh.geometry;
       geometry.vertices[ 0 ].copy(p1);
       geometry.vertices[ 1 ].copy(p2);
+
+
+      let normal = plane.normal;
+      var newPos = new THREE.Vector3();
+      newPos.addVectors ( p1, normal.multiplyScalar( 100 ) );
+
+      //geometry.vertices[ 2 ].copy(p1);
+      //geometry.vertices[ 3 ].copy(newPos);
       geometry.verticesNeedUpdate = true;
     }
 

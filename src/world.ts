@@ -39,7 +39,7 @@ export class World extends THREE.EventDispatcher {
     renderer.setPixelRatio( window.devicePixelRatio );
     //renderer.setSize( window.innerWidth, window.innerHeight );
     let size = Math.min( window.innerWidth, window.innerHeight )
-    renderer.setSize( size, size );
+    renderer.setSize( window.innerWidth, window.innerHeight );
     this.container.appendChild( renderer.domElement );
     this.renderer = renderer;
   }
@@ -49,8 +49,8 @@ export class World extends THREE.EventDispatcher {
   createCamera(){
     let ratio = window.innerWidth/window.innerHeight;
 
-    let width = 1000 * 2;
-    let height = 1000 * 2;
+    let width = 1000;
+    let height = 1000/ratio;
 
     var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 );
     this._camera = camera;

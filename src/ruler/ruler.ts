@@ -35,6 +35,11 @@ export default class Ruler extends THREE.Object3D {
     this.controls.addEventListener('start', (event:any) => {
       let point = this.getTargetPosition(event.x, event.y);
       this.setCenter(point.x, point.y);
+      let pos = this.getLocalPoint(event.x, event.y);
+      let s = utils.createSphere();
+      s.position.copy(pos);
+      this.add(s);
+
     })
 
     this.controls.addEventListener('complete', (event:any) => {
@@ -85,24 +90,31 @@ export default class Ruler extends THREE.Object3D {
 
     this.disable();
     this.dispatchEvent({type: 'completed', plane: this.currentPlane})
+
   }
 
+  getLocalPoint(x, y){
+    let raycaster = new THREE.Raycaster();
+    let plane = new THREE.Plane(new THREE.Vector3(0,0,1), 0);
+    //let {x, y} = utils.globalToLocal(clientX, clientY, this.world.domElement);
+
+    let screenCoords = new THREE.Vector3(x, y, this.world.camera.near)
+    //plane aligned to camera through origin
+    plane.setFromNormalAndCoplanarPoint(this.camera.getWorldDirection(), new THREE.Vector3());
+
+    raycaster.setFromCamera(screenCoords, this.world.camera);
+    let result = raycaster.ray.intersectPlane(plane)
+
+    return result;
+  }
   getProjectedPosition(x, y){
-    let cameraNormal = this.camera.getWorldDirection();
-    let v = new THREE.Vector3(x, y, -1); //on near plane
-    v.unproject(this.camera);
-
-    let v2 = new THREE.Vector3(x, y, 1); //on near plane
-    v2.unproject(this.camera);
-
-    let v3 = new THREE.Vector3().lerpVectors(v, v2, 0.01);
-
-    return v3;
+    return this.getLocalPoint(x, y)
   }
 
 
   getNormal(camera, rulerPoint1){
     //make 2d line orthogonal, proejct again and calculate normal
+    //2d normal is switch components and negating x
     let vOrtho1 = this.getProjectedPosition(-this.startPoint.y, this.startPoint.x);
     let vOrtho2 = this.getProjectedPosition(-this.endPoint.y, this.endPoint.x);
     let normal = vOrtho2.clone().sub(vOrtho1).normalize();
@@ -116,19 +128,14 @@ export default class Ruler extends THREE.Object3D {
   }
 
   calculate() {
-    let cameraNormal = this.camera.getWorldDirection();
-
     let v1 = this.getProjectedPosition(this.startPoint.x, this.startPoint.y);
     let v2 = this.getProjectedPosition(this.endPoint.x, this.endPoint.y);
-    let center = new THREE.Vector2().lerpVectors(this.startPoint, this.endPoint, 0.5);
+    let vCenter = new THREE.Vector3().lerpVectors(v1, v2, 0.5);
 
-    let mathPlane = new THREE.Plane()
-
-    let vCenter = this.getProjectedPosition(center.x,center.y);
     let vNormal = this.getNormal(this.camera, v1);
 
+    let mathPlane = new THREE.Plane()
     mathPlane.setFromNormalAndCoplanarPoint(vNormal, vCenter).normalize();
-    var coplanarPoint = mathPlane.coplanarPoint();
 
     return mathPlane;
   }
@@ -150,8 +157,8 @@ export default class Ruler extends THREE.Object3D {
   update(){
     let p1:THREE.Vector3 = this.getProjectedPosition(this.startPoint.x, this.startPoint.y);
     let p2:THREE.Vector3 = this.getProjectedPosition(this.endPoint.x, this.endPoint.y);
-
-    this.rulerHelper.update(p1, p2);
+    let plane = this.calculate();
+    this.rulerHelper.update(p1, p2, plane);
   }
 
 

@@ -1,6 +1,17 @@
 import * as THREE from 'three';
 
-function globalToLocal(x,y,element){
+function deviceToScreen(x, y, element){
+  let boundingRect = element.getBoundingClientRect();
+  let width = boundingRect.right - boundingRect.left;
+  let height = boundingRect.bottom - boundingRect.top;
+
+  let x1 = ( x + 1)/2 * width + boundingRect.left;
+  let y1 = ( y + 1)/2 * height + boundingRect.top;
+
+  return { x: x1, y: -y1 };
+}
+
+function mouseToDeviceCoordinates(x,y,element, constrain = true){
   let boundingRect = element.getBoundingClientRect();
 
   let width = boundingRect.right - boundingRect.left;
@@ -8,18 +19,28 @@ function globalToLocal(x,y,element){
   let x1 = x - boundingRect.left;
   let y1 = y - boundingRect.top;
 
+  if(constrain){
+    x1 = Math.max(Math.min(x1, width), boundingRect.left)
+    y1 = Math.max(Math.min(y1, height), boundingRect.top)
+  }
 
-  x1 = Math.max(Math.min(x1, width), boundingRect.left)
-  y1 = Math.max(Math.min(y1, height), boundingRect.top)
 
   x1 = x1/width*2 - 1;
   y1 = y1/height* 2 - 1;
+
   return { x: x1, y: -y1 };
 }
 
-function createSphere(color = 0xff0000,size = 2){
+function createSphere(color = 0xff0000,size = 2, pos?){
   let s = new THREE.Mesh(new THREE.SphereGeometry(size, 10, 10), new THREE.MeshBasicMaterial({wireframe:true,color}))
+  if(pos){
+    s.position.copy(pos);
+  }
   return s;
+}
+
+function createSphere2({color, size, pos}:any){
+  return createSphere(color, size, pos);
 }
 
 function createArrow( color = 0xffff00){
@@ -80,6 +101,14 @@ function createLine(v1, v2){
 
   return edges;
 }
+function createLine2({v1, v2, pos}:any){
+  let line = createLine(v1, v2);
+
+  if(pos){
+    line.position.copy(pos);
+  }
+  return line
+}
 
 
 function getMouseScreenCoordinates(event){
@@ -106,6 +135,7 @@ function getPlaneMesh(mathPlane){
 
 
 export default {
+  deviceToScreen,
   createArrow,
   createSphere,
   createPointFrom2D,
@@ -115,6 +145,8 @@ export default {
   createSphereFrom2D,
   getMouseScreenCoordinates,
   getProjectedPosition,
-  globalToLocal,
-  getPlaneMesh
+  mouseToDeviceCoordinates,
+  getPlaneMesh,
+  createSphere2,
+  createLine2
 }

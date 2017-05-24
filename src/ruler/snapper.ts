@@ -53,7 +53,7 @@ export class Snapper extends THREE.Object3D {
 
   findNearestFromMouse(clientX, clientY){
     let world = World.getInstance();
-    let {x, y} = utils.globalToLocal(clientX, clientY, world.domElement);
+    let {x, y} = utils.mouseToDeviceCoordinates(clientX, clientY, world.domElement);
 
     return this.findNearestVertex(x, y);
   }
@@ -75,7 +75,7 @@ export class Snapper extends THREE.Object3D {
 
       if(distance < THRESHOLD){
         this.updatePosition(vertex);
-        this.lastSnappedPoint = vertex;
+        this.lastSnappedPoint = vertex.clone();
         break;
       }
     }

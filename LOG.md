@@ -1,3 +1,37 @@
+## 170524
+It's early in the morning and I finally fixed a bug with the normal creation together with a non-square orthopgraphic world. I wanted the world to fill the full browser window. So I changed the width and height to match the browser window ratio. Previously it was just a square to make working with the orthopgraphic world easier in the beginning.
+This was fine until yesterday.
+
+When I was drawing my 2d line with the mouse the resulting plane normal pointed in some direction that was slightly but visibly off the expected direction. This didn't happen when one of the 2d components was null (so straight lines vertical or horziontal worked). I immediately know that something was wrong with my normal calculation in the ruler.
+
+So understand what's wrong here how I create the perpendicular line to my mouse drawn line:
+startPoint and endPoint are 2d coordinates already in viewport coordinates (aka normalized device coordinates).
+```
+// this just maps to two points in 3d space by projecting the 2d version.
+pStart = projectMouse(startPoint.x, startPoint.y);
+pEnd = projectMouse(endPoint.x, endPoint.y);
+
+// If we flip the 2d components before the projection (so we are still in the 2d coordinate system)
+// we get the perpendicular line which we cann then project again
+pStartOrtho = projectMouse(-startPoint.y, startPoint.x);
+pEndOrtho = projectMouse(-endPoint.y, endPoint.x);
+```
+
+That's straight forward. Nonetheless something was wrong here as the normal resulting from pStartOrtho and pEndOrtho
+was clearly off. Did I mention that startPoint/endPoint are already in viewport space? So they are mapped to values
+between -1 and 1 with 0,0 in the center. And that's the problem.
+
+When I switch those already mapped components they don't match the orthographic world anymore. Because my world is wider than hight. So if I just change the 2d components it won't be perpendicular anymore due to the other mapping.
+
+So quickly moved my conversion to viewport coords around. Instead of doing the conversion at the mouse input
+I do it later so can reach the raw components of the mouse again. Now I had to remove the constrains of my viewport cords version which enforced values between -1 and 1 and voila it worked.
+
+Now I have to refactor. I want the viewport conversion back at the mouse input. But I think I can
+just convert back to screen coordinates at the normal calculation. But it was important to prove my thoughts about this and yeah still happy that it worked.
+
+## 170523
+5am, got up very early and had a stupid idea. Well the idea is good but I can handle such a problem in the morning. I changed the world to have different height and width (instead of being square) and now I have problems calculating the plane normal.
+
 ## 170522
 Today I added some testing tools.
 A new folder in dat gui to use the previously created playbook with a slider to jump to any given step.

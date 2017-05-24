@@ -54,7 +54,7 @@ export class OrigamiCreases extends THREE.Object3D {
 
   getLocalPoint(clientX, clientY){
     let world = World.getInstance();
-    let {x, y} = utils.globalToLocal(clientX, clientY, world.domElement);
+    let {x, y} = utils.mouseToDeviceCoordinates(clientX, clientY, world.domElement);
 
     let screenCoords = new THREE.Vector3(x, y, world.camera.near)
     let plane = new THREE.Plane(new THREE.Vector3(0,0,1), 0);

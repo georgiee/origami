@@ -12,34 +12,33 @@ export class OrigamiCreases extends THREE.Object3D {
   private polygonMarker: THREE.Object3D;
   private selectedPolygon: number = -1;
   private highlightedVertices;
+  private _shape;
 
-  constructor(private shape){
+  constructor(){
     super()
-    this.handleMouseClick = this.handleMouseClick.bind(this);
     this.init();
   }
+
+  set shape(value) {
+    this._shape = value;
+  }
+
+  get shape() {
+    return this._shape;
+  }
+
   init(){
     this.polygonMarker = utils.createSphere();
-    this.enableSelectPolygon();
   }
 
-  enableSelectPolygon(){
-    document.addEventListener('dblclick', this.handleMouseClick);
-  }
-
-  disableSelectPolygon(){
-    //document.removeEventListener('click', <any>this.handleMouseClick);
-  }
-
-  handleMouseClick({clientX, clientY}){
-    let point = this.getLocalPoint(clientX, clientY);
-
+  selectPolygonWithPoint(point: THREE.Vector2){
     this.selectedPolygon = this.shape.findPolygon2D(point);
-    console.log('this.selectedPolygon', this.selectedPolygon);
 
     if(this.selectedPolygon >=0){
       this.add(this.polygonMarker);
-      this.polygonMarker.position.copy(point);
+      this.polygonMarker.position.set(point.x, point.y, 0);
+      this.showPolygons([this.selectedPolygon]);
+
     }else{
       this.remove(this.polygonMarker);
       point = null;
@@ -48,25 +47,9 @@ export class OrigamiCreases extends THREE.Object3D {
     this.dispatchEvent({type:'polygon-selected', index: this.selectedPolygon, point })
   }
 
+
   isStrictlyNonDegenerate(index){
     return true;
-  }
-
-  getLocalPoint(clientX, clientY){
-    let world = World.getInstance();
-    let {x, y} = utils.mouseToDeviceCoordinates(clientX, clientY, world.domElement);
-
-    let screenCoords = new THREE.Vector3(x, y, world.camera.near)
-    let plane = new THREE.Plane(new THREE.Vector3(0,0,1), 0);
-
-    let raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(screenCoords, world.camera);
-    //debugger;
-    //console.log(raycaster.ray.direction.negate())
-    let result = raycaster.ray.intersectPlane(plane)
-    //debugger;
-    this.worldToLocal(result);
-    return result;
   }
 
   update(){
@@ -77,12 +60,9 @@ export class OrigamiCreases extends THREE.Object3D {
 
     this.currentView = currentView;
     this.add(currentView)
-
-    //this.showPolygons([21, 37]);
   }
 
   showPolygons(indices){
-    console.log('showPolygons', indices)
     let polygons = this.shape.getPolygons();
     let vertices = indices.reduce((accu, index) => {
 

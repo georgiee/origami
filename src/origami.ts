@@ -51,14 +51,13 @@ export default class Origami extends THREE.Object3D {
 
       this.mesh = new OrigamiMesh(this.shape);
 
-      this.creasing = new OrigamiCreases(this.shape);
+      this.creasing = this.world.creaseViewer.getObject();
+      this.creasing.shape = this.shape;
+
       this.creasing.addEventListener('polygon-selected', this.handlePolygonSelected.bind(this));
-      this.creasing.position.x = 420;
 
       this.add(this.mesh);
       this.add(this.ruler);
-      this.add(this.creasing);
-
       this.reset();
     }
 

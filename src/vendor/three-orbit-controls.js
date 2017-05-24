@@ -295,7 +295,6 @@ module.exports = function( THREE ) {
 			var v = new THREE.Vector3();
 
 			return function panLeft( distance, objectMatrix ) {
-
 				v.setFromMatrixColumn( objectMatrix, 0 ); // get X column of objectMatrix
 				v.multiplyScalar( - distance );
 
@@ -348,7 +347,6 @@ module.exports = function( THREE ) {
 					// orthographic
 					panLeft( deltaX * ( scope.object.right - scope.object.left ) / scope.object.zoom / element.clientWidth, scope.object.matrix );
 					panUp( deltaY * ( scope.object.top - scope.object.bottom ) / scope.object.zoom / element.clientHeight, scope.object.matrix );
-
 				} else {
 
 					// camera neither orthographic nor perspective
@@ -872,11 +870,19 @@ module.exports = function( THREE ) {
 
 		}
 
+			this.move = function(x, y) {
+				// reset position
+				scope.target.copy( scope.target0 );
+				scope.object.position.copy( scope.position0 );
+				scope.object.updateProjectionMatrix();
+				panOffset.set(0,0,0);
 
-
-
-
-			this.pan = pan;
+				//panLeft( x, scope.object.matrix );
+				//panUp( y, scope.object.matrix );
+				panOffset.x = x
+				panOffset.y = y
+				scope.update();
+			}
 			this.zoom = function(value){
 				scope.object.zoom = value
 				scope.object.updateProjectionMatrix();

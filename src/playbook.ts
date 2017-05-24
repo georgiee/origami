@@ -80,7 +80,10 @@ export class Playbook {
     switch(data.command){
       case "FOLD_REFLECTION": this.foldReflection(plane);break;
       case "FOLD_REFLECTION_P": this.foldReflection(plane, data.polygonIndex);break;
+
+      case "FOLD_ROTATION": this.foldRotation(plane, data.phi);break;
       case "FOLD_ROTATION_P": this.foldRotation(plane, data.phi, data.polygonIndex);break;
+
       case "FOLD_CREASE": this.crease(plane);break;
     }
   }
@@ -97,7 +100,7 @@ export class Playbook {
       this.origami.highlightPolygon(index);
     }
   }
-  
+
   crease(plane){
     this.origami.crease(plane);
   }

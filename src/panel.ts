@@ -67,7 +67,7 @@ function updateDisplay(){
 function init(){
   gui = new dat.GUI({ autoPlace: false });
 
-  gui.add(properties, 'angle', 0, 360, 15).name('Angle');
+  gui.add(properties, 'angle', -180, 180, 15).name('Angle');
   gui.add(methods, 'crease').name('Crease');
   gui.add(methods, 'reflect').name('Reflect');
   gui.add(methods, 'fold').name('Fold');

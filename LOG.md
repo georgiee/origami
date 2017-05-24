@@ -29,6 +29,32 @@ I do it later so can reach the raw components of the mouse again. Now I had to r
 Now I have to refactor. I want the viewport conversion back at the mouse input. But I think I can
 just convert back to screen coordinates at the normal calculation. But it was important to prove my thoughts about this and yeah still happy that it worked.
 
+
+**OK PART2: Back from work after working on this in the morning:**
+My goal for this evening is to create a separate view of the crease patter. Currently it is floating next to the 3d view. So if you rotate the camer,
+the creases will rotate away. That's bad because it's an important part of interaction.
+So the things to do are:
+Firs of all. Decide if you want a html based view (a separate fixed canvas and whatever library I want to render the vertices2D and handle the interaction)
+or integrate in threejs. I quickly concluded it's nothing complex, there are no buttons, no text (like in a HUD) so I really don't need the power of HTML/CSS.
+So yeah go for threejs. This means the following:
+
++ Create a scissor test in the renderer to create a place where to render another scene with another camera
++ Create a spearate camera and scene to hold the creasing view from now
++ Move it out of the origami
++ Adapt the mouse coordinates as our origin is now at the top left of our scissor test. Not top left of the window.
++ Adapt the mouse to device coordinate function. I had a raycast in place. But as I match the camera & rendering to the creasing width (at the moment 400 like the origami). I can just to x/400 y/400.
++ Refactor, so you can change the size of the rendering to any size while keeping the internal size of 400 which still matches the origami (why? Because all vertices2d of it are calculated with respect of the base origiami size)
++ DONE.
+
+Yeah I have now a fixed view of the crease pattern with working interction (to select polygons)
+
+Next Tasks:<br>
+I want to freely move the camera or at least recenter the origami.  It's not that easy, of course some calculations are going wild.
+And I also want to finally get the cleanup and degeneration detection straight.
+
+OK I monkey patched threejs orbit controls and created a moveTo function. It is only moving around x & y so I don't have to use lookAt which would interfere with
+my normal plane calculations as it's modifying the normal of the camera in an unexpeted way. Centering is okayish for now.
+
 ## 170523
 5am, got up very early and had a stupid idea. Well the idea is good but I can handle such a problem in the morning. I changed the world to have different height and width (instead of being square) and now I have problems calculating the plane normal.
 

@@ -4,6 +4,27 @@ I also added some validations to the ruler as it might be possible that there ar
 I catch those errors now. I also moved back the main camera on the z axis as the value of 100 was to low- this caused failed raycasts on some sides of the origami.
 It is now at `z=1000` instead of 100. Together with the size of 400 of the origami it's safe to assume that I will always get a raycast intersecting the scene. If not, well I handle errors now pretty well :)
 
+Today I wanted to fix the camera thing. OrbitCamera lock the UP direction which is not so good for a origami tool where I want to watch and modify it from every possible direction. I already tried to do something about it in the past. Monkey patching OrbitControls to unlock the rotation (nope) or drop in the TrackballControls. But it wasn't that easy and my motivation for it wasn't high enough back then. So I reverted it. Today I tried it again with the TrackballControls. Once I understood how to control it with the keys A-S-D as toggles to hold for zooming (s), panning (d) and rotating (a) I found it really helpful.
+
+I already patched the OrbitControls to get a proper moveTo function (to center my model) so I had to to the same here. This was straight forward. A adjusted some properties and made it moving statically as I don't need those damped movements of the camera. Result: Far better user experience with that camera. And I also have a superior pan handling compared to the OrbitControls. Together with the resizing, my shiny new crease view in the corner the whole application is beginning to feel very good. Love it!
+
+Next things to fix: Still that tidy up stuff with the polygons. I postpone this frequently as I don't have a good measurement or goal yet.
+So I have to browse the sources of the java application again to get an idea I guess. 
+---
+
+Well I tried some things but the shrinks are not helping. Mayeb it's just fine. Because after giving up on the tidy up topic I tried once again
+to get the crane working. Still the same error as the the polygon indices are not matching towards the end. So I played it back short before the moment
+where it's not working and did it manually. And yeah it worked! Well not in the same way as the playbook suggests. With the bird base at hand I shoudl reflect the two legs up to get the tail and head. This is also how I know it from folding it with real paper. This works, but after that I need to fold the wings. And that should be straighforward: Align a plane, select one of the polygons on the wing and fold with that index. But it's not folding. This happens when the algorithm detects that it would actually tear the paper apart.
+I tried different positions of my crease but it only works when I'm very high on the wings: The result is a crane with redicilious short wings 😅 So I guess my reflection in the beginning is at the wrong position and yields into a overall structure where I can't fold my wings. But I got it working with another order of actions: First fold the things and then relfect the bird base legs. I don't know at the moment if this would work in reality but it works with my code. So first milestone reached: Get a crane working. Yeah 🙌.
+
+Next things I could try - so plenty of work :)
+1. Preview of my creasing/plane in the crease view. Yeah that is a must have.
+2. Try to get the polygons in a binary tree. I could go back and forth in history with this without playing back the whole history.
+3. z fighting is very visible. I have many meshes laying on top of each other (as I pretend to fold paper with no height). No chance to rework the algorithm but maybe something in the rendering or mesh construction ?
+4. I use a very naive approach with multiple meshes to display different colors for back and forth. And with this I see some incorrect normals. My wings are supposed to show the same side of the paper and therefore point in the same direction. Can I fix this?
+5. Think about animating from the paper to the final origami. Can I find some nice ways to interpolate between the steps. Do I need that, maybe it's looking okay? And I need to cache the resulting vertices for each step. It's not even worth to think about calcualting the steps on the fly.
+6. Some undo easy handling without working on the binart tree stuff: I could simply save the whole state of the origami (vertices and polygons) and apply that state again.
+
 ## 170524
 It's early in the morning and I finally fixed a bug with the normal creation together with a non-square orthographic world. I wanted the world to fill the full browser window. So I changed the width and height to match the browser window ratio. Previously it was just a square to make working with the orthographic world easier in the beginning.
 This was fine until yesterday.

@@ -67,7 +67,7 @@ export default class Ruler extends THREE.Object3D {
       return point;
 
     }else{
-      
+
       const deviceCoordinates = utils.mouseToDeviceCoordinates(mouseX, mouseY, this.world.domElement);
       let point = new THREE.Vector3(deviceCoordinates.x, deviceCoordinates.y);
 
@@ -85,8 +85,14 @@ export default class Ruler extends THREE.Object3D {
   disable(){
     this.enabled = true;
     this.controls.disable();
-
+    this.rulerHelper.reset();
+    
     this.dispatchEvent({type: 'disabled'});
+  }
+
+  reset(){
+    this.disable();
+    this.planeHelper.reset();
   }
 
   show(plane){
@@ -94,6 +100,12 @@ export default class Ruler extends THREE.Object3D {
   }
 
   completed(){
+    if(!this.endPointProjected || !this.startPointProjected){
+      //raycast failed or didn't move
+      this.disable();
+      return;
+    }
+
     this.calculatePlane();
     this.planeHelper.fromPlane(this.currentPlane);
 
@@ -158,14 +170,14 @@ export default class Ruler extends THREE.Object3D {
 
   setStart(x, y){
     if(!this.enabled) return;
+
     this.startPoint = this.endPoint = new THREE.Vector2(x, y)
     this.startPointProjected = this.getProjectedPosition(x, y);
-
-    this.update();
   }
 
   moveTo(x, y){
     if(!this.enabled) return;
+
     this.endPoint = new THREE.Vector2(x, y);
     this.endPointProjected = this.getProjectedPosition(x, y);
 
@@ -173,7 +185,14 @@ export default class Ruler extends THREE.Object3D {
   }
 
   update(){
+    // this happens when the raycast fails. In most cases it is because the camera's z value is to low compared to the width of the origami.
+    if(!this.endPointProjected || !this.startPointProjected){
+      this.disable();
+      return;
+    }
+
     this.rulerHelper.update(this.startPointProjected, this.endPointProjected);
+    this.rulerHelper.show();
   }
 
 

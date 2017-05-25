@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { CreaseViewer } from './crease-viewer';
+import * as Rx from 'rxjs';
 
 var OrbitControls = require('./vendor/three-orbit-controls')(THREE)
 //import { CombinedCamera } from './vendor/combined-camera';
@@ -34,18 +35,51 @@ export class World extends THREE.EventDispatcher {
     this.scene.add(object);
   }
 
+  resize(width, height) {
+    this.renderer.setSize( width, height );
+    this.renderer.setViewport(0,0, width, height);
+    let ratio = width/height
+
+    let cameraWidth = 1000;
+    let cameraHeight = 1000/ratio;
+
+    let camera = this.camera;
+    camera.left = -cameraWidth/2;
+  	camera.right = cameraWidth/2;
+  	camera.top = cameraHeight/2;
+  	camera.bottom = - cameraHeight/2;
+	  camera.updateProjectionMatrix();
+  }
+
   createRenderer(){
     let renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio( window.devicePixelRatio );
-
-    let size = Math.min( window.innerWidth, window.innerHeight )
     renderer.setSize( window.innerWidth, window.innerHeight );
+
     this.container.appendChild( renderer.domElement );
     this.renderer = renderer;
   }
 
+  createResizeObserver() {
+    const getWindowSize = function(){
+      return {width: window.innerWidth, height: window.innerHeight}
+    }
+
+    let stream = new Rx.BehaviorSubject(getWindowSize());
+
+    const resizeSubject = Rx.Observable
+      .fromEvent(window, 'resize')
+      .auditTime(500)
+      .map((event: any) => getWindowSize())
+      .subscribe(stream);
+
+    stream.subscribe( res => {
+      this.resize(res.width, res.height);
+    })
+  }
+
   resetCamera(){
-    this.controls.reset();
+    this.controls.move(200, 200)
   }
 
   createCamera(){
@@ -56,7 +90,7 @@ export class World extends THREE.EventDispatcher {
 
     var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 );
     this._camera = camera;
-    this._camera.position.z = 100;
+    this._camera.position.z = 1000;//must be far enough away otherwise the raycast with the ruler might fail sometimes.
 
     this.controls = new OrbitControls(this._camera, this.renderer.domElement);
     this.controls.addEventListener('change', () => this.dispatchEvent({type: 'rotate'}))
@@ -79,6 +113,8 @@ export class World extends THREE.EventDispatcher {
     this.creaseViewer = new CreaseViewer();
     this.createRenderer();
     this.createCamera();
+
+    this.createResizeObserver();
   }
 
   start(){

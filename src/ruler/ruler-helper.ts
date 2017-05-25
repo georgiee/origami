@@ -19,7 +19,6 @@ export default class RulerHelper extends THREE.Object3D {
     let geometry = new THREE.Geometry();
     geometry.vertices.push(new THREE.Vector3(), new THREE.Vector3());
     let lineMesh = new THREE.LineSegments( geometry, material );
-    this.add(lineMesh);
     this.lineMesh = lineMesh;
 
     let startMarker = this.createMarker();
@@ -27,6 +26,14 @@ export default class RulerHelper extends THREE.Object3D {
 
     let endMarker = this.createMarker();
     this.endMarker = endMarker;
+  }
+
+  reset(){
+    this.remove(this.lineMesh);
+  }
+
+  show(){
+    this.add(this.lineMesh);
   }
 
   createMarker(size = 5, color = 0xffffff){

@@ -43,6 +43,8 @@ export default class Origami extends THREE.Object3D {
       this.shape.addVertex2D(new THREE.Vector3(0, 400, 0));
 
       this.shape.addPolygon([0,1,2,3]);
+
+      this.ruler.reset();
       this.update()
     }
 
@@ -58,6 +60,7 @@ export default class Origami extends THREE.Object3D {
 
       this.add(this.mesh);
       this.add(this.ruler);
+
       this.reset();
     }
 

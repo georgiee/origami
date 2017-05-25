@@ -1,8 +1,14 @@
+## 170525
+Got that resizing working, tried out again RxJS to do so. Works pretty well. Throttled and providing initial value by using a BehaviorSubject.
+I also added some validations to the ruler as it might be possible that there are empty endpoints when the raycast failed or the mouse simply didn't move.
+I catch those errors now. I also moved back the main camera on the z axis as the value of 100 was to low- this caused failed raycasts on some sides of the origami.
+It is now at `z=1000` instead of 100. Together with the size of 400 of the origami it's safe to assume that I will always get a raycast intersecting the scene. If not, well I handle errors now pretty well :)
+
 ## 170524
-It's early in the morning and I finally fixed a bug with the normal creation together with a non-square orthopgraphic world. I wanted the world to fill the full browser window. So I changed the width and height to match the browser window ratio. Previously it was just a square to make working with the orthopgraphic world easier in the beginning.
+It's early in the morning and I finally fixed a bug with the normal creation together with a non-square orthographic world. I wanted the world to fill the full browser window. So I changed the width and height to match the browser window ratio. Previously it was just a square to make working with the orthographic world easier in the beginning.
 This was fine until yesterday.
 
-When I was drawing my 2d line with the mouse the resulting plane normal pointed in some direction that was slightly but visibly off the expected direction. This didn't happen when one of the 2d components was null (so straight lines vertical or horziontal worked). I immediately know that something was wrong with my normal calculation in the ruler.
+When I was drawing my 2d line with the mouse the resulting plane normal pointed in some direction that was slightly but visibly off the expected direction. This didn't happen when one of the 2d components was null (so straight lines vertical or horizontal worked). I immediately know that something was wrong with my normal calculation in the ruler.
 
 So understand what's wrong here how I create the perpendicular line to my mouse drawn line:
 startPoint and endPoint are 2d coordinates already in viewport coordinates (aka normalized device coordinates).
@@ -12,7 +18,7 @@ pStart = projectMouse(startPoint.x, startPoint.y);
 pEnd = projectMouse(endPoint.x, endPoint.y);
 
 // If we flip the 2d components before the projection (so we are still in the 2d coordinate system)
-// we get the perpendicular line which we cann then project again
+// we get the perpendicular line which we can then project again
 pStartOrtho = projectMouse(-startPoint.y, startPoint.x);
 pEndOrtho = projectMouse(-endPoint.y, endPoint.x);
 ```
@@ -31,7 +37,7 @@ just convert back to screen coordinates at the normal calculation. But it was im
 
 
 **OK PART2: Back from work after working on this in the morning:**
-My goal for this evening is to create a separate view of the crease patter. Currently it is floating next to the 3d view. So if you rotate the camer,
+My goal for this evening is to create a separate view of the crease patter. Currently it is floating next to the 3d view. So if you rotate the camera,
 the creases will rotate away. That's bad because it's an important part of interaction.
 So the things to do are:
 Firs of all. Decide if you want a html based view (a separate fixed canvas and whatever library I want to render the vertices2D and handle the interaction)
@@ -39,21 +45,21 @@ or integrate in threejs. I quickly concluded it's nothing complex, there are no 
 So yeah go for threejs. This means the following:
 
 + Create a scissor test in the renderer to create a place where to render another scene with another camera
-+ Create a spearate camera and scene to hold the creasing view from now
++ Create a separate camera and scene to hold the creasing view from now
 + Move it out of the origami
 + Adapt the mouse coordinates as our origin is now at the top left of our scissor test. Not top left of the window.
 + Adapt the mouse to device coordinate function. I had a raycast in place. But as I match the camera & rendering to the creasing width (at the moment 400 like the origami). I can just to x/400 y/400.
 + Refactor, so you can change the size of the rendering to any size while keeping the internal size of 400 which still matches the origami (why? Because all vertices2d of it are calculated with respect of the base origiami size)
 + DONE.
 
-Yeah I have now a fixed view of the crease pattern with working interction (to select polygons)
+Yeah I have now a fixed view of the crease pattern with working interaction (to select polygons)
 
 Next Tasks:<br>
 I want to freely move the camera or at least recenter the origami.  It's not that easy, of course some calculations are going wild.
 And I also want to finally get the cleanup and degeneration detection straight.
 
 OK I monkey patched threejs orbit controls and created a moveTo function. It is only moving around x & y so I don't have to use lookAt which would interfere with
-my normal plane calculations as it's modifying the normal of the camera in an unexpeted way. Centering is okayish for now.
+my normal plane calculations as it's modifying the normal of the camera in an unexpected way. Centering is okayish for now.
 
 ## 170523
 5am, got up very early and had a stupid idea. Well the idea is good but I can handle such a problem in the morning. I changed the world to have different height and width (instead of being square) and now I have problems calculating the plane normal.
@@ -79,7 +85,7 @@ without having a number example from java. Today I was in the mood to hack some 
 It's basically a signed short value overflow into negative values - where my ruby part never overflowed nor did my unpacking strategy
 with different signed integer size get me anywhere. I think when I tried unpacking with bytes.unpack("@4cC3") I was really near.
 I get a -2 instead of a 254 for example. But the thing is": short java unsigned has the range of -32,768 to 32,767.
-This woudl mean I have to use the 16bit unpacking directive (S or s). But this would only mean that it is also expecting more bytes and not only the single byte I provide
+This would mean I have to use the 16bit unpacking directive (S or s). But this would only mean that it is also expecting more bytes and not only the single byte I provide
 per number. Solution: Just unpack the bytes as usual 8bit values unsigned and then do the overflowing manually.
 That's the wonderful piece of overflowing in ruby I found. And now every number fits and I can go on applying all commands from the given file
 inside my own web based origami application.
@@ -95,14 +101,14 @@ end
 ```
 
 So and how does this work? Well the bird base just works!! This is an awesome feeling as it means my algorithms are just working very good to this point.
-The only thing is: When I switch over to the crane playbook which is the bird base + crane specifics it fails at the moment where it tris to do a index based reflection.
+The only thing is: When I switch over to the crane playbook which is the bird base + crane specifics it fails at the moment where it tries to do a index based reflection.
 
 This means: My indices are not the same as in the given file format (I think because I'm not tidying up empty polygons yet)
 and even if I manually select the correct polygon index to reflect it is just doing nothing. So back to debug mode. But that's half of the fun isn't it ?! 🙌
 
 Funny bug in `reflectIndex`. I don't break the inner loop over the selection.
 So I basically search over every index. Then I iterate over the whole list of involved polygons (selected). if some of them contains the vertex
-it's involved in the selected polygon folding action. But if I don't cancel the inner loop I immediately reflect my vertex back and nothign happens.
+it's involved in the selected polygon folding action. But if I don't cancel the inner loop I immediately reflect my vertex back and nothing happens.
 Stupid🤦‍♀️
 
 Ok it seems that every base function (reflect, fold) is working now. Reading the existing save files form the other app works too
@@ -112,7 +118,7 @@ It is easier to use an existing set of folding commands instead of building my o
 ## 170516
 Problem: NULL Error when raycasting. But only when I'm using the very large setup to match the 400x400 setup from the original sources.
 Solution: Raycasting is using the camera position (as I set it with setFromCamera). In my setup the camera is at 100. So if I rotate the object
-in front of the camera it is projected as usual but in reality it is beind the camera. It's not visible because of the orthographic camera.
+in front of the camera it is projected as usual but in reality it is behind the camera. It's not visible because of the orthographic camera.
 Behind the camera means my ray shoots in the wrong direction.
 
 I have to fix my camera distance (with z, no effect on the projection but clipping) or adjust the ray accordingly.
@@ -123,11 +129,11 @@ Things to do:
 + Show the (potential) folding line in the creasing pattern. Is there a shortcut by using the vertices2D or do I have to do a full (temporay) crease to find the folding line?
 + Check the file format with the bit float bit conversion again.
 + Fix the creasing view in a separate viewport with a separate camera.
-+ Allow the camera to move without changing the reuslt of the ruler. Currently the plane is misaligned then.
-It's fine from the view of the camera, but wrong from the view of the origiami - reflecting for example results in two sides not laying on each other liek usual.
++ Allow the camera to move without changing the result of the ruler. Currently the plane is misaligned then.
+It's fine from the view of the camera, but wrong from the view of the origami - reflecting for example results in two sides not laying on each other liek usual.
 
 
-commandBlock(int foid, double[] ppoint, double[] pnormal, int polygonIndex, int phi) {
+commandBlock(int void, double[] ppoint, double[] pnormal, int polygonIndex, int phi) {
   is the place where the command is transformed to bytes. Might help with decoding.
 
 ## 170515
@@ -187,7 +193,7 @@ that describes an application build in 1997 that does what I am working on. So i
 
 My new approach: polygons and vertices based on indices and a ruler to get the cutting plane. The cutting plane in space is new. I was so much focused on reading the scientific papers that I totally missed the obvious. And now that application is doing it. Create a plane in space and cut the exiting polygon with it. I could totally use the three js cutting functionality but I want so stick to the basics and also to the given sources. So I create polygon cutting functions from scratch. By looking at the sources, at wikipedia, at other repositories and by looking through my books at home. This is just fun and I spend so many evenings and every time I am on a train doing so that I reach fairly quickly a point where I can crease, fold & reflect.
 
-After reaching that point I want to get soem results so I am thinking about using the examples in the java application. But they are compressed with LZW and have a proprietary file format. It seems like that was the real challenge for the author. I split my formats. Dived into java for the LZW algorithm (so I can copy & paste). This was annoying. Javas package structure, class vs. file conventions and so on made this anything else but a pleasure. Even that I did some java in the university.
+After reaching that point I want to get some results so I am thinking about using the examples in the java application. But they are compressed with LZW and have a proprietary file format. It seems like that was the real challenge for the author. I split my formats. Dived into java for the LZW algorithm (so I can copy & paste). This was annoying. Javas package structure, class vs. file conventions and so on made this anything else but a pleasure. Even that I did some java in the university.
 For the second part, the parsing of the file format, I chose ruby. I love ruby, I'm not an expert but I use every chance to tinker with it. With the magic of pack und unpack I got quickly to the point where I could read in all commands.
 
 ## Fun with..

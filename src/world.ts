@@ -3,6 +3,8 @@ import { CreaseViewer } from './crease-viewer';
 import * as Rx from 'rxjs';
 
 var OrbitControls = require('./vendor/three-orbit-controls')(THREE)
+import OrthographicTrackballControls from './vendor/orthographic-trackback-controls';
+
 //import { CombinedCamera } from './vendor/combined-camera';
 
 export class World extends THREE.EventDispatcher {
@@ -11,7 +13,8 @@ export class World extends THREE.EventDispatcher {
   public creaseViewer: CreaseViewer;
   private renderer;
   private container;
-  public controls;
+  public orbitControls;
+  public orthoTrackballControls;
   private _camera;
 
   constructor() {
@@ -22,9 +25,13 @@ export class World extends THREE.EventDispatcher {
 
     this.init();
   }
+  get controls(){
+    return this.orthoTrackballControls;
+  }
 
   center(point: THREE.Vector3) {
-    this.controls.move(point.x, point.y)
+    this.controls.reset();
+    this.controls.move(-point.x, point.y)
   }
 
   get domElement(){
@@ -79,7 +86,8 @@ export class World extends THREE.EventDispatcher {
   }
 
   resetCamera(){
-    this.controls.move(200, 200)
+    this.controls.reset();
+    this.controls.move(-200, 200)
   }
 
   createCamera(){
@@ -89,13 +97,25 @@ export class World extends THREE.EventDispatcher {
     let height = 1000/ratio;
 
     var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 );
+    var camera2 = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 );
     this._camera = camera;
     this._camera.position.z = 1000;//must be far enough away otherwise the raycast with the ruler might fail sometimes.
 
-    this.controls = new OrbitControls(this._camera, this.renderer.domElement);
-    this.controls.addEventListener('change', () => this.dispatchEvent({type: 'rotate'}))
+    this.orbitControls = new OrbitControls(camera2, this.renderer.domElement);
+    this.orbitControls.addEventListener('change', () => this.dispatchEvent({type: 'rotate'}))
+    this.orbitControls.move(200, 200)
 
-    this.controls.move(200, 200)
+    this.createTrackballControl();
+  }
+
+  createTrackballControl(){
+    let control = new OrthographicTrackballControls(this._camera, this.renderer.domElement );
+    control.panSpeed = 1;
+    control.rotateSpeed = 2;
+    control.zoomSpeed = -0.2;
+    control.dynamicDampingFactor = 1;
+    control.staticMoving = true;
+    this.orthoTrackballControls = control;
   }
 
   init(){
@@ -115,6 +135,7 @@ export class World extends THREE.EventDispatcher {
     this.createCamera();
 
     this.createResizeObserver();
+    this.resetCamera();
   }
 
   start(){
@@ -135,6 +156,7 @@ export class World extends THREE.EventDispatcher {
 
   render(){
     window.requestAnimationFrame( this.render );
+    this.orthoTrackballControls.update();
     this.step();
   }
 

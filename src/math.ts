@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-function getProjectedPosition(x, y, camera){
+export function getProjectedPosition(x, y, camera){
   let cameraNormal = camera.getWorldDirection();
   let v = new THREE.Vector3(x, y, -1); //on near plane
   v.unproject(camera);
@@ -13,16 +13,18 @@ function getProjectedPosition(x, y, camera){
   return v3;
 }
 
-function planeBetweenPoints(plane: THREE.Plane, v1, v2){
+export function planeBetweenPoints(plane: THREE.Plane, v1, v2){
   let delta1 = plane.distanceToPoint(v1);
   let delta2 = plane.distanceToPoint(v2);
 
   return Math.sign(delta1) != Math.sign(delta2);
 }
 
+export function pointOnPlane(plane, point, threshold = 1){
+    return Math.abs(plane.distanceToPoint(point)) < threshold;
+}
 
-
-function planeBetweenPoints2(plane: THREE.Plane, v1, v2){
+export function planeBetweenPoints2(plane: THREE.Plane, v1, v2){
   const EPSILON = 0.0001;
 
   let delta1 = plane.distanceToPoint(v1);

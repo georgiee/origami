@@ -1,3 +1,27 @@
+## 170603
+Plan for today: Get the creasing preview done. Let's start.
+
+Yes, after 2 hours I got it working on the creasing view. I don't know yet if I need a preview on the 3d yet.
+But I frequently into problems with the indices based organziation of the polygons and vertices (this structure is good).
+In my loops I frequently mix up indices of the current loop just pointing to the array and indices pointing to a vertex or polygon.
+
+THis yielded into a stupid bug just now: I was iterating over the vertices of a given polygon. I had to check for the intersections between
+the vertices and the plane. This worked but I quickly run into problems with multiple lines. First I blamed my mesh generating algorithm (so justa visual error) but I quickly discovered that some of the intersections were basically ok, but the involved vertices were part of two different polygons. The bug? Looks like this:
+
+```
+for( let i = 0, l = polygonIndices.length; i < l) {
+  let currentIndex = polygonIndices[i]
+  let followIndex = (currentIndex + 1) % vertices.length;
+}
+```
+
+currentIndex and followIndex will hold the actual pointers to the vertices. To always get a pair I use modulo. But I use it on the wrong dimension. I should modulo the accessor of the `polygonIndices` array - otherwise I get some unrelated vertex not beloinging to the current polygon.
+
+```
+let followIndex = polygonIndices[(i + 1)%polygonIndices.length];
+```
+Bug fixed and I feel like a novice running into bugs like this. THis is a very clear sign that I'm not comfortable with the current structure of the code. This comes from porting code combine with my prototyping loving mind to get things running quickly. So I really need a very thorough refactor session soon to get things straight and readable.
+
 ## 170529
 Ok I'm getting nowhere with my debugging. I tested some basic reflections within the state of the crane/bird base. Step 7. Reflecting one of the bird base legs.
 It's polygon index 23 in the saved file. It's working then I play it with the playbook but when I do the same manually (select polygon 23, reflect in the same direction)

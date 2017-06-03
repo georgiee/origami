@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as chroma from 'chroma-js';
 import utils from './utils';
 import { distanceSquaredToLineSegment } from './math';
+import * as math from './math';
 
 import World from './world';
 
@@ -13,7 +14,7 @@ export class OrigamiCreases extends THREE.Object3D {
   private selectedPolygon: number = -1;
   private highlightedVertices;
   private _shape;
-
+  private _edgePreview: THREE.Group = new THREE.Group();
   constructor(){
     super()
     this.init();
@@ -43,14 +44,80 @@ export class OrigamiCreases extends THREE.Object3D {
       this.remove(this.polygonMarker);
       point = null;
     }
-    console.log('this.selectedPolygon', this.selectedPolygon)
     this.dispatchEvent({type:'polygon-selected', index: this.selectedPolygon, point })
   }
-
+  
   preview(plane){
-    console.log('preview plane', plane)
-    //implement: public ArrayList<double[]> foldingLine2d(double[] ppoint, double[] pnormal) {
-    //cut vertices and and use the weights to get the vertices 2d and form a line.
+    let lines = this.getLine2d(plane);
+    let geometry = this.linesToGeometry(lines);
+    
+    let material = new THREE.LineBasicMaterial({color: 0xff0000});
+    let lineMesh = new THREE.LineSegments( geometry, material );
+
+    if (this._edgePreview.children.length > 0){
+      this._edgePreview.remove(this._edgePreview.children[0]);
+    }
+
+    this._edgePreview.add(lineMesh);
+  }
+  
+  getLine2d(plane){
+    let polygons = this.shape.getPolygons();
+    let vertices = this.shape.getVertices();
+    let vertices2d = this.shape.getVertices2d();
+    
+    let intersectedVector2d = new THREE.Vector3();
+    let lines = [];
+
+    polygons.forEach((polygon, polygonIndex) => {
+      if(this.shape.isNonDegenerate(polygonIndex)) {
+
+        let end = null;
+        let start = null;
+        polygon.forEach((vertexIndex, index) => {
+          
+          let currentIndex = polygon[index];
+          let followIndex = polygon[(index + 1)%polygon.length];
+          
+          let vertex = vertices[currentIndex];
+          let vertex2 = vertices[followIndex];
+          
+          if( math.pointOnPlane(plane, vertex) ) {
+            
+            end = start;
+            start = vertices2d[currentIndex];
+
+          } else {
+            
+            if(math.planeBetweenPoints2(plane,vertex,vertex2) && math.pointOnPlane(plane, vertex2) === false) {
+                let line = new THREE.Line3(vertex, vertex2);
+                
+                let meet = plane.intersectLine(line);
+                let weight1 = meet.clone().sub(vertex2).length();
+                let weight2 = meet.clone().sub(vertex).length();
+                
+                let vertex2D_1  = vertices2d[currentIndex];
+                let vertex2D_2  = vertices2d[followIndex];
+
+                intersectedVector2d.setX((vertex2D_1.x * weight1 + vertex2D_2.x * weight2)/(weight1 + weight2));
+                intersectedVector2d.setY((vertex2D_1.y * weight1 + vertex2D_2.y * weight2)/(weight1 + weight2))
+
+                end = start;
+                start = intersectedVector2d.clone();
+            }
+
+          }
+
+        })
+
+        if(start && end) {
+          lines.push([start.clone(), end.clone()]);
+        }
+
+      }
+    })
+
+    return lines;
   }
 
   isStrictlyNonDegenerate(index){
@@ -90,6 +157,8 @@ export class OrigamiCreases extends THREE.Object3D {
   toMesh(){
    let group = new THREE.Group();
    group.add(this.createLines());
+   group.add(this._edgePreview);
+
    return group;
   }
 
@@ -125,7 +194,16 @@ export class OrigamiCreases extends THREE.Object3D {
 
      return points;
   }
+  
+  linesToGeometry(lines) {
+    let geometry = new THREE.Geometry();
 
+    lines.forEach(line => {
+      geometry.vertices.push(line[0], line[1]);
+    })
+    return geometry;
+  }
+  
   toGeometryPlane(){
     let combinedGeometry = new THREE.Geometry();
     let counter = 1;

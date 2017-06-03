@@ -128,7 +128,7 @@ class OrigamiMesh extends THREE.Object3D {
           return;
         }
 
-        let polygonVertices = polygon.map(index => {
+        let polygonVertices:Array<any> = polygon.map(index => {
           return vertices[index].clone()
         });
 

@@ -11,7 +11,7 @@ export class CreaseViewer {
 
   private rendererWidth;
   private rendererHeight;
-  constructor(size = 200) {
+  constructor(size = 400) {
     this.size = size;
     this.objectSize = 400; //largest side of the object to display
 

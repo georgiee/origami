@@ -46,6 +46,8 @@ export default class Ruler extends THREE.Object3D {
     this.controls.addEventListener('move', (event:any) => {
       const point = this.getRulerPoint(event.x, event.y);
       this.moveTo(point.x, point.y);
+      this.calculatePlane();
+      this.dispatchEvent({type: 'update', plane: this.currentPlane})
     })
 
     this.controls.addEventListener('start', (event:any) => {
@@ -86,7 +88,7 @@ export default class Ruler extends THREE.Object3D {
     this.enabled = true;
     this.controls.disable();
     this.rulerHelper.reset();
-    
+
     this.dispatchEvent({type: 'disabled'});
   }
 
@@ -100,12 +102,6 @@ export default class Ruler extends THREE.Object3D {
   }
 
   completed(){
-    if(!this.endPointProjected || !this.startPointProjected){
-      //raycast failed or didn't move
-      this.disable();
-      return;
-    }
-
     this.calculatePlane();
     this.planeHelper.fromPlane(this.currentPlane);
 
@@ -159,6 +155,10 @@ export default class Ruler extends THREE.Object3D {
   }
 
   calculatePlane() {
+    if(!this.endPointProjected || !this.startPointProjected){
+      return; //raycast failed or didn't move
+    }
+
     let vCenter = new THREE.Vector3().lerpVectors(this.startPointProjected, this.endPointProjected, 0.5);
     let vNormal = this.getNormal(this.camera, this.startPointProjected);
 

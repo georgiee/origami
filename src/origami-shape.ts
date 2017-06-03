@@ -20,11 +20,19 @@ export default class OrigamiShape {
   private vertices = [];
   private vertices2d = [];
   private cutpolygonNodes = [];
-  private cutpolygonPairs = [];
+  private _cutpolygonPairs = [];
   private lastCutPolygons = [];
 
   constructor() {
     this.polygonList = new PolygonList();
+  }
+
+  set cutpolygonPairs(value) {
+    this._cutpolygonPairs = value;
+  }
+
+  get cutpolygonPairs() {
+    return this._cutpolygonPairs;
   }
 
   addVertex(v: THREE.Vector3){
@@ -206,8 +214,6 @@ export default class OrigamiShape {
   }
 
   shrinkWithIndex(index){
-    console.log('this.polygons before', this.polygons.length);
-
     const tmp = this.polygons[index];
     this.removePolygon(index);
 
@@ -223,15 +229,18 @@ export default class OrigamiShape {
      }
 
     this.polygons.splice(index,0, tmp);
-    console.log('this.polygons after', this.polygons.length);
   }
 
 
   // Reflect
   reflect(plane){
+
     this.shrink();
 
     this.cutpolygonNodes = [];
+    this.cutpolygonPairs = [];
+    this.lastCutPolygons = [];
+
     this.cut(plane);
 
     this.vertices.forEach(vertex => {
@@ -245,10 +254,10 @@ export default class OrigamiShape {
 
   reflectIndex(plane, polygonIndex){
     this.highlightedVertices = []
-
     //this.fold(plane, 0);
 
     const selection = this.polygonSelect(plane, polygonIndex);
+
     selection.forEach(selection => {
       let polygon = this.polygons[selection];
       polygon.forEach(index => {
@@ -273,6 +282,10 @@ export default class OrigamiShape {
     this.shrinkWithIndex(polygonIndex);
   }
 
+  crease(plane){
+    this.fold(plane, 0)
+  }
+
   // fold
   fold(plane: THREE.Plane, angle = 0){
     this.shrink();
@@ -282,6 +295,7 @@ export default class OrigamiShape {
     this.lastCutPolygons = [];
 
     this.cut(plane);
+
     let foldingpoints = this.vertices.filter(vertex => {
       let distance = plane.distanceToPoint(vertex);
       return parseFloat(distance.toFixed(2)) === 0
@@ -428,10 +442,10 @@ export default class OrigamiShape {
 
 
     this.mergeUnaffectedPolygons(selection)
-    //this.shrinkWithIndex(polygonIndex);
+    this.shrinkWithIndex(polygonIndex);
   }
 
-  
+
 
   vertexPosition(vertex, plane){
     let distance = plane.distanceToPoint(vertex);
@@ -544,6 +558,7 @@ export default class OrigamiShape {
 
 
   mergeUnaffectedPolygons(selection){
+    let counter = 0;
     this.cutpolygonPairs.forEach((pair, index) => {
       //if not part of the selection make this polygon like the one before, the other part will be removed in the next loop.
       if(!(selection.indexOf(pair[0]) !== -1 || selection.indexOf(pair[1]) !== -1)){
@@ -555,8 +570,10 @@ export default class OrigamiShape {
     this.cutpolygonPairs.forEach((pair, index) => {
       if(!(selection.indexOf(pair[0]) !== -1 || selection.indexOf(pair[1]) !== -1)) {
         this.polygons[pair[1]] = [];
+        counter++;
       }
     })
+    console.info('merge previous', this.cutpolygonPairs.length, 'cleared: ', counter);
 
     this.cutpolygonPairs = [];
     this.lastCutPolygons = [];

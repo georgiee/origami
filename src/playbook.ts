@@ -27,7 +27,6 @@ export class Playbook {
     this.panelData.index = count;
     this.origami.reset();
     this.instructions.slice(0, this.currentIndex).forEach((data, index) => this.runCommand(data, index))
-
     updateDisplay();
   }
 
@@ -86,6 +85,8 @@ export class Playbook {
 
       case "FOLD_CREASE": this.crease(plane);break;
     }
+
+    this.origami.stats();
   }
   foldRotation(plane, angle, index?){
     this.origami.fold(plane, angle, index )

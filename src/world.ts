@@ -130,7 +130,7 @@ export class World extends THREE.EventDispatcher {
     //let camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
     this.scene = scene;
 
-    this.creaseViewer = new CreaseViewer();
+    this.creaseViewer = new CreaseViewer(250);
     this.createRenderer();
     this.createCamera();
 

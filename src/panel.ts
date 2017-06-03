@@ -67,13 +67,15 @@ function updateDisplay(){
 function init(){
   gui = new dat.GUI({ autoPlace: false });
 
-  gui.add(properties, 'angle', -180, 180, 15).name('Angle');
-  gui.add(methods, 'crease').name('Crease');
-  gui.add(methods, 'reflect').name('Reflect');
-  gui.add(methods, 'fold').name('Fold');
-  gui.add(methods, 'center').name('Center');
-  gui.add(methods, 'resetCamera').name('Reset Camera');
-  gui.add(methods, 'reset').name('Reset');
+  const origamiFolder = gui.addFolder('Origami');
+  origamiFolder.closed = true;
+  origamiFolder.add(properties, 'angle', -180, 180, 15).name('Angle');
+  origamiFolder.add(methods, 'crease').name('Crease');
+  origamiFolder.add(methods, 'reflect').name('Reflect');
+  origamiFolder.add(methods, 'fold').name('Fold');
+  origamiFolder.add(methods, 'center').name('Center');
+  origamiFolder.add(methods, 'resetCamera').name('Reset Camera');
+  origamiFolder.add(methods, 'reset').name('Reset');
 }
 
 init();

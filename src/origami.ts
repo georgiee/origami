@@ -25,8 +25,12 @@ export default class Origami extends THREE.Object3D {
     }
 
     highlightPolygon(index){
-      console.log('highlightPolygon')
       this.creasing.showPolygons([index]);
+    }
+
+    stats(){
+        console.info('Polygon Count: ', this.shape.getPolygons().length);
+        console.info('Vertices Count: ', this.shape.getVertices().length);
     }
 
     reset(){
@@ -76,11 +80,11 @@ export default class Origami extends THREE.Object3D {
 
     fold(plane: THREE.Plane, angle, index?){
       if(this.selectedPoint2D){
-        this.crease(plane || this.currentPlane);
+        //this.crease(plane || this.currentPlane);
         let polygonIndex = this.shape.findPolygon2D(this.selectedPoint2D)
         this.foldIndex(plane || this.currentPlane, angle, polygonIndex)
       }else if (index){
-        this.crease(plane || this.currentPlane);
+        //this.crease(plane || this.currentPlane);
         this.foldIndex(plane || this.currentPlane, angle, index);
       }else {
         this.shape.fold(plane || this.currentPlane, angle);
@@ -96,11 +100,11 @@ export default class Origami extends THREE.Object3D {
     reflect(plane: THREE.Plane, index?){
       //debugger;
       if(this.selectedPoint2D){
-        this.crease(plane || this.currentPlane);
+        //this.crease(plane || this.currentPlane);
         let polygonIndex = this.shape.findPolygon2D(this.selectedPoint2D)
         this.reflectIndex(plane || this.currentPlane, polygonIndex);
       }else if (index){
-        this.crease(plane || this.currentPlane);
+       // this.crease(plane || this.currentPlane);
         this.reflectIndex(plane || this.currentPlane, index);
       }else{
         this.shape.reflect(plane || this.currentPlane);
@@ -118,7 +122,7 @@ export default class Origami extends THREE.Object3D {
     }
 
     crease(plane: THREE.Plane){
-      this.shape.fold(plane || this.currentPlane, 0);
+      this.shape.crease(plane || this.currentPlane);
       this.update()
     }
 
@@ -144,6 +148,10 @@ export default class Origami extends THREE.Object3D {
 
       this.ruler.addEventListener('completed', (event:any) => {
         this.currentPlane = event.plane;
+      });
+
+      this.ruler.addEventListener('update', (event:any) => {
+        this.creasing.preview(event.plane);
       });
     }
 

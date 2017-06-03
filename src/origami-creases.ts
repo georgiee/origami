@@ -47,6 +47,11 @@ export class OrigamiCreases extends THREE.Object3D {
     this.dispatchEvent({type:'polygon-selected', index: this.selectedPolygon, point })
   }
 
+  preview(plane){
+    console.log('preview plane', plane)
+    //implement: public ArrayList<double[]> foldingLine2d(double[] ppoint, double[] pnormal) {
+    //cut vertices and and use the weights to get the vertices 2d and form a line.
+  }
 
   isStrictlyNonDegenerate(index){
     return true;

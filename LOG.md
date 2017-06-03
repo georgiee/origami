@@ -1,3 +1,13 @@
+## 170529
+Ok I'm getting nowhere with my debugging. I tested some basic reflections within the state of the crane/bird base. Step 7. Reflecting one of the bird base legs.
+It's polygon index 23 in the saved file. It's working then I play it with the playbook but when I do the same manually (select polygon 23, reflect in the same direction)
+it is just flipping the whole origami. Which shouldn't happen when I flip only a specific polygon. So now I want to go further back. Let's build the bird base myself without relying on the given playbook. Steps 1-4 are easy. Step 5 isn't going to work. I'm missing some tool. My points only snap to half and thirds, but to get that side folded and aligned to the center I need some other ratio. I'm now thinking that `Angle bisector`, `Through 3` and `Neusis Mode` are not only for fun in the java application. I read the manual. And I have the strong feeling I'm missing the angle bisector. So back to the roots:
+
++ First of all it's annoying not to see what I'm doing, I need a preview in the creasing view what I'm going to crease/fold.
++ Second I need that bisector function.
+
+Let's do that. I'm happy to have a clear task again because that blind debugging why seomthing is not working was really demotivating.
+
 ## 170525
 Got that resizing working, tried out again RxJS to do so. Works pretty well. Throttled and providing initial value by using a BehaviorSubject.
 I also added some validations to the ruler as it might be possible that there are empty endpoints when the raycast failed or the mouse simply didn't move.
@@ -9,14 +19,21 @@ Today I wanted to fix the camera thing. OrbitCamera lock the UP direction which 
 I already patched the OrbitControls to get a proper moveTo function (to center my model) so I had to to the same here. This was straight forward. A adjusted some properties and made it moving statically as I don't need those damped movements of the camera. Result: Far better user experience with that camera. And I also have a superior pan handling compared to the OrbitControls. Together with the resizing, my shiny new crease view in the corner the whole application is beginning to feel very good. Love it!
 
 Next things to fix: Still that tidy up stuff with the polygons. I postpone this frequently as I don't have a good measurement or goal yet.
-So I have to browse the sources of the java application again to get an idea I guess. 
+So I have to browse the sources of the java application again to get an idea I guess.
 ---
 
 Well I tried some things but the shrinks are not helping. Mayeb it's just fine. Because after giving up on the tidy up topic I tried once again
 to get the crane working. Still the same error as the the polygon indices are not matching towards the end. So I played it back short before the moment
 where it's not working and did it manually. And yeah it worked! Well not in the same way as the playbook suggests. With the bird base at hand I shoudl reflect the two legs up to get the tail and head. This is also how I know it from folding it with real paper. This works, but after that I need to fold the wings. And that should be straighforward: Align a plane, select one of the polygons on the wing and fold with that index. But it's not folding. This happens when the algorithm detects that it would actually tear the paper apart.
-I tried different positions of my crease but it only works when I'm very high on the wings: The result is a crane with redicilious short wings 😅 So I guess my reflection in the beginning is at the wrong position and yields into a overall structure where I can't fold my wings. But I got it working with another order of actions: First fold the things and then relfect the bird base legs. I don't know at the moment if this would work in reality but it works with my code. So first milestone reached: Get a crane working. Yeah 🙌.
+I tried different positions of my crease but it only works when I'm very high on the wings: The result is a crane with ridiculous short wings 😅 So I guess my reflection in the beginning is at the wrong position and yields into a overall structure where I can't fold my wings. But I got it working with another order of actions: First fold the things and then relfect the bird base legs. I don't know at the moment if this would work in reality but it works with my code. So first milestone reached: Get a crane working. Yeah 🙌.
 
+After creasing and reflecting the bird legs it's not removing the unaffected polygons. This might be the reasons why I have so many polygons. Need to dig deeper here!
+And I couldn't resist and digged for half an hour. I had plenty of creases call in my origami class which acts as an interface to the underlying shape class. Those creases emptied my cuttedPolygons Array where I keep track of the previously created polygons from creases. After a fold or reflection I can merge unaffected polygons. But if I call a crease with the same plane twice, guess what: This array was always empty. I fixed it and hoped to get a signifcant smaller amount of total polygons. But nope, stil around 180 for the crane and I don't know if this is the same amout as in the java application. Maybe I have to finally get that started in Eclipse or somewhere to get those numbers ?
+
+But my creasing pattern looks different. Many creases are gone and it's now looking more like the one in the java application. That's good! But I can also see now
+that something is wrong in step 12 (part of the bird base). The creasing pattern doesn't match when I fold in one side. This is somehow good, because it's a not so complex part of the origami and I can do some vertex/polygon debugging here eeasily. Hmm. When I disable the merging the pattern looks fine at the step
+
+Some other things I notices:
 Next things I could try - so plenty of work :)
 1. Preview of my creasing/plane in the crease view. Yeah that is a must have.
 2. Try to get the polygons in a binary tree. I could go back and forth in history with this without playing back the whole history.

@@ -70,7 +70,7 @@ export class Playbook {
   }
 
   runCommand(data, index){
-    console.log(`run ${index + 1}/${this.instructions.length} - ${data.command} ${data.polygonIndex ? data.polygonIndex : ''}`);
+    console.warn(`run ${index + 1}/${this.instructions.length} - ${data.command} ${data.polygonIndex ? data.polygonIndex : ''}`);
 
     let ruler = this.origami.getRuler()
     let plane = this.getPlane(data);

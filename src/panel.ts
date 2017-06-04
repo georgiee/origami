@@ -12,10 +12,12 @@ function crease(){
 }
 
 function fold(){
+  origami.crease(currentPlane);
   origami.fold(currentPlane, properties.angle);
 }
 
 function reflect(){
+  origami.crease(currentPlane);
   origami.reflect(currentPlane);
 }
 

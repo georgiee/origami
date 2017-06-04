@@ -1,3 +1,34 @@
+## 170604
+New day, new stupid bug. I am in the process of refactoring and want to put the cut method into a polygon class.
+Process is good, it's a lot of cross testing to see if the results are the same as before without the parts ripped out of the shape class.
+
+But I wasted an hour hunting down a bug where my vertices2d went crazy very early. I knew it 
+must be somtehing in the new Polygon class or Model Class where I manage all global vertices and polygons.
+I created a new method amendVertices2d to update the 2d vertices for the creasing view in a separate function
+instead of being baked in the cut method.
+This method  defines `v1`, `v2` and `vertex2D_1`,`vertex2D_1`. Yeah stupid naming and that was the reason for the 
+bug. Those are retrieved from the global vertices array with index. Same index means same vertext in 3d and 2d.
+I have the methods getVertex and getVertex2d in place to do so. Guess what? I retrieved both with getVertex2d. So it went nuts
+pretty quickly. I had those errors. It is just because you're not focussed enough.
+
+
+Aaaaaand there goes another. Looked like the bug before but happened only after 18 steps in the miura fold playbook.
+I console logged the shit out of my application to find that innocent part:
+```
+    newpoly1.push(i);
+    newpoly2.push(i);
+```
+
+which should be
+
+```
+    newpoly1.push(indices[i]);
+    newpoly2.push(indices[i]);
+```
+
+So nearly same bug as before but other place in my code, same weirdness in the vertex2d but I did not even think of checking the indices
+at that place 🙄 Lession learned. Maybe.
+
 ## 170603
 Plan for today: Get the creasing preview done. Let's start.
 
@@ -16,6 +47,10 @@ for( let i = 0, l = polygonIndices.length; i < l) {
 ```
 
 currentIndex and followIndex will hold the actual pointers to the vertices. To always get a pair I use modulo. But I use it on the wrong dimension. I should modulo the accessor of the `polygonIndices` array - otherwise I get some unrelated vertex not beloinging to the current polygon.
+
+--- 
+I started with the refactoring. Created a new model to hold my polygons, vertices and vertices2d. Nothing more.
+I recognized that I created a polygonList to do the same before. But I rememeber that I introduced bugs with this so I just reverted everything. I must have forgotten that file. So now: More carefully working on this. My goal is to get a nice class compound to work with polygons & points. Both with indices and the actual value. I plan to try out some es6 generator patterns to easily loop over all or parts of them.
 
 ```
 let followIndex = polygonIndices[(i + 1)%polygonIndices.length];
@@ -263,3 +298,4 @@ My collection of debug moments:
 
 + floating round errors: distanceToPlane(vertex) is not always 0 event if the vertex is on the plane
 + Create your own polygon list class and make the most basic function (containsIndex to find a vertex) returning wrong results
++ I read this down the rabbit hole: Plane with normal and cosntant is called http://mathworld.wolfram.com/HessianNormalForm.html

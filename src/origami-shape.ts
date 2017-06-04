@@ -1,10 +1,15 @@
 import * as THREE from 'three';
 import math from './math';
 import { polygonContains } from './math';
-
+import * as _ from 'lodash';
 import utils from './utils';
 import World from './world';
 import { OrigamiModel } from './model'
+
+import { Polygon } from './polygon-math/polygon';
+
+
+const LEGACY = true;
 
 const VERTEX_POSITION = {
   COPLANAR: 0,
@@ -15,9 +20,8 @@ const VERTEX_POSITION = {
 
 export default class OrigamiShape {
   private highlightedVertices = [];
-  private vertices = [];
-  private vertices2d = [];
   private cutpolygonNodes = [];
+  private cutpolygonNodes2 = [];
   private _cutpolygonPairs = [];
   private lastCutPolygons = [];
 
@@ -25,6 +29,11 @@ export default class OrigamiShape {
 
   constructor() {
     this.model = new OrigamiModel();
+  }
+  
+  resetCutHistory() {
+    this.cutpolygonNodes2 = [];
+    this.cutpolygonNodes = []
   }
 
   set cutpolygonPairs(value) {
@@ -46,12 +55,12 @@ export default class OrigamiShape {
   }
 
   addVertex(v: THREE.Vector3){
-    this.vertices.push(v);
+    //this.vertices.push(v);
     this.model.addVertex(v);
   }
 
   addVertex2D(v: THREE.Vector3){
-    this.vertices2d.push(v);
+    //this.vertices2d.push(v);
     this.model.addVertex2d(v);
   }
 
@@ -85,11 +94,6 @@ export default class OrigamiShape {
     //return this.polygons.splice(index, 1);
   }
 
-  addPolygon(polygon){
-    // this.polygons.push(polygon);
-    this.model.addPolygon(polygon);
-  }
-
   setPolygon(index: number, polygon: Array<number>) {
     //this.polygons[index] = polygon;
     this.model.setPolygon(index, polygon);
@@ -98,197 +102,43 @@ export default class OrigamiShape {
     return this.model.getPolygons();
   }
 
-
-  get verticesSize(){
-    this.model.verticesSize;
-    return this.vertices.length;
-  }
-
   cut(plane: THREE.Plane){
     let polygons = this.getPolygons();
 
-    polygons.forEach((polygon, index) => {
+    polygons.forEach((polygon, index) => {      
       this.cutPolygon(index, plane);
     })
   }
 
-  polygonToVertices(polygon){
-    let vertices:Array<THREE.Vector3> = polygon.map(index => this.getVertex(index));
-    return vertices;
-  }
-
   isNonDegenerate(index){
-    let size = this.getPolygon(index).length;
-    let vertices = this.polygonToVertices(this.getPolygon(index));
-
-    if(size > 1){
-      for(let i = 0; i < size; i++){
-        if(vertices[0].distanceTo(vertices[i]) > 0){
-          return true;
-        }
-      }
-    }
-
-    return false;
+    let polygon = new Polygon(this.model.getPolygonVertices(index));
+    return polygon.isNonDegenerate();
   }
 
   cutPolygon(index, plane){
-    //console.info('cutPolygon------>', index)
-
-    if(this.canCut(index, plane) === false){
+    let polygon = new Polygon(this.model.getPolygonVertices(index), this.model.getPolygon(index));
+    
+    if(polygon.canCut(plane) === false){
       //console.warn('cant cut polygon #', index);
       return false;
     }
 
-    let polygonIndices = this.getPolygon(index);
-    let polygonVertices = this.polygonToVertices(polygonIndices);
-
-    let ppoint = plane.coplanarPoint();
-    let pnormal = plane.normal;
-
-    let newpoly1 = [];
-    let newpoly2 = [];
-
-    for (let i = 0; i < polygonVertices.length; i++) {
-      let j = (i + 1) % polygonVertices.length; //following vertex
-
-      let vertex = polygonVertices[i];
-      let vertex2 = polygonVertices[j];
-
-      let distance = plane.distanceToPoint(vertex);
-
-      //if it's on the cutting plane it belongs to both new polygons
-
-      if(Math.abs(distance) < 0.001){
-        newpoly1.push(polygonIndices[i]);
-        newpoly2.push(polygonIndices[i]);
-
-      }else {
-        let sideA = vertex.dot(pnormal);
-        let sideB = ppoint.dot(pnormal);
-
-        if(sideA > sideB){
-          newpoly1.push(polygonIndices[i]);
-        }else{
-          newpoly2.push(polygonIndices[i]);
-        }
-
-        let divided = math.planeBetweenPoints2(plane,vertex,vertex2);
-
-        if(divided){
-          //was this pair cutted before? reuse
-          let freshcut = true;
-
-          for(let node of this.cutpolygonNodes){
-            if(node[0] == polygonIndices[i] && node[1] == polygonIndices[j]){
-              newpoly1.push(node[2]);
-              newpoly2.push(node[2]);
-              freshcut = false;
-              break;
-            }else if(node[0] == polygonIndices[j] && node[1] == polygonIndices[i]){
-              newpoly1.push(node[2]);
-              newpoly2.push(node[2]);
-              freshcut = false;
-              break;
-            }
-          }
-
-
-          let direction = vertex.clone().sub(vertex2);
-          let line = new THREE.Line3(vertex, vertex2);
-
-          if(freshcut && plane.intersectsLine(line)){
-            let ipoint = vertex.clone();
-            let meet = plane.intersectLine(line);
-            this.addVertex(meet);
-
-            let weight1 = meet.clone().sub(vertex2).length();
-            let weight2 = meet.clone().sub(vertex).length();
-
-
-            let vertex2D_1  = this.getVertex2d(polygonIndices[i]);
-            let vertex2D_2  = this.getVertex2d(polygonIndices[j]);
-            let vector2d = new THREE.Vector3(
-              (vertex2D_1.x * weight1 + vertex2D_2.x * weight2)/(weight1 + weight2),
-              (vertex2D_1.y * weight1 + vertex2D_2.y * weight2)/(weight1 + weight2),
-              0
-            )
-            this.addVertex2D(vector2d);
-
-            newpoly1.push(this.verticesSize - 1);
-            newpoly2.push(this.verticesSize - 1);
-            this.cutpolygonNodes.push([polygonIndices[i],polygonIndices[j], this.verticesSize - 1 ])
-          }
-
-        }
-      }
-    }
+    let cutResult = polygon.cut(plane, this.cutpolygonNodes2);
 
     this.cutpolygonPairs.push([index, this.getPolygons().length]);
     this.lastCutPolygons.push(this.getPolygon(index));
     
-    this.model.setPolygon(index, newpoly1)
-    this.setPolygon(index, newpoly1);
-    this.addPolygon(newpoly2);
+    cutResult = this.model.processCutResult(index, cutResult);
+    this.cutpolygonNodes2 = this.cutpolygonNodes2.concat(cutResult.cutpolygonNodes);
   }
-
-  canCut(index, plane){
-    if(this.isNonDegenerate(index)){
-      let inner = false;
-      let outer = false;
-      let vertices = this.polygonToVertices(this.getPolygon(index));
-      let normal = plane.normal;
-      let coplanarPoint = plane.coplanarPoint();
-
-      for(let i = 0; i < vertices.length; i++){
-        let vertex = vertices[i];
-        let normalLength = Math.sqrt(Math.max(1, normal.lengthSq()));
-        //TODO: Same as distanceToPlane?
-        if(vertex.dot(normal)/normalLength > coplanarPoint.dot(normal)/normalLength + 0.00000001){
-          inner = true;
-        }else if(vertex.dot(normal)/normalLength < coplanarPoint.dot(normal)/normalLength - 0.00000001){
-          outer = true;
-        }
-
-        if (inner && outer) {
-            return true;
-        }
-
-      };
-    }
-
-    return false;
-  }
-
-
-  shrink(){
-    this.replaceAllPolygons(this.getPolygons().filter(polygon => polygon.length > 0));
-  }
-
-  shrinkWithIndex(index){
-    const tmp = this.getPolygon(index);
-    this.removePolygon(index);
-
-    const length = this.getPolygons().length;
-    for (let i = 0; i < this.getPolygons().length; i++) {
-      if(this.getPolygon(i).length < 1){
-        this.removePolygon(i);
-        i--;
-      }
-    }
-    while (index > this.getPolygons().length) {
-      this.addPolygon([]);
-     }
-    
-    this.replacePolygon(index, tmp)
-  }
-
+  
   // Reflect
   reflect(plane){
 
-    this.shrink();
+    this.model.shrink();
 
-    this.cutpolygonNodes = [];
+    // this.cutpolygonNodes = [];
+    this.resetCutHistory();
     this.cutpolygonPairs = [];
     this.lastCutPolygons = [];
 
@@ -304,6 +154,7 @@ export default class OrigamiShape {
   }
 
   reflectIndex(plane, polygonIndex){
+    
     this.highlightedVertices = []
     //this.fold(plane, 0);
 
@@ -330,7 +181,7 @@ export default class OrigamiShape {
     })
 
     this.mergeUnaffectedPolygons(selection)
-    this.shrinkWithIndex(polygonIndex);
+    this.model.shrinkWithIndex(polygonIndex);
   }
 
   crease(plane){
@@ -339,9 +190,10 @@ export default class OrigamiShape {
 
   // fold
   fold(plane: THREE.Plane, angle = 0){
-    this.shrink();
+    this.model.shrink();
 
-    this.cutpolygonNodes = [];
+    //this.cutpolygonNodes = [];
+    this.resetCutHistory();
     this.cutpolygonPairs = [];
     this.lastCutPolygons = [];
 
@@ -493,7 +345,7 @@ export default class OrigamiShape {
 
 
     this.mergeUnaffectedPolygons(selection)
-    this.shrinkWithIndex(polygonIndex);
+    this.model.shrinkWithIndex(polygonIndex);
   }
 
 
@@ -609,22 +461,7 @@ export default class OrigamiShape {
 
 
   mergeUnaffectedPolygons(selection){
-    let counter = 0;
-    this.cutpolygonPairs.forEach((pair, index) => {
-      //if not part of the selection make this polygon like the one before, the other part will be removed in the next loop.
-      if(!(selection.indexOf(pair[0]) !== -1 || selection.indexOf(pair[1]) !== -1)){
-        this.setPolygon(pair[0], this.lastCutPolygons[index])
-      }
-    })
-
-
-    this.cutpolygonPairs.forEach((pair, index) => {
-      if(!(selection.indexOf(pair[0]) !== -1 || selection.indexOf(pair[1]) !== -1)) {
-        this.setPolygon(pair[1], [])
-        counter++;
-      }
-    })
-    console.info('merge previous', this.cutpolygonPairs.length, 'cleared: ', counter);
+    this.model.mergeUnaffectedPolygons(selection, this.cutpolygonPairs, this.lastCutPolygons);
 
     this.cutpolygonPairs = [];
     this.lastCutPolygons = [];
@@ -632,16 +469,13 @@ export default class OrigamiShape {
 
 
 
-  reset() {
-    this.replaceAllPolygons([]);
-    this.model.reset();
+  reset(model) {
+    this.model = model;
     this.highlightedVertices = [];
-    this.vertices = [];
-    this.vertices2d = [];
-    this.cutpolygonNodes = [];
+    //this.cutpolygonNodes = [];
+    this.resetCutHistory();
     this.cutpolygonPairs = [];
     this.lastCutPolygons = [];
-
   }
 
 
@@ -668,11 +502,16 @@ export default class OrigamiShape {
   }
 
   polygonSelect(plane, index){
+    if(index === 27){
+      console.error(index, ' vs', this.getPolygons().length);
+    }
     const selection = [index];
 
     for( let j = 0; j < selection.length; j++){
         let selectedPolygon = this.getPolygon(selection[j]);
-
+        if(selectedPolygon === undefined){
+          debugger;
+        }
         for(let i = 0; i < this.getPolygons().length; i++){
           if(selection.indexOf(i) === -1){
             let polygon = this.getPolygon(i);

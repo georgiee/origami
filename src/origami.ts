@@ -7,6 +7,7 @@ import Ruler from "./ruler/ruler";
 import {World, getInstance as getWorld } from './world';
 import {Snapper} from './ruler/snapper';
 import * as Panel from './panel';
+import { squarePaperModel } from './paper-formats';
 
 
 
@@ -34,21 +35,9 @@ export default class Origami extends THREE.Object3D {
     }
 
     reset(){
-      this.shape.reset();
-
-      this.shape.addVertex(new THREE.Vector3(0,0,0));
-      this.shape.addVertex(new THREE.Vector3(400,0,0));
-      this.shape.addVertex(new THREE.Vector3(400,400,0));
-      this.shape.addVertex(new THREE.Vector3(0, 400, 0));
-
-      this.shape.addVertex2D(new THREE.Vector3(0,0,0));
-      this.shape.addVertex2D(new THREE.Vector3(400,0,0));
-      this.shape.addVertex2D(new THREE.Vector3(400,400,0));
-      this.shape.addVertex2D(new THREE.Vector3(0, 400, 0));
-
-      this.shape.addPolygon([0,1,2,3]);
-
+      this.shape.reset(squarePaperModel.clone());
       this.ruler.reset();
+
       this.update()
     }
 
@@ -184,40 +173,4 @@ export default class Origami extends THREE.Object3D {
     get camera(){
       return this.world.camera;
     }
-}
-
-function createSquare(){
-
-  let geometry = new OrigamiShape();
-  geometry.addVertex(new THREE.Vector3(-25,-25,0));
-  geometry.addVertex(new THREE.Vector3(25,-25,0));
-  geometry.addVertex(new THREE.Vector3(25,25,0));
-  geometry.addVertex(new THREE.Vector3(-25,25,0));
-
-  geometry.addVertex2D(new THREE.Vector3(-25,-25,0));
-  geometry.addVertex2D(new THREE.Vector3(25,-25,0));
-  geometry.addVertex2D(new THREE.Vector3(25,25,0));
-  geometry.addVertex2D(new THREE.Vector3(-25,25,0));
-
-  geometry.addPolygon([0,1,2,3]);
-
-  return geometry;
-}
-
-function createSquare2(){
-
-  let geometry = new OrigamiShape();
-  geometry.addVertex(new THREE.Vector3(0,0,0));
-  geometry.addVertex(new THREE.Vector3(400,0,0));
-  geometry.addVertex(new THREE.Vector3(400,400,0));
-  geometry.addVertex(new THREE.Vector3(0, 400, 0));
-
-  geometry.addVertex2D(new THREE.Vector3(0,0,0));
-  geometry.addVertex2D(new THREE.Vector3(400,0,0));
-  geometry.addVertex2D(new THREE.Vector3(400,400,0));
-  geometry.addVertex2D(new THREE.Vector3(0, 400, 0));
-
-  geometry.addPolygon([0,1,2,3]);
-
-  return geometry;
 }

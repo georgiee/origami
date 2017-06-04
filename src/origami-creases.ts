@@ -212,7 +212,6 @@ export class OrigamiCreases extends THREE.Object3D {
 
     let polygons = this.shape.getPolygons();
     let vertices2d = this.shape.getVertices2d();
-
     polygons.forEach((polygon, index) => {
       let currentColor = new THREE.Color(palette(index/polygons.length).hex());
 
@@ -231,7 +230,6 @@ export class OrigamiCreases extends THREE.Object3D {
         let index1 = polygonVertices[i];
         let index2 = polygonVertices[(i + 1)%polygonVertices.length];
         geometry.vertices.push(index1, index2);
-
         geometry.colors.push(currentColor, currentColor);
       }
       //geometry.translate(0,0, 10 * index);

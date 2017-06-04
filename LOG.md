@@ -26,8 +26,14 @@ which should be
     newpoly2.push(indices[i]);
 ```
 
-So nearly same bug as before but other place in my code, same weirdness in the vertex2d but I did not even think of checking the indices
-at that place 🙄 Lession learned. Maybe.
+So nearly same bug as before but other place in my code, same weirdness in the vertex2d but I did not even think of checking the indices at that place 🙄 Lession learned. Maybe.
+
+
+Ok finished for now. I will continue on refactoring next time. It was straightforward once I had the model and polygon class in place.
+I'm currently removing all calls accessing my raw vertices and polygon data and switching over to the wraped polygon class. This class holds everything needed for a single polygon (mostly data and degenerated checks). This helps me alot decoupling the different views and classes holdign the calculation power. After finishing it I will refactor the overall structure.
+There are: Rulers, Mesh Views, Creasing Views, Shape, Model, Playbooks, Snapping, Debug Visualizer (Plane, mark Polygons and vertices)
+and I want to decouple them so ideally I can use everything standalone. THis might help me existing in the future.
+
 
 ## 170603
 Plan for today: Get the creasing preview done. Let's start.

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import utils from './utils';
-import OrigamiShape from "./origami-shape";
+import { OrigamiShape } from "./origami-shape";
 import OrigamiMesh from "./origami-mesh";
 import {OrigamiCreases} from './origami-creases';
 import Ruler from "./ruler/ruler";
@@ -30,7 +30,7 @@ export default class Origami extends THREE.Object3D {
     }
 
     stats(){
-        console.info('Polygon Count: ', this.shape.getPolygons().length);
+        console.info('Polygon Count: ', this.shape.model.getPolygons().length);
         console.info('Vertices Count: ', this.shape.getVertices().length);
     }
 
@@ -70,7 +70,7 @@ export default class Origami extends THREE.Object3D {
     fold(plane: THREE.Plane, angle, index?){
       if(this.selectedPoint2D){
         //this.crease(plane || this.currentPlane);
-        let polygonIndex = this.shape.findPolygon2D(this.selectedPoint2D)
+        let polygonIndex = this.shape.model.findPolygon2D(this.selectedPoint2D)
         this.foldIndex(plane || this.currentPlane, angle, polygonIndex)
       }else if (index){
         //this.crease(plane || this.currentPlane);
@@ -90,7 +90,7 @@ export default class Origami extends THREE.Object3D {
       //debugger;
       if(this.selectedPoint2D){
         //this.crease(plane || this.currentPlane);
-        let polygonIndex = this.shape.findPolygon2D(this.selectedPoint2D)
+        let polygonIndex = this.shape.model.findPolygon2D(this.selectedPoint2D)
         this.reflectIndex(plane || this.currentPlane, polygonIndex);
       }else if (index){
        // this.crease(plane || this.currentPlane);
@@ -149,7 +149,7 @@ export default class Origami extends THREE.Object3D {
       let polygonIndex = -1;
 
       if(point){
-        polygonIndex = this.shape.findPolygon2D(this.selectedPoint2D)
+        polygonIndex = this.shape.model.findPolygon2D(this.selectedPoint2D)
       }
 
       if(polygonIndex < 0){
@@ -160,7 +160,7 @@ export default class Origami extends THREE.Object3D {
         }
         this.add(this.debugMarker);
 
-        let result = this.shape.getPointOnOrigami(point)
+        let result = this.shape.model.getPointOnOrigami(point)
         this.debugMarker.position.copy(result);
       }
 

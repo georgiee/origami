@@ -5,16 +5,16 @@ import { distanceSquaredToLineSegment } from './math';
 import * as math from './math';
 
 import World from './world';
-
-const DEBUG = false;
+import { OrigamiShape } from './origami-shape';
 
 export class OrigamiCreases extends THREE.Object3D {
   private currentView: THREE.Object3D;
   private polygonMarker: THREE.Object3D;
   private selectedPolygon: number = -1;
   private highlightedVertices;
-  private _shape;
+  private _shape: OrigamiShape;
   private _edgePreview: THREE.Group = new THREE.Group();
+  
   constructor(){
     super()
     this.init();
@@ -33,7 +33,7 @@ export class OrigamiCreases extends THREE.Object3D {
   }
 
   selectPolygonWithPoint(point: THREE.Vector2){
-    this.selectedPolygon = this.shape.findPolygon2D(point);
+    this.selectedPolygon = this.shape.model.findPolygon2D(point);
 
     if(this.selectedPolygon >=0){
       this.add(this.polygonMarker);
@@ -62,66 +62,66 @@ export class OrigamiCreases extends THREE.Object3D {
   }
   
   getLine2d(plane){
-    let polygons = this.shape.getPolygons();
-    let vertices = this.shape.getVertices();
-    let vertices2d = this.shape.getVertices2d();
+    let polygonInstances = this.shape.model
+      .getPolygonWrapped()
+      .filter((polygon) => {
+        return (polygon.isNonDegenerate() === false || polygon.size < 3) === false;
+      });
+    
+
+    let vertices = this.shape.model.data.getVertices();
+    let vertices2d = this.shape.model.data.getVertices2d();
     
     let intersectedVector2d = new THREE.Vector3();
     let lines = [];
 
-    polygons.forEach((polygon, polygonIndex) => {
-      if(this.shape.isNonDegenerate(polygonIndex)) {
+    polygonInstances.forEach((polygon) => {
 
         let end = null;
         let start = null;
-        polygon.forEach((vertexIndex, index) => {
-          
-          let currentIndex = polygon[index];
-          let followIndex = polygon[(index + 1)%polygon.length];
-          
-          let vertex = vertices[currentIndex];
-          let vertex2 = vertices[followIndex];
-          
-          if( math.pointOnPlane(plane, vertex) ) {
-            
-            end = start;
-            start = vertices2d[currentIndex];
 
+        const points = polygon.getPoints();
+        const points2d = polygon.getPoints2d();
+
+        let size = polygon.size;
+
+        for(let index = 0; index < size; index++) {
+          let followingIndex = (index + 1) % size;
+
+          let vertexA = points[index];
+          let vertexA2d = points2d[index];
+          let vertexB = points[followingIndex];
+          let vertexB2d = points2d[followingIndex];
+
+          if( math.pointOnPlane(plane, vertexA) ) {
+            end = start;
+            start = vertexA2d;
           } else {
-            
-            if(math.planeBetweenPoints2(plane,vertex,vertex2) && math.pointOnPlane(plane, vertex2) === false) {
-                let line = new THREE.Line3(vertex, vertex2);
+            if(math.planeBetweenPoints2(plane, vertexA , vertexB) &&
+              math.pointOnPlane(plane, vertexB) === false) {
+               
+                let line = new THREE.Line3(vertexA, vertexB);
                 
                 let meet = plane.intersectLine(line);
-                let weight1 = meet.clone().sub(vertex2).length();
-                let weight2 = meet.clone().sub(vertex).length();
+                let weight1 = meet.clone().sub(vertexB).length();
+                let weight2 = meet.clone().sub(vertexA).length();
                 
-                let vertex2D_1  = vertices2d[currentIndex];
-                let vertex2D_2  = vertices2d[followIndex];
-
-                intersectedVector2d.setX((vertex2D_1.x * weight1 + vertex2D_2.x * weight2)/(weight1 + weight2));
-                intersectedVector2d.setY((vertex2D_1.y * weight1 + vertex2D_2.y * weight2)/(weight1 + weight2))
+                intersectedVector2d.setX((vertexA2d.x * weight1 + vertexB2d.x * weight2)/(weight1 + weight2));
+                intersectedVector2d.setY((vertexA2d.y * weight1 + vertexB2d.y * weight2)/(weight1 + weight2))
 
                 end = start;
                 start = intersectedVector2d.clone();
             }
 
           }
-
-        })
-
+        }
+        
         if(start && end) {
           lines.push([start.clone(), end.clone()]);
         }
-
-      }
-    })
-
+    });
+    
     return lines;
-  }
-
-  isStrictlyNonDegenerate(index){
-    return true;
   }
 
   update(){
@@ -135,7 +135,8 @@ export class OrigamiCreases extends THREE.Object3D {
   }
 
   showPolygons(indices){
-    let polygons = this.shape.getPolygons();
+    
+    let polygons = this.shape.model.getPolygons();
     let vertices = indices.reduce((accu, index) => {
 
       if(polygons.length > index){
@@ -176,7 +177,7 @@ export class OrigamiCreases extends THREE.Object3D {
 
   createHighlightedVertices(highlightedVertices){
     let pointGeometry = new THREE.Geometry();
-    let vertices = this.shape.getVertices2d();
+    let vertices = this.shape.model.data.getVertices2d();
     vertices.forEach((vertex, index) => {
 
       if(highlightedVertices.indexOf(index) != -1){
@@ -206,37 +207,29 @@ export class OrigamiCreases extends THREE.Object3D {
   
   toGeometryPlane(){
     let combinedGeometry = new THREE.Geometry();
-    let counter = 1;
-
     let palette = chroma.scale(['yellow', 'orangered']).mode('lch');
 
-    let polygons = this.shape.getPolygons();
-    let vertices2d = this.shape.getVertices2d();
-    polygons.forEach((polygon, index) => {
-      let currentColor = new THREE.Color(palette(index/polygons.length).hex());
-
-      if(this.shape.isNonDegenerate(index) === false || polygon.length < 3){
-        return;
-      }
-
-      let geometry = new THREE.Geometry();
-
-      let polygonVertices = polygon.map(index => {
-        return vertices2d[index].clone()
+    let polygonInstances = this.shape.model
+      .getPolygonWrapped()
+      .filter((polygon) => {
+        return (polygon.isNonDegenerate() === false || polygon.size < 3) === false;
       });
+    
+    polygonInstances.forEach((polygon, index) => {
+      let currentColor = new THREE.Color(palette(index/polygonInstances.length).hex());
+      let geometry = new THREE.Geometry();
+      let vertices2d = polygon.getPoints2d();
 
-
-      for(let i = 0; i< polygonVertices.length;i++){
-        let index1 = polygonVertices[i];
-        let index2 = polygonVertices[(i + 1)%polygonVertices.length];
+      for(let i = 0; i< vertices2d.length; i++){
+        let index1 = vertices2d[i];
+        let index2 = vertices2d[(i + 1) % vertices2d.length];
         geometry.vertices.push(index1, index2);
         geometry.colors.push(currentColor, currentColor);
       }
-      //geometry.translate(0,0, 10 * index);
 
       combinedGeometry.merge(geometry, new THREE.Matrix4());
-      counter++
     })
+    
     return combinedGeometry;
   }
 }

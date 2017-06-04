@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import OrigamiShape from './../origami-shape';
+import { OrigamiShape } from './../origami-shape';
 
 import { throttle }  from 'lodash';
 import utils from './../utils';
@@ -60,7 +60,7 @@ export class Snapper extends THREE.Object3D {
 
   findNearestVertex(screenX, screenY){
     let world = World.getInstance();
-    let vertices = this.shape.getAlignmentPoints();
+    let vertices = this.shape.model.getAlignmentPoints();
     let screenCoords = new THREE.Vector3(screenX, screenY, 0)
     let matched = false;
     let vertexFound;

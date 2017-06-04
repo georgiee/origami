@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import OrigamiShape from './origami-shape';
+import { OrigamiShape } from './origami-shape';
 import * as chroma from 'chroma-js';
 import World from './world';
+import { Polygon } from './polygon';
 
 class OrigamiMesh extends THREE.Object3D {
   private materials;
@@ -29,12 +30,7 @@ class OrigamiMesh extends THREE.Object3D {
           side: THREE.BackSide,
           transparent: true,
           opacity: 0.8
-        })/*,
-        new THREE.MeshBasicMaterial({
-          wireframe: true,
-          color: 0xffff00,
-          side: THREE.DoubleSide
-        })*/
+        })
       ]
     }
 
@@ -47,8 +43,59 @@ class OrigamiMesh extends THREE.Object3D {
       middle.y = (geometry.boundingBox.max.y + geometry.boundingBox.min.y) / 2;
       middle.z = (geometry.boundingBox.max.z + geometry.boundingBox.min.z) / 2;
 
-      //mesh.localToWorld( middle );
       return middle;
+    }
+    
+    toLineGeometry(){
+      let combinedGeometry = new THREE.Geometry();
+      let counter = 1;
+      
+      
+      let polygonInstances = this.shape.model
+        .getPolygonWrapped()
+        .filter((polygon) => {
+          return (polygon.isNonDegenerate() === false || polygon.size < 3) === false;
+        });
+      
+      
+      polygonInstances.forEach((polygon: Polygon) => {
+        let geometry = new THREE.Geometry();
+        let vertices = polygon.getPoints();
+
+        for(let i = 0; i< vertices.length;i++){
+          geometry.vertices.push(vertices[i], vertices[(i + 1) % vertices.length]);
+        }
+
+        combinedGeometry.merge(geometry, new THREE.Matrix4());
+        counter++
+      })
+
+      return combinedGeometry;
+    }
+
+    toGeometry(){
+      let combinedGeometry = new THREE.Geometry();
+ 
+      let polygonInstances = this.shape.model
+        .getPolygonWrapped()
+        .filter((polygon) => {
+          return (polygon.isNonDegenerate() === false || polygon.size < 3) === false;
+        });
+      
+      polygonInstances.forEach((polygon: Polygon) => {
+        let geometry = new THREE.Geometry();
+        let vertices = polygon.getPoints();
+        let triangles = THREE.ShapeUtils.triangulate(vertices, true);
+        let faces = triangles.map(triangle => new THREE.Face3(triangle[0], triangle[1], triangle[2]));
+
+        geometry.vertices.push(...vertices);
+        geometry.faces.push(...faces);
+        geometry.computeFaceNormals();
+
+        combinedGeometry.merge(geometry, new THREE.Matrix4());
+      });
+
+      return combinedGeometry;
     }
 
     update(){
@@ -59,93 +106,14 @@ class OrigamiMesh extends THREE.Object3D {
       let mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, this.materials)
 
       let pointGeometry = new THREE.Geometry();
-
-      let vertices = this.shape.getVertices();
-      vertices.forEach((vertex, index) => {
-        if(this.shape.getHighlight(index)){
-          pointGeometry.vertices.push(vertex);
-          let color = this.shape.getHighlight(index);
-          pointGeometry.colors.push(color);
-        }
-
-
-      })
-
-
-      let points = new THREE.Points(pointGeometry, new THREE.PointsMaterial({
-        sizeAttenuation: false,
-        size: 10,
-        vertexColors: THREE.VertexColors
-      }));
-
       let lines = new THREE.LineSegments(this.toLineGeometry(), new THREE.LineBasicMaterial());
 
       this.group.add(mesh);
       this.group.add(lines);
-      //this.group.add(points);
 
       this.currentGeometry = geometry;
     }
 
-    toLineGeometry(){
-      let combinedGeometry = new THREE.Geometry();
-      let counter = 1;
-
-      let palette = chroma.scale(['yellow', 'orangered']).mode('lch');
-
-      this.shape.getPolygons().forEach((polygon, index) => {
-        if(this.shape.isNonDegenerate(index) === false || polygon.length < 3){
-          return;
-        }
-
-        let geometry = new THREE.Geometry();
-
-        let vertices = this.shape.getVertices();
-
-        let polygonVertices = polygon.map(index => {
-          return vertices[index].clone()
-        });
-
-
-        for(let i = 0; i< polygonVertices.length;i++){
-          geometry.vertices.push(polygonVertices[i], polygonVertices[(i + 1)%polygonVertices.length]);
-        }
-
-        combinedGeometry.merge(geometry, new THREE.Matrix4());
-        counter++
-      })
-      return combinedGeometry;
-    }
-
-    toGeometry(){
-      let combinedGeometry = new THREE.Geometry();
-
-      this.shape.getPolygons().forEach((polygon, index) => {
-        let geometry = new THREE.Geometry();
-        let vertices = this.shape.getVertices();
-
-        if(this.shape.isNonDegenerate(index) === false || polygon.length < 3){
-          return;
-        }
-
-        let polygonVertices:Array<any> = polygon.map(index => {
-          return vertices[index].clone()
-        });
-
-        let triangles = THREE.ShapeUtils.triangulate(polygonVertices, true);
-
-        let faces = triangles.map(triangle => new THREE.Face3(triangle[0], triangle[1], triangle[2]));
-
-        geometry.vertices.push(...polygonVertices);
-        geometry.faces.push(...faces);
-
-        geometry.computeFaceNormals();
-        combinedGeometry.merge(geometry, new THREE.Matrix4());
-
-      });
-
-      return combinedGeometry;
-    }
 }
 
 export default OrigamiMesh;

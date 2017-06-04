@@ -1,13 +1,22 @@
-import * as math from './../math';
+import * as math from './math';
 import * as THREE from 'three';
 
 export class Polygon {
-  private points;
-  private indices;
+  points;
+  points2d;
+  indices;
   
   constructor(points = [], indices = []) {
       this.points = points.concat([]);
       this.indices = indices.concat([]);
+  }
+  
+  getPoints() {
+    return this.points;
+  }
+  
+  getPoints2d() {
+    return this.points2d;
   }
 
   isNonDegenerate(){

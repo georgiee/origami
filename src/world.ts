@@ -2,20 +2,19 @@ import * as THREE from 'three';
 import { CreaseViewer } from './crease-viewer';
 import * as Rx from 'rxjs';
 
-var OrbitControls = require('./vendor/three-orbit-controls')(THREE)
+const OrbitControls = require('./vendor/three-orbit-controls')(THREE);
 import OrthographicTrackballControls from './vendor/orthographic-trackback-controls';
 
-//import { CombinedCamera } from './vendor/combined-camera';
-
 export class World extends THREE.EventDispatcher {
-  private mouse = new THREE.Vector2();
-  private scene: THREE.Scene;
   public creaseViewer: CreaseViewer;
-  private renderer;
-  private container;
   public orbitControls;
   public orthoTrackballControls;
-  private _camera;
+  public camera;
+
+  private mouse = new THREE.Vector2();
+  private scene: THREE.Scene;
+  private renderer;
+  private container;
 
   constructor() {
     super();
@@ -25,41 +24,47 @@ export class World extends THREE.EventDispatcher {
 
     this.init();
   }
-  get controls(){
-    return this.orthoTrackballControls;
+
+  public center(point: THREE.Vector3) {
+    this.controls.reset();
+    this.controls.move(-point.x, point.y);
   }
 
-  center(point: THREE.Vector3) {
+  public resetCamera() {
     this.controls.reset();
-    this.controls.move(-point.x, point.y)
+    this.controls.move(-200, 200);
+  }
+
+  get controls(){
+    return this.orthoTrackballControls;
   }
 
   get domElement(){
     return this.renderer.domElement;
   }
 
-  add(object){
+  private add(object) {
     this.scene.add(object);
   }
 
-  resize(width, height) {
+  private resize(width, height) {
     this.renderer.setSize( width, height );
-    this.renderer.setViewport(0,0, width, height);
-    let ratio = width/height
+    this.renderer.setViewport(0, 0, width, height);
+    const ratio = width / height;
 
-    let cameraWidth = 1000;
-    let cameraHeight = 1000/ratio;
+    const cameraWidth = 1000;
+    const cameraHeight = 1000 / ratio;
 
-    let camera = this.camera;
-    camera.left = -cameraWidth/2;
-  	camera.right = cameraWidth/2;
-  	camera.top = cameraHeight/2;
-  	camera.bottom = - cameraHeight/2;
-	  camera.updateProjectionMatrix();
+    const camera = this.camera;
+    camera.left = -cameraWidth / 2;
+    camera.right = cameraWidth / 2;
+    camera.top = cameraHeight / 2;
+    camera.bottom = - cameraHeight / 2;
+    camera.updateProjectionMatrix();
   }
 
-  createRenderer(){
-    let renderer = new THREE.WebGLRenderer( { antialias: true } );
+  private createRenderer() {
+    const renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
 
@@ -67,12 +72,13 @@ export class World extends THREE.EventDispatcher {
     this.renderer = renderer;
   }
 
-  createResizeObserver() {
+  private createResizeObserver() {
+    
     const getWindowSize = function(){
-      return {width: window.innerWidth, height: window.innerHeight}
-    }
+      return {width: window.innerWidth, height: window.innerHeight};
+    };
 
-    let stream = new Rx.BehaviorSubject(getWindowSize());
+    const stream = new Rx.BehaviorSubject(getWindowSize());
 
     const resizeSubject = Rx.Observable
       .fromEvent(window, 'resize')
@@ -80,36 +86,31 @@ export class World extends THREE.EventDispatcher {
       .map((event: any) => getWindowSize())
       .subscribe(stream);
 
-    stream.subscribe( res => {
+    stream.subscribe( (res) => {
       this.resize(res.width, res.height);
-    })
+    });
   }
 
-  resetCamera(){
-    this.controls.reset();
-    this.controls.move(-200, 200)
-  }
+  private createCamera() {
+    const ratio = window.innerWidth / window.innerHeight;
 
-  createCamera(){
-    let ratio = window.innerWidth/window.innerHeight;
+    const width = 1000;
+    const height = 1000 / ratio;
 
-    let width = 1000;
-    let height = 1000/ratio;
-
-    var camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 );
-    var camera2 = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 );
-    this._camera = camera;
-    this._camera.position.z = 1000;//must be far enough away otherwise the raycast with the ruler might fail sometimes.
+    const camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 );
+    const camera2 = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 );
+    this.camera = camera;
+    this.camera.position.z = 1000; // must be far enough away otherwise the raycast with the ruler might fail sometimes.
 
     this.orbitControls = new OrbitControls(camera2, this.renderer.domElement);
-    this.orbitControls.addEventListener('change', () => this.dispatchEvent({type: 'rotate'}))
-    this.orbitControls.move(200, 200)
+    this.orbitControls.addEventListener('change', () => this.dispatchEvent({type: 'rotate'}));
+    this.orbitControls.move(200, 200);
 
     this.createTrackballControl();
   }
 
-  createTrackballControl(){
-    let control = new OrthographicTrackballControls(this._camera, this.renderer.domElement );
+  private createTrackballControl() {
+    const control = new OrthographicTrackballControls(this.camera, this.renderer.domElement );
     control.panSpeed = 1;
     control.rotateSpeed = 2;
     control.zoomSpeed = -0.2;
@@ -118,16 +119,16 @@ export class World extends THREE.EventDispatcher {
     this.orthoTrackballControls = control;
   }
 
-  init(){
-    let scene = new THREE.Scene();
+  private init() {
+    const scene = new THREE.Scene();
     scene.add( new THREE.AxisHelper( 250 ) );
     scene.add( new THREE.AmbientLight( 0x404040 ) );
 
-    let light = new THREE.DirectionalLight( 0xffffff );
+    const light = new THREE.DirectionalLight( 0xffffff );
     light.position.set( 0, 1, 0 );
     scene.add( light );
 
-    //let camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+    // let camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
     this.scene = scene;
 
     this.creaseViewer = new CreaseViewer(250);
@@ -138,38 +139,33 @@ export class World extends THREE.EventDispatcher {
     this.resetCamera();
   }
 
-  start(){
+  private start() {
     this.render();
   }
 
-  step(){
-    let renderer = this.renderer;
+  private step() {
+    const renderer = this.renderer;
 
     renderer.clear(0xffffff);
-    renderer.setViewport(0,0, window.innerWidth, window.innerHeight);
-		renderer.render( this.scene, this.camera );
+    renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+    renderer.render( this.scene, this.camera );
 
     this.creaseViewer.render(renderer);
 
     this.dispatchEvent({type: 'render'});
   }
 
-  render(){
+  private render() {
     window.requestAnimationFrame( this.render );
     this.orthoTrackballControls.update();
     this.step();
   }
-
-  get camera(){
-    return this._camera;
-  }
 }
-
 
 let world;
 
-export function getInstance() : World{
-  if(world){
+export function getInstance(): World {
+  if (world) {
     return world;
   }
   world = new World();
@@ -178,4 +174,4 @@ export function getInstance() : World{
   return world;
 }
 
-export default { getInstance }
+export default { getInstance };

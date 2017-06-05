@@ -1,3 +1,17 @@
+##170605
+Another day, another bug catched 🤓
+Look at this:
+
+```
+ }else if (index){
+  this.reflectIndex(plane || this.currentPlane, index);
+}else{
+```
+
+Guess what happens when index is zero ? Yes it is not executed. Well known but I somehow got this into code. Time to use a linter even it is only a fun project.
+
+
+
 ## 170604
 New day, new stupid bug. I am in the process of refactoring and want to put the cut method into a polygon class.
 Process is good, it's a lot of cross testing to see if the results are the same as before without the parts ripped out of the shape class.

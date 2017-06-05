@@ -6,67 +6,63 @@ let gui;
 let origami;
 let currentPlane;
 
-
-function crease(){
+function crease() {
   origami.crease(currentPlane);
 }
 
-function fold(){
+function fold() {
   origami.crease(currentPlane);
   origami.fold(currentPlane, properties.angle);
 }
 
-function reflect(){
+function reflect() {
   origami.crease(currentPlane);
   origami.reflect(currentPlane);
 }
 
-function center(){
+function center() {
   origami.center();
 }
-function resetCamera(){
+function resetCamera() {
   origami.resetCamera();
 }
 function reset() {
   origami.reset();
 }
 
-let methods = { crease, fold, reflect, center, resetCamera, reset };
+const methods = { crease, fold, reflect, center, resetCamera, reset };
 
-let properties = {
+const properties = {
   angle: 0,
   progress: 0
+};
+
+const controller = {
+} as any;
+
+export function create() {
+  gui = attach();
 }
 
-const controller = <any>{
+export function initOrigami(instance) {
+  origami = instance;
+  const ruler = origami.getRuler();
 
-}
-export function create(){
-  let gui = attach();
-}
-
-export function initOrigami(instance){
-  origami = instance
-  let ruler = origami.getRuler();
-
-  ruler.addEventListener('completed', (event:any) => {
+  ruler.addEventListener('completed', (event: any) => {
     currentPlane = event.plane;
   });
-
-
 }
 
-function updateDisplay(){
-  for (var i = 0; i < Object.keys(gui.__folders).length; i++) {
-      var key = Object.keys(gui.__folders)[i];
-      for (var j = 0; j < gui.__folders[key].__controllers.length; j++ )
-      {
+function updateDisplay() {
+  for (let i = 0; i < Object.keys(gui.__folders).length; i++) {
+      const key = Object.keys(gui.__folders)[i];
+      for (let j = 0; j < gui.__folders[key].__controllers.length; j++ ) {
           gui.__folders[key].__controllers[j].updateDisplay();
       }
   }
 }
 
-function init(){
+function init() {
   gui = new dat.GUI({ autoPlace: false });
 
   const origamiFolder = gui.addFolder('Origami');
@@ -82,14 +78,16 @@ function init(){
 
 init();
 
-function attach(){
-  if(attached) return gui;
+function attach() {
+  if (attached) {
+    return gui;
+  }
+
   document.body.appendChild(gui.domElement);
-  gui.domElement.styles = {right:0, top:0, position: 'absolute'}
+  gui.domElement.styles = {right: 0, top: 0, position: 'absolute'};
   attached = true;
 
   return gui;
 }
-
 
 export {gui, controller, updateDisplay};

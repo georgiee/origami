@@ -1,4 +1,4 @@
-##170605
+## 170605
 Another day, another bug catched 🤓
 Look at this:
 
@@ -18,6 +18,8 @@ One hour later: Done. Feels good.
 
 I also flipped the camera to match the opengl environment where the playbooks come from. By doing this I look at the same side when playing the steps.
 THis was as easy as changing the camera up vector in the three js camera.
+
+Today I also converted all of the given *.ori files from the Java Sources to use them in the new dropdown to test any model at any point in time.
 
 ## 170604
 New day, new stupid bug. I am in the process of refactoring and want to put the cut method into a polygon class.
@@ -55,6 +57,9 @@ I'm currently removing all calls accessing my raw vertices and polygon data and 
 There are: Rulers, Mesh Views, Creasing Views, Shape, Model, Playbooks, Snapping, Debug Visualizer (Plane, mark Polygons and vertices)
 and I want to decouple them so ideally I can use everything standalone. THis might help me existing in the future.
 
+The last thing I did today was ordering two books to go further down the Origami Rabbit Hole 🙏
++ [Origami Design Secrets, Lang (Link affiliate)](http://amzn.to/2qXUUWk)
++ [Origami from Angelfish to Zen, Engel (Link affiliate)](http://amzn.to/2sJx6XD)
 
 ## 170603
 Plan for today: Get the creasing preview done. Let's start.
@@ -326,3 +331,4 @@ My collection of debug moments:
 + floating round errors: distanceToPlane(vertex) is not always 0 event if the vertex is on the plane
 + Create your own polygon list class and make the most basic function (containsIndex to find a vertex) returning wrong results
 + I read this down the rabbit hole: Plane with normal and cosntant is called http://mathworld.wolfram.com/HessianNormalForm.html
++ `if(index)` bite me as index could and should be zero and this test was intended as an undefined test 🤦‍♀️

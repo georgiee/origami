@@ -2,12 +2,16 @@ import * as THREE from 'three';
 import { CreaseViewer } from './crease-viewer';
 import * as Rx from 'rxjs';
 
-const OrbitControls = require('./vendor/three-orbit-controls')(THREE);
 import OrthographicTrackballControls from './vendor/orthographic-trackback-controls';
+
+// flip the camera to mathc opengl environments.
+// This app uses raw playbooks from such an environment
+// and therefore relies on the flipped state. But this is not required
+// for custom platys.
+const FLIP_CAMERA = true;
 
 export class World extends THREE.EventDispatcher {
   public creaseViewer: CreaseViewer;
-  public orbitControls;
   public orthoTrackballControls;
   public camera;
 
@@ -27,12 +31,16 @@ export class World extends THREE.EventDispatcher {
 
   public center(point: THREE.Vector3) {
     this.controls.reset();
-    this.controls.move(-point.x, point.y);
+    
+    if (FLIP_CAMERA) {
+      this.controls.move(-point.x, -point.y);
+    }else {
+      this.controls.move(-point.x, point.y);
+    }
   }
 
   public resetCamera() {
-    this.controls.reset();
-    this.controls.move(-200, 200);
+    this.center(new THREE.Vector3(200, 200));
   }
 
   get controls(){
@@ -98,13 +106,15 @@ export class World extends THREE.EventDispatcher {
     const height = 1000 / ratio;
 
     const camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 );
-    const camera2 = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 );
+    
     this.camera = camera;
-    this.camera.position.z = 1000; // must be far enough away otherwise the raycast with the ruler might fail sometimes.
+    // must be far enough away otherwise the raycast with the ruler might fail sometimes.
+    this.camera.position.z = 1000; 
 
-    this.orbitControls = new OrbitControls(camera2, this.renderer.domElement);
-    this.orbitControls.addEventListener('change', () => this.dispatchEvent({type: 'rotate'}));
-    this.orbitControls.move(200, 200);
+    if (FLIP_CAMERA) {
+      this.camera.up.set( 0, -1, 0 );
+      this.camera.position.z = -this.camera.position.z;
+    }
 
     this.createTrackballControl();
   }
@@ -134,7 +144,6 @@ export class World extends THREE.EventDispatcher {
     this.creaseViewer = new CreaseViewer(250);
     this.createRenderer();
     this.createCamera();
-
     this.createResizeObserver();
     this.resetCamera();
   }
@@ -149,7 +158,6 @@ export class World extends THREE.EventDispatcher {
     renderer.clear(0xffffff);
     renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.render( this.scene, this.camera );
-
     this.creaseViewer.render(renderer);
 
     this.dispatchEvent({type: 'render'});

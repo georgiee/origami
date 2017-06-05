@@ -23,7 +23,7 @@ export class Playbook {
   }
 
   public set(instructions) {
-    this.instructions = instructions;
+    this.setNewInstructions(instructions);
   }
   
   public next() {
@@ -157,10 +157,8 @@ export class Playbook {
   
   private setNewInstructions(data) {
       this.removePlaybookController();
-    
+      this.instructions = data;
       this.panelData.index = 0;
-      this.set(data);
-      // this.play();
       this.panelData.controllers.next = this.panelFolder.add(this, 'next');
       this.panelData.controllers.previous = this.panelFolder.add(this, 'previous');
       

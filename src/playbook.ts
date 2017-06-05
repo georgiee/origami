@@ -4,8 +4,8 @@ import { gui, updateDisplay } from './panel';
 import * as Rx from 'rxjs/Rx';
 import * as playbooks from './playbooks/index';
 
-const PLAYBOOKS = { ...playbooks.working, ...playbooks.pending, ...playbooks.raw };
-
+// const PLAYBOOKS = { ...playbooks.working, ...playbooks.pending, ...playbooks.raw};
+const PLAYBOOKS = { ...playbooks.working, ...playbooks.pending};
 export class Playbook {
   private panelFolder;
   private instructions;
@@ -29,12 +29,15 @@ export class Playbook {
   }
   
   public next() {
-    console.log('next');
-    this.play(this.currentIndex + 1);
+    if (this.currentIndex + 1 <= this.instructions.length) {
+      this.play(this.currentIndex + 1);
+    }
   }
 
   public previous() {
-    this.play(this.currentIndex - 1);
+    if (this.currentIndex - 1 >= 0) {
+      this.play(this.currentIndex - 1);
+    }
   }
   public play(count = 0) {
     if (count === this.currentIndex) {
@@ -73,9 +76,9 @@ export class Playbook {
     this.origami.stats();
   }
 
-  private foldRotation(plane, angle, index?) {
+  private foldRotation(plane, angle, index = null) {
     this.origami.fold(plane, angle, index );
-    if (index) {
+    if (index !== null) {
       this.origami.highlightPolygon(index);
     }
   }
@@ -168,9 +171,8 @@ export class Playbook {
   }
   
   private updateProgressHandler() {
-
     this.panelData.controllers.progress = this.panelFolder
-      .add(this.panelData, 'index', 0, this.instructions.length - 1)
+      .add(this.panelData, 'index', 0, this.instructions.length)
       .listen();
     
     const source = Rx.Observable.create((observer) => {

@@ -1,14 +1,7 @@
-import * as crane from './crane.json';
-import * as birdbase from './bird.json';
-import * as butterfly from './butterfly.json';
-import * as start from './star.json';
-import * as seahorse from './seahorse.json';
-import * as crown from './crown.json'; // good
-import * as fortune from './fortune.json';
-import * as tree from './tree.json';
+import * as raw from './raw/index';
 import * as test from './test.json';
-import * as boat from './pending/boat.json';
 
+import * as boat from './pending/boat.json';
 // out of the box
 import * as miura from './working/miura.json';
 // out of the box
@@ -21,18 +14,13 @@ const working = {
 };
 
 const pending = {
-  boat
+  boat,
+  pinwheel
 };
 
 export {
+  raw,
   working,
-  crane,
-  birdbase,
-  butterfly,
-  start,
-  seahorse,
-  fortune,
-  tree,
-  test,
-  pinwheel
+  pending,
+  test
 };

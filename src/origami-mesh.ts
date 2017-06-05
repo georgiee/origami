@@ -9,7 +9,7 @@ class OrigamiMesh extends THREE.Object3D {
   private group;
   private currentGeometry;
 
-  constructor(private shape: OrigamiShape){
+  constructor(private shape: OrigamiShape) {
     super();
     this.init();
   }
@@ -76,7 +76,7 @@ class OrigamiMesh extends THREE.Object3D {
       const geometry = new THREE.Geometry();
       const vertices = polygon.getPoints();
 
-      for (let i = 0; i < vertices.length; i++){
+      for (let i = 0; i < vertices.length; i++) {
         geometry.vertices.push(vertices[i], vertices[(i + 1) % vertices.length]);
       }
 

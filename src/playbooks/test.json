@@ -1,1 +1,333 @@
-[{"command":"FOLD_REFLECTION","ppoint":[100.0,0.0,0.0],"pnormal":[-300.0,0.0,0.0]},{"command":"FOLD_REFLECTION","ppoint":[300.0,0.0,0.0],"pnormal":[300.0,0.0,0.0]},{"command":"FOLD_REFLECTION","ppoint":[0.0,100.0,0.0],"pnormal":[0.0,-300.0,0.0]},{"command":"FOLD_REFLECTION","ppoint":[0.0,300.0,0.0],"pnormal":[0.0,300.0,0.0]},{"command":"FOLD_CREASE","ppoint":[200.0,200.0,0.0],"pnormal":[-200.0,200.0,0.0]},{"command":"FOLD_REFLECTION_P","polygonIndex":9,"ppoint":[200.0,200.0,0.0],"pnormal":[-200.0,200.0,0.0]},{"command":"FOLD_CREASE","ppoint":[200.0,200.0,0.0],"pnormal":[200.0,200.0,0.0]},{"command":"FOLD_REFLECTION_P","polygonIndex":3,"ppoint":[200.0,200.0,0.0],"pnormal":[200.0,200.0,0.0]},{"command":"FOLD_CREASE","ppoint":[100.0,0.0,0.0],"pnormal":[-300.0,0.0,0.0]},{"command":"FOLD_REFLECTION_P","polygonIndex":9,"ppoint":[100.0,0.0,0.0],"pnormal":[-300.0,0.0,0.0]},{"command":"FOLD_CREASE","ppoint":[100.0,0.0,0.0],"pnormal":[-300.0,0.0,0.0]},{"command":"FOLD_REFLECTION_P","polygonIndex":3,"ppoint":[100.0,0.0,0.0],"pnormal":[-300.0,0.0,0.0]},{"command":"FOLD_CREASE","ppoint":[200.0,200.0,0.0],"pnormal":[200.0,200.0,0.0]},{"command":"FOLD_REFLECTION_P","polygonIndex":13,"ppoint":[200.0,200.0,0.0],"pnormal":[200.0,200.0,0.0]},{"command":"FOLD_CREASE","ppoint":[200.0,200.0,0.0],"pnormal":[200.0,-200.0,-0.0]},{"command":"FOLD_REFLECTION_P","polygonIndex":16,"ppoint":[200.0,200.0,0.0],"pnormal":[200.0,-200.0,-0.0]},{"command":"FOLD_CREASE","ppoint":[300.0,0.0,0.0],"pnormal":[300.0,0.0,0.0]},{"command":"FOLD_REFLECTION_P","polygonIndex":1,"ppoint":[300.0,0.0,0.0],"pnormal":[300.0,0.0,0.0]},{"command":"FOLD_CREASE","ppoint":[300.0,0.0,0.0],"pnormal":[300.0,0.0,0.0]},{"command":"FOLD_REFLECTION_P","polygonIndex":4,"ppoint":[300.0,0.0,0.0],"pnormal":[300.0,0.0,0.0]},{"command":"FOLD_CREASE","ppoint":[200.0,200.0,0.0],"pnormal":[200.0,200.0,0.0]},{"command":"FOLD_REFLECTION_P","polygonIndex":10,"ppoint":[200.0,200.0,0.0],"pnormal":[200.0,200.0,0.0]},{"command":"FOLD_CREASE","ppoint":[200.0,200.0,0.0],"pnormal":[-200.0,-200.0,-0.0]},{"command":"FOLD_REFLECTION_P","polygonIndex":2,"ppoint":[200.0,200.0,0.0],"pnormal":[-200.0,-200.0,-0.0]},{"command":"FOLD_CREASE","ppoint":[200.0,200.0,0.0],"pnormal":[-200.0,200.0,0.0]},{"command":"FOLD_REFLECTION_P","polygonIndex":0,"ppoint":[200.0,200.0,0.0],"pnormal":[-200.0,200.0,0.0]}]
+[
+  {
+    "command": "FOLD_CREASE",
+    "pnormal": [
+      -0.0,
+      350.0,
+      -0.0
+    ],
+    "ppoint": [
+      0.0,
+      50.0,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_ROTATION_P",
+    "phi": 40,
+    "pnormal": [
+      -0.0,
+      350.0,
+      -0.0
+    ],
+    "polygonIndex": 0,
+    "ppoint": [
+      0.0,
+      50.0,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_CREASE",
+    "pnormal": [
+      -0.0,
+      311.00518798828125,
+      -0.0
+    ],
+    "ppoint": [
+      0.0,
+      88.99481201171875,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_ROTATION_P",
+    "phi": -40,
+    "pnormal": [
+      -0.0,
+      311.00518798828125,
+      -0.0
+    ],
+    "polygonIndex": 0,
+    "ppoint": [
+      0.0,
+      88.99481201171875,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_CREASE",
+    "pnormal": [
+      -0.0,
+      261.0051727294922,
+      -0.0
+    ],
+    "ppoint": [
+      0.0,
+      138.9948272705078,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_ROTATION_P",
+    "phi": 40,
+    "pnormal": [
+      -0.0,
+      261.0051727294922,
+      -0.0
+    ],
+    "polygonIndex": 0,
+    "ppoint": [
+      0.0,
+      138.9948272705078,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_CREASE",
+    "pnormal": [
+      -0.0,
+      223.0025634765625,
+      -0.0
+    ],
+    "ppoint": [
+      0.0,
+      176.9974365234375,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_ROTATION_P",
+    "phi": -40,
+    "pnormal": [
+      -0.0,
+      223.0025634765625,
+      -0.0
+    ],
+    "polygonIndex": 0,
+    "ppoint": [
+      0.0,
+      176.9974365234375,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_CREASE",
+    "pnormal": [
+      0.0,
+      226.00523376464844,
+      0.0
+    ],
+    "ppoint": [
+      0.0,
+      226.00523376464844,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_ROTATION_P",
+    "phi": 40,
+    "pnormal": [
+      0.0,
+      226.00523376464844,
+      0.0
+    ],
+    "polygonIndex": 0,
+    "ppoint": [
+      0.0,
+      226.00523376464844,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_CREASE",
+    "pnormal": [
+      0.0,
+      264.00396728515625,
+      0.0
+    ],
+    "ppoint": [
+      0.0,
+      264.00396728515625,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_ROTATION_P",
+    "phi": -40,
+    "pnormal": [
+      0.0,
+      264.00396728515625,
+      0.0
+    ],
+    "polygonIndex": 0,
+    "ppoint": [
+      0.0,
+      264.00396728515625,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_CREASE",
+    "pnormal": [
+      0.0,
+      314.0039520263672,
+      0.0
+    ],
+    "ppoint": [
+      0.0,
+      314.0039520263672,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_ROTATION_P",
+    "phi": 40,
+    "pnormal": [
+      0.0,
+      314.0039520263672,
+      0.0
+    ],
+    "polygonIndex": 0,
+    "ppoint": [
+      0.0,
+      314.0039520263672,
+      0.0
+    ]
+  },
+  {
+    "command": "FOLD_CREASE",
+    "pnormal": [
+      132.0067901611328,
+      -106.00465393066406,
+      291.004638671875
+    ],
+    "ppoint": [
+      -132.0067901611328,
+      106.00465393066406,
+      108.995361328125
+    ]
+  },
+  {
+    "command": "FOLD_REFLECTION_P",
+    "pnormal": [
+      132.0067901611328,
+      -106.00465393066406,
+      291.004638671875
+    ],
+    "polygonIndex": 5,
+    "ppoint": [
+      -132.0067901611328,
+      106.00465393066406,
+      108.995361328125
+    ]
+  },
+  {
+    "command": "FOLD_CREASE",
+    "pnormal": [
+      145.00363159179688,
+      -116.00369262695312,
+      319.00233459472656
+    ],
+    "ppoint": [
+      -145.00363159179688,
+      116.00369262695312,
+      80.99766540527344
+    ]
+  },
+  {
+    "command": "FOLD_REFLECTION_P",
+    "pnormal": [
+      145.00363159179688,
+      -116.00369262695312,
+      319.00233459472656
+    ],
+    "polygonIndex": 21,
+    "ppoint": [
+      -145.00363159179688,
+      116.00369262695312,
+      80.99766540527344
+    ]
+  },
+  {
+    "command": "FOLD_CREASE",
+    "pnormal": [
+      132.00680541992188,
+      -106.00465393066406,
+      291.00465393066406
+    ],
+    "ppoint": [
+      -132.00680541992188,
+      106.00465393066406,
+      108.99534606933594
+    ]
+  },
+  {
+    "command": "FOLD_REFLECTION_P",
+    "pnormal": [
+      132.00680541992188,
+      -106.00465393066406,
+      291.00465393066406
+    ],
+    "polygonIndex": 21,
+    "ppoint": [
+      -132.00680541992188,
+      106.00465393066406,
+      108.99534606933594
+    ]
+  },
+  {
+    "command": "FOLD_CREASE",
+    "pnormal": [
+      145.00364685058594,
+      -116.00367736816406,
+      319.00233459472656
+    ],
+    "ppoint": [
+      -145.00364685058594,
+      116.00367736816406,
+      80.99766540527344
+    ]
+  },
+  {
+    "command": "FOLD_REFLECTION_P",
+    "pnormal": [
+      145.00364685058594,
+      -116.00367736816406,
+      319.00233459472656
+    ],
+    "polygonIndex": 37,
+    "ppoint": [
+      -145.00364685058594,
+      116.00367736816406,
+      80.99766540527344
+    ]
+  },
+  {
+    "command": "FOLD_CREASE",
+    "pnormal": [
+      132.00680541992188,
+      -106.004638671875,
+      291.00465393066406
+    ],
+    "ppoint": [
+      -132.00680541992188,
+      106.004638671875,
+      108.99534606933594
+    ]
+  },
+  {
+    "command": "FOLD_REFLECTION_P",
+    "pnormal": [
+      132.00680541992188,
+      -106.004638671875,
+      291.00465393066406
+    ],
+    "polygonIndex": 37,
+    "ppoint": [
+      -132.00680541992188,
+      106.004638671875,
+      108.99534606933594
+    ]
+  }
+]

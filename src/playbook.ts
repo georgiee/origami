@@ -4,6 +4,8 @@ import { gui, updateDisplay } from './panel';
 import * as Rx from 'rxjs/Rx';
 import * as playbooks from './playbooks/index';
 
+const PLAYBOOKS = { ...playbooks.working, ...playbooks.pending, ...playbooks.raw };
+
 export class Playbook {
   private panelFolder;
   private instructions;
@@ -102,7 +104,7 @@ export class Playbook {
     this.panelFolder.closed = false;
 
     this.panelFolder
-      .add(this.panelData, 'playbook',  ['custom', ...Object.keys(playbooks.working)])
+      .add(this.panelData, 'playbook',  ['custom', ...Object.keys(PLAYBOOKS)])
       .name('Choose: ')
       .onChange((key) => {
         this.handlePlaybookChanged(key);
@@ -127,7 +129,7 @@ export class Playbook {
     }else {
       this.removeCustomController();
 
-      const data = playbooks.working[name];
+      const data = PLAYBOOKS[name];
       this.setNewInstructions(data);
     }
   }

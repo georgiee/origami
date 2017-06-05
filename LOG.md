@@ -16,6 +16,9 @@ To select existing or even paste new one. This helps during development.
 
 One hour later: Done. Feels good.
 
+I also flipped the camera to match the opengl environment where the playbooks come from. By doing this I look at the same side when playing the steps.
+THis was as easy as changing the camera up vector in the three js camera.
+
 ## 170604
 New day, new stupid bug. I am in the process of refactoring and want to put the cut method into a polygon class.
 Process is good, it's a lot of cross testing to see if the results are the same as before without the parts ripped out of the shape class.

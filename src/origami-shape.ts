@@ -268,7 +268,7 @@ export class OrigamiShape {
     for ( let j = 0; j < selection.length; j++) {
         const selectedPolygon = this.getPolygon(selection[j]);
         if (selectedPolygon === undefined) {
-          throw new Error('Selection out of bounds');
+          throw new Error('Selected Polygon Index out of bounds (happens because of mismatching polygon indices. ');
           // debugger;
         }
         for (let i = 0; i < this.model.getPolygons().length; i++) {

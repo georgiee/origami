@@ -78,14 +78,14 @@ export class Playbook {
 
   private foldRotation(plane, angle, index = null) {
     this.origami.fold(plane, angle, index );
-    if (index !== null) {
+    if (index !== null && index !== undefined) {
       this.origami.highlightPolygon(index);
     }
   }
 
   private foldReflection(plane, index = null) {
     this.origami.reflect(plane, index);
-    if (index !== null) {
+    if (index !== null && index !== undefined) {
       this.origami.highlightPolygon(index);
     }
   }

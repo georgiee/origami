@@ -21,6 +21,21 @@ THis was as easy as changing the camera up vector in the three js camera.
 
 Today I also converted all of the given *.ori files from the Java Sources to use them in the new dropdown to test any model at any point in time.
 
+I fixed the debug panel for the playbook so next/prev are now always in bounds. Now I will finally fix are core problem: Reflecting of a selected polygon index
+is not always working. Most of the time the problem is when I place the plane at borders and try to reflect back a polygon with lays on top of another polygon.
+It's currently just flipping both. So maybe the crease immediately before or the select algorithm is wrong. I do't think that the reflection is wrokng as that thing is rather simple from an implementation perpsective. Let's see. I will give me one hour today to look into it.
+Ok 1 hour later.
+Result: I was distracted by WWDC, by Japanese Music I was searching for BUT I got somethign at least.
+That boat which is not working straight from the decoded ori file is working when I align it and reflect the lower tip manually.
+Within the #reflectIndex method I output the selection and see that the array is the same as if I would position the plane far outside of the whole object- which
+would cause it just to flip as every polygon would be on one side of the plane. (these are the actual values: [6, 0, 1, 2, 3, 4, 5, 7])
+
+If I do it manually I see two major differences: The selection shrinks: [10, 4] which is what I exptected as only the two polygons forming one side of the triangle should flip over.
+And I can see in the creasing pattern a perfect red cross. Which outlines in combination with my selected polygon what will flip.
+Take the dot I place on the polygon I want to select and in combination with the creasign preview (the red cross ) I see that my two expected polygons are enclosed.
+
+I wonder what is the *perfect* way to align my object to the camera to get the proper plane. At the moment I align the two flaps as best as I can to the the proper angle to put generate my plane. Is it Neusis that could help here? Anyway. I call it a night for today.
+
 ## 170604
 New day, new stupid bug. I am in the process of refactoring and want to put the cut method into a polygon class.
 Process is good, it's a lot of cross testing to see if the results are the same as before without the parts ripped out of the shape class.

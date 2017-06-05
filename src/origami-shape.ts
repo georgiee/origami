@@ -87,8 +87,8 @@ export class OrigamiShape {
   }
 
   public reflectIndex(plane, polygonIndex) {
-    console.log('call: reflectIndex');
     const selection = this.polygonSelect(plane, polygonIndex);
+    console.log('call: reflectIndex', selection);
 
     this.getVertices().forEach((vertex, index) => {
       selection.every( (selectedPolygon) => {

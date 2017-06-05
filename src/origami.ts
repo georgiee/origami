@@ -57,7 +57,7 @@ export default class Origami extends THREE.Object3D {
         // this.crease(plane || this.currentPlane);
         const polygonIndex = this.shape.model.findPolygon2D(this.selectedPoint2D);
         this.foldIndex(plane || this.currentPlane, angle, polygonIndex);
-      }else if (index !== null) {
+      }else if (index !== null && index !== undefined) {
         // this.crease(plane || this.currentPlane);
         this.foldIndex(plane || this.currentPlane, angle, index);
       }else {
@@ -76,7 +76,7 @@ export default class Origami extends THREE.Object3D {
         // this.crease(plane || this.currentPlane);
         const polygonIndex = this.shape.model.findPolygon2D(this.selectedPoint2D);
         this.reflectIndex(plane || this.currentPlane, polygonIndex);
-      }else if (index !== null) {
+      }else if (index !== null && index !== undefined) {
        // this.crease(plane || this.currentPlane);
         this.reflectIndex(plane || this.currentPlane, index);
       }else {

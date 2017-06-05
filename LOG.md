@@ -9,8 +9,12 @@ Look at this:
 ```
 
 Guess what happens when index is zero ? Yes it is not executed. Well known but I somehow got this into code. Time to use a linter even it is only a fun project.
+After activation I fixed a zillion of linting errors for my main files. The rest will be fixed when I have to work on them. So finally no shadowed variable or wrong comparison errors.
 
+After fixing this error which might have caused problems with other origami playbooks I run I will try some of them again. To do so I will finally integrate a selector in my debug panel.
+To select existing or even paste new one. This helps during development.
 
+One hour later: Done. Feels good.
 
 ## 170604
 New day, new stupid bug. I am in the process of refactoring and want to put the cut method into a polygon class.

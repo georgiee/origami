@@ -2,24 +2,32 @@ import * as THREE from 'three';
 import Origami from './origami';
 import { gui, updateDisplay } from './panel';
 import * as Rx from 'rxjs/Rx';
+import * as playbooks from './playbooks/index';
+
 export class Playbook {
   private panelFolder;
   private instructions;
   private currentIndex = 0;
-  private panelData;
-
+  private panelData =  {
+    custom: '',
+    index: 0,
+    playbook: null,
+    controllers: {
+      next: null,
+      previous: null
+    }
+  } as any;
+  
   constructor(private origami: Origami) {
     this.initPanel();
   }
 
-  public run(instructions, progress = 1) {
+  public set(instructions) {
     this.instructions = instructions;
-    this.updatePanel();
-
-    this.play();
   }
   
   public next() {
+    console.log('next');
     this.play(this.currentIndex + 1);
   }
 
@@ -40,34 +48,13 @@ export class Playbook {
     
     updateDisplay();
   }
-  
-  public updatePanel() {
-    this.panelData = {
-      index: 0
-    };
-
-    const progressController = this.panelFolder
-      .add(this.panelData, 'index', 0, this.instructions.length - 1)
-      .listen();
-    this.panelFolder.add(this, 'next');
-    this.panelFolder.add(this, 'previous');
-
-    const source = Rx.Observable.create(function(observer) {
-      progressController.onChange((value) => observer.next(value));
-    });
-
-    const subscription = source.debounceTime(250).subscribe(
-      (step) => this.play(step)
-    );
-
-  }
 
   public runCommand(data, index) {
     const ruler = this.origami.getRuler();
     const plane = this.getPlane(data);
 
     // tslint:disable-next-line:max-line-length
-    console.warn(`run ${index + 1}/${this.instructions.length} - \${data.command} ${data.polygonIndex !== undefined ? data.polygonIndex : ''}`, plane);
+    console.warn(`run ${index + 1}/${this.instructions.length} - ${data.command} ${data.polygonIndex !== undefined ? data.polygonIndex : ''}`, plane);
     
     ruler.show(plane);
 
@@ -83,6 +70,7 @@ export class Playbook {
 
     this.origami.stats();
   }
+
   private foldRotation(plane, angle, index?) {
     this.origami.fold(plane, angle, index );
     if (index) {
@@ -108,9 +96,92 @@ export class Playbook {
 
     return plane;
   }
-
+  
   private initPanel() {
     this.panelFolder = gui.addFolder('Playbook');
     this.panelFolder.closed = false;
+
+    this.panelFolder
+      .add(this.panelData, 'playbook',  ['custom', ...Object.keys(playbooks.working)])
+      .name('Choose: ')
+      .onChange((key) => {
+        this.handlePlaybookChanged(key);
+      });
   }
+  
+  private handlePlaybookChanged(name) {
+    if (name === 'custom') {
+      const controller = this.panelFolder.add(this.panelData, 'custom');
+      this.panelData.controllers.custom = controller;
+      this.setNewInstructions([]);
+      
+      controller.onChange((value) => {
+        try {
+          const instructions = JSON.parse(value);
+          this.setNewInstructions(instructions);
+        } catch (Error) {
+          console.error('Invalid JSON, paste here a json command list (sorry no documentation)');
+        }
+      });
+
+    }else {
+      this.removeCustomController();
+
+      const data = playbooks.working[name];
+      this.setNewInstructions(data);
+    }
+  }
+  private removeCustomController() {
+    if (this.panelData.controllers.custom) {
+      this.panelFolder.remove(this.panelData.controllers.custom);
+      this.panelData.controllers.custom = null;
+    }
+  }
+  
+  private removePlaybookController() {
+    if (this.panelData.controllers.next) {
+      this.panelFolder.remove(this.panelData.controllers.next);
+      this.panelData.controllers.next = null;
+    }
+
+    if (this.panelData.controllers.previous) {
+      this.panelFolder.remove(this.panelData.controllers.previous);
+      this.panelData.controllers.previous = null;
+    }
+
+    if (this.panelData.controllers.progress) {
+      this.panelFolder.remove(this.panelData.controllers.progress); 
+      this.panelData.controllers.progress = null;
+    }
+  }
+  
+  private setNewInstructions(data) {
+      this.removePlaybookController();
+    
+      this.panelData.index = 0;
+      this.set(data);
+      // this.play();
+      this.panelData.controllers.next = this.panelFolder.add(this, 'next');
+      this.panelData.controllers.previous = this.panelFolder.add(this, 'previous');
+      
+      this.updateProgressHandler();
+  }
+  
+  private updateProgressHandler() {
+
+    this.panelData.controllers.progress = this.panelFolder
+      .add(this.panelData, 'index', 0, this.instructions.length - 1)
+      .listen();
+    
+    const source = Rx.Observable.create((observer) => {
+      this.panelData.controllers.progress.onChange((value) => observer.next(value));
+    });
+
+    const subscription = source.debounceTime(250).subscribe(
+      (step) => {
+        this.play(step);
+      }
+    );
+  }
+  
 }

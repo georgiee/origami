@@ -20,30 +20,55 @@ export function planeBetweenPoints(plane: THREE.Plane, v1, v2){
   return Math.sign(delta1) != Math.sign(delta2);
 }
 
-export function pointOnPlane(plane, point, threshold = 1){
+export function pointOnPlane(plane, point, threshold = 1) {
     return Math.abs(plane.distanceToPoint(point)) < threshold;
 }
 
-export function planeBetweenPoints2(plane: THREE.Plane, v1, v2){
-  const EPSILON = 0.0001;
+export function planeBetweenPoints2(plane: THREE.Plane, v1, v2) {
+  const EPSILON = 0.00001;
 
   let delta1 = plane.distanceToPoint(v1);
-  if(Math.abs(delta1) < EPSILON){
+  if (Math.abs(delta1) < EPSILON) {
       delta1 = 0;
   }
 
   let delta2 = plane.distanceToPoint(v2);
 
-  if(Math.abs(delta2) < EPSILON){
+  if (Math.abs(delta2) < EPSILON) {
       delta2 = 0;
   }
+  // console.log('delta1', delta1, 'delta2', delta2);
 
-  if(delta1 == 0 || delta2 == 0){
-    //at least one vertex plane, skip
+  if (delta1 === 0 || delta2 === 0) {
+    // at least one vertex plane, skip
     return false;
   }
 
-  return Math.sign(delta1) != Math.sign(delta2);
+  return Math.sign(delta1) !== Math.sign(delta2);
+}
+
+export function planeBetweenPoints3(plane: THREE.Plane, v1, v2) {
+  const distance1 = plane.distanceToPoint(v1);
+  const distance2 = plane.distanceToPoint(v2);
+
+  // console.log('planeBetweenPoints3', distance1, distance2);
+
+  let inner = false;
+  let outer = false;
+
+  if ( distance1 > 0.00000001) {
+      inner = true;
+  }
+  if (distance1 < -0.00000001) {
+      outer = true;
+  }
+  if (distance2 > 0.00000001) {
+      inner = true;
+  }
+  if (distance2  < -0.00000001) {
+      outer = true;
+  }
+  return inner && outer;
 }
 
 // https://github.com/substack/point-in-polygon

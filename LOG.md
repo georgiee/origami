@@ -60,7 +60,33 @@ THis yields to two new working figures:
 Both had a render error but were correct otherwise as I could tell from the crease view.
 Now back to the analysis of the vertices/poylgons.
 
+> Reminder: Step 5/7 (FOLD_REFLECTION): 13/22 vs 15/18. So I have two polygons less?
 
+Ok I looked into it. it's about the flaps of the box that are reflected into the box. I see a small gap. Nothing else. Could be a problem with the precision. My actual goal is to get the crane running properly. So I switch over to the analysis of that.
+
++ Step 3/23 is fine (6/9)
++ Step 4/23 is already off (12/17) vs (12/11). The crease pattern looks fine.
+So maybe my tidyup function is not working?
+
+Nope. I got a precision problem.
+My function planeBetweenPoints2 uses the same epsilon as in he java source- but the calculation there is not normalized. So I guess I need to work on those numbers. I also have seen that the Java Application doesn't some internal rounding by using its own compression function. This reduces permanently precision and might help there for the overall precision thing? If I change the EPISLON, which stands for "0" to 1 in this calculation it works. for the given step. But this function is used in every cut so I might have some effects caused by this. So I have to be very carefully.
+
+Well, no magic here. This is a problem but won't be fixed by just setting epsilon to 1. Which feels wrong anyway.
+
+No precision! My between plane function was wrong
+and also I didn't check if vertex2 is not the dividing plane.
+
+But still. Now I have the same amount of polygons in step 4.
+The vertices and somehow match. But I see significant differences liek this:
+
+ ```
+ // my vertex 0
+ -0.4889242561108683 1.1824076233992675 0
+ // vs java vertex 0
+  -0.4889242561108683 1.1824076233992675 0
+```
+The polygon indices perfectly match now. So again: Precision problem. Next time I work on this.
+At this point of time, it could be that everything is working actually and that I only waste time trying to get the existing folding sequences working - where I could create my own. So I might jsut try to build my own crane by applying the correct amounts. Next step from here would be my own history I can save or export. Aaaand before I do this I need an undo system before killing a model right before the completion 😅☝️
 
 ## 170610
 Ok. I feel like I am late to the party. But today I recognized that the Java Origami App has an diagnostics mode

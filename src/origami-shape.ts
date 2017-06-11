@@ -50,7 +50,6 @@ export class OrigamiShape {
 
   public cut(plane: THREE.Plane) {
     const polygons = this.model.getPolygons();
-
     polygons.forEach((polygon, index) => {
       this.cutPolygon(index, plane);
     });
@@ -93,7 +92,6 @@ export class OrigamiShape {
 
   public reflectIndex(plane, polygonIndex) {
     const selection = this.polygonSelect(plane, polygonIndex);
-    console.log('call: reflectIndex', selection);
 
     this.getVertices().forEach((vertex, index) => {
       selection.every( (selectedPolygon) => {

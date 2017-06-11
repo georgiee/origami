@@ -82,12 +82,12 @@ export class Polygon {
     return false;
   }
 
-  public isNonDegenerate(){
+  public isNonDegenerate() {
     const size = this.size;
 
-    if(size > 1){
-        for(let i = 0; i < size; i++){
-            if(this.points[0].distanceTo(this.points[i]) > 0){
+    if (size > 1) {
+        for (let i = 0; i < size; i++) {
+            if (this.points[0].distanceTo(this.points[i]) > 0) {
               return true;
             }
         }
@@ -96,15 +96,15 @@ export class Polygon {
     return false;
   }
 
-  public getPreviousCuts(cuts,i, j){
-    let polygonIndices = this.indices;
+  public getPreviousCuts(cuts, i, j) {
+    const polygonIndices = this.indices;
 
     const equal = (node, index1, index2) => {
-      return (node.v1 == index1 && node.v2 == index2) || (node.v1 == index2 && node.v2 == index1)
-    }
+      return (node.v1 === index1 && node.v2 === index2) || (node.v1 === index2 && node.v2 === index1);
+    };
 
-    for(let node of cuts){
-      if( equal(node, polygonIndices[i], polygonIndices[j])){
+    for (const node of cuts){
+      if ( equal(node, polygonIndices[i], polygonIndices[j])) {
         return node.result;
       }
     }
@@ -112,57 +112,64 @@ export class Polygon {
     return null;
   }
 
-  public cut(plane, previousCuts = []){
+  public cut(plane, previousCuts = []) {
     const size = this.size;
-    let indices = this.indices
+    const indices = this.indices;
 
-    let ppoint = plane.coplanarPoint();
-    let pnormal = plane.normal;
+    const ppoint = plane.coplanarPoint();
+    const pnormal = plane.normal;
 
-    let newpoly1 = [];
-    let newpoly2 = [];
-    let newVertices = [];
-    let cutpolygonNodes = [];
+    const newpoly1 = [];
+    const newpoly2 = [];
+    const newVertices = [];
+    const cutpolygonNodes = [];
 
     for (let i = 0; i < size; i++) {
-      let j = (i + 1) % size; //following vertex
+      const j = (i + 1) % size; // following vertex
 
-      let vertex = this.points[i];
-      let vertex2 = this.points[j];
+      const vertex = this.points[i];
+      const vertex2 = this.points[j];
 
-      let distance = plane.distanceToPoint(vertex);
+      const distance = plane.distanceToPoint(vertex);
 
-      //if it's on the cutting plane it belongs to both new polygons
-      if(Math.abs(distance) < 0.001){
+      // console.groupCollapsed('test polygon index: ' + i);
+
+      // if it's on the cutting plane it belongs to both new polygons
+      if (Math.abs(distance) < 1) {
         newpoly1.push(indices[i]);
         newpoly2.push(indices[i]);
       } else {
-        let sideA = vertex.dot(pnormal);
-        let sideB = ppoint.dot(pnormal);
+        const sideA = vertex.dot(pnormal);
+        const sideB = ppoint.dot(pnormal);
 
-        if(sideA > sideB){
+        if (sideA > sideB) {
           newpoly1.push(indices[i]);
-        }else{
+        }else {
           newpoly2.push(indices[i]);
         }
 
-        let divided = math.planeBetweenPoints2(plane,vertex,vertex2);
+        const divided = math.planeBetweenPoints3(plane, vertex, vertex2);
+        const pointOnPlane = math.pointOnPlane(plane, vertex2);
+        const combinedTest = divided && pointOnPlane === false;
 
-        if(divided){
-          let previousCut = this.getPreviousCuts(previousCuts, i, j);
+        // console.log('divided?', i, '<---' + combinedTest + ' ---->', j);
+        // console.log(vertex, vertex2);
 
-          if(previousCut !== null){
+        if (combinedTest) {
+          const previousCut = this.getPreviousCuts(previousCuts, i, j);
+
+          if (previousCut !== null) {
 
             newpoly1.push(previousCut);
             newpoly2.push(previousCut);
 
           } else {
 
-            let direction = vertex.clone().sub(vertex2);
-            let line = new THREE.Line3(vertex, vertex2);
+            const direction = vertex.clone().sub(vertex2);
+            const line = new THREE.Line3(vertex, vertex2);
 
-            if(plane.intersectsLine(line)){
-              let meet = plane.intersectLine(line);
+            if (plane.intersectsLine(line)) {
+              const meet = plane.intersectLine(line);
               newVertices.push(meet);
 
               newpoly1.push({added: newVertices.length - 1 });
@@ -173,6 +180,8 @@ export class Polygon {
           }
         }
       }
+
+      // console.groupEnd();
     }
 
     return {
@@ -180,27 +189,27 @@ export class Polygon {
       newpoly2,
       newVertices,
       cutpolygonNodes
-    }
-
+    };
   }
 
   public canCut(plane) {
-    if(this.isNonDegenerate() === false) {
+    if (this.isNonDegenerate() === false) {
       return false;
     }
 
     let inner = false;
     let outer = false;
-    let normal = plane.normal;
-    let coplanarPoint = plane.coplanarPoint();
+    const normal = plane.normal;
+    const coplanarPoint = plane.coplanarPoint();
 
-    for(let i = 0; i < this.size; i++){
-      let point = this.points[i];
-      let normalLength = Math.sqrt(Math.max(1, normal.lengthSq()));
-      //TODO: Same as distanceToPlane?
-      if(point.dot(normal)/normalLength > coplanarPoint.dot(normal)/normalLength + 0.00000001){
+    for (let i = 0; i < this.size; i++) {
+      const point = this.points[i];
+      const normalLength = Math.sqrt(Math.max(1, normal.lengthSq()));
+
+      // TODO: Same as distanceToPlane?
+      if (point.dot(normal) / normalLength > coplanarPoint.dot(normal) / normalLength + 0.00000001) {
         inner = true;
-      }else if(point.dot(normal)/normalLength < coplanarPoint.dot(normal)/normalLength - 0.00000001){
+      }else if (point.dot(normal) / normalLength < coplanarPoint.dot(normal) / normalLength - 0.00000001) {
         outer = true;
       }
 
@@ -208,7 +217,7 @@ export class Polygon {
           return true;
       }
 
-    };
+    }
 
     return false;
   }

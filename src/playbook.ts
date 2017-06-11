@@ -47,12 +47,20 @@ export class Playbook {
       count = this.instructions.length;
     }
 
-    this.currentIndex = count;
-    this.panelData.index = count;
-    this.origami.reset();
-    this.instructions
-    .slice(0, this.currentIndex)
-    .forEach((data, index) => this.runCommand(data, index));
+    console.log(count, this.currentIndex);
+    // if ((count - this.currentIndex) !== 1 ) {
+      this.currentIndex = count;
+      this.panelData.index = count;
+      this.origami.reset();
+      this.instructions
+      .slice(0, this.currentIndex)
+      .forEach((data, index) => this.runCommand(data, index));
+    // } else {
+    //   // we can increment forward steps
+    //   const data = this.instructions[this.currentIndex];
+    //   this.currentIndex = count;
+    //   this.runCommand(data, this.currentIndex);
+    // }
 
     updateDisplay();
   }

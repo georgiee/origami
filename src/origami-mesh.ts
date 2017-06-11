@@ -91,7 +91,6 @@ class OrigamiMesh extends THREE.Object3D {
   }
 
   private toGeometry() {
-    console.group('geometry');
     const combinedGeometry = new THREE.Geometry();
 
     const polygonInstances = this.shape.model
@@ -103,15 +102,13 @@ class OrigamiMesh extends THREE.Object3D {
     polygonInstances.forEach((polygon: Polygon) => {
 
       if (polygon.isStrictlyNonDegenerate() === false) {
-        console.log('--- skip this', polygon)
         return; // next
       }
 
-      console.log('--- render this', polygon)
-
       const geometry = new THREE.Geometry();
       const vertices = polygon.getPoints();
-      const triangles = THREE.ShapeUtils.triangulate(vertices, true);
+      const triangles = polygon.triangulate();
+
       const faces = triangles.map((triangle) => new THREE.Face3(triangle[0], triangle[1], triangle[2]));
 
       geometry.vertices.push(...vertices);
@@ -120,8 +117,6 @@ class OrigamiMesh extends THREE.Object3D {
 
       combinedGeometry.merge(geometry, new THREE.Matrix4());
     });
-
-    console.groupEnd();
 
     return combinedGeometry;
   }

@@ -1,14 +1,41 @@
 import * as math from './math';
 import * as THREE from 'three';
 
+function* range(begin, end, interval = 1) {
+    for (let i = begin; i < end; i += interval) {
+        yield i;
+    }
+}
+
 export class Polygon {
   public points;
   public points2d;
   public indices;
 
-  constructor(points = [], indices = []) {
-      this.points = points.concat([]);
-      this.indices = indices.concat([]);
+  constructor(points = [], indices = null) {
+    if (indices === null) {
+      indices = Array.from(range(0, points.length, 1));
+    }
+
+    this.points = points.concat([]);
+    this.indices = indices.concat([]);
+  }
+
+  // https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
+  public getNormal() {
+    const normal = new THREE.Vector3();
+    const length = this.points.length;
+
+    for (let i = 0; i < length; i++ ) {
+      const current = this.points[i];
+      const next = this.points[( i + 1) % length];
+
+      normal.x = normal.x + (current.y - next.y) * (current.z + next.z);
+      normal.y = normal.y + (current.z - next.z) * (current.x + next.x);
+      normal.z = normal.z + (current.x - next.x) * (current.y + next.y);
+    }
+
+    return normal.normalize();
   }
 
   public getPoints() {
@@ -35,11 +62,18 @@ export class Polygon {
       const pointA = points[i];
       for (let j = 0; j < l; j++) {
         const pointB = points[j];
+        // Maybe check this out?
+        // https://stackoverflow.com/questions/12642256/python-find-area-of-polygon-from-xyz-coordinates
+        // and http://thebuildingcoder.typepad.com/blog/2008/12/3d-polygon-areas.html
+        // The area of a 3d polygon is half of the dot product of the unit vector
+        // and the total of all the cross products,
+
+        // This is from the original source
         const directionA = pointA.clone().sub(basePoint);
         const directionB = pointB.clone().sub(basePoint);
-        const lengthCross = new THREE.Vector3().crossVectors(directionA, directionB).length()
+        const area = new THREE.Vector3().crossVectors(directionA, directionB).length();
         // console.log('lengthCross ---> ', lengthCross, this.indices[i], this.indices[j]);
-        if (lengthCross > 0) { // not perpendicular.
+        if (area > 0) { // not perpendicular.
           return true;
         }
       }
@@ -181,5 +215,38 @@ export class Polygon {
 
   public get size() {
       return this.points.length;
+  }
+
+  public triangulate(classicMode = false) {
+    if (classicMode ) {
+      return THREE.ShapeUtils.triangulate(this.points, true);
+    }
+
+    // 1. create a XY plane aligned version of this poylgon
+    const alignedVertices = this.alignWithXYPlane(this.points);
+    // 2. then triangulate. We only need the indices. So we don't
+    // event need to rotate anything back.
+    const indices = THREE.ShapeUtils.triangulate(alignedVertices, true);
+
+    return indices;
+  }
+
+  // Rotate any polygon on the XY Plane so we can do a proper triangulation later on
+  // https://gamedev.stackexchange.com/questions/48095/rotating-3d-plane-to-xy-plane
+  // but it is  actually cross(normal, axisZ) to get the rotation axis.
+  private alignWithXYPlane(vertices) {
+    const axisZ = new THREE.Vector3(0, 0, 1);
+
+    const polygon = new Polygon(vertices);
+    const polygonNormal = polygon.getNormal();
+
+    const rotationAxis = new THREE.Vector3().crossVectors(polygonNormal, axisZ).normalize();
+    const theta = Math.acos(axisZ.dot(polygonNormal));
+    const quaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, theta);
+
+    return vertices.map( (vector: THREE.Vector3) => {
+      // return vector.clone().applyAxisAngle(rotationAxis, theta)
+      return vector.clone().applyQuaternion(quaternion);
+    });
   }
 }

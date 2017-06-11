@@ -30,6 +30,38 @@ Analysis:
 Ok two things to fix before I continue: Rendering &then the polygon difference.
 The rendering is caused by my lack of the function `isStrictlyNonDegenerate` which is present in the original source when drawing. So let's check that out.
 
+I implemented isStrictlyNonDegenerate and cross checked the results with the original source. It's fine. I also looked up some methods to calculate the area of polygons in 3d. That's a pretty nice [answer](https://stackoverflow.com/questions/12642256/python-find-area-of-polygon-from-xyz-coordinates) but I choose not to implement it yet as the current function works just fine.
+
+Another problem the came to me when doing this: The triangulation I currently use is not suitable for 3d polygons. It is implemented within ThreeJS's ShapeUtils
+triangualte function. Internally it using a 2d area function to determine if the verts are CCW as the algorithm depends on it. Additionally I doubt that the whole triangulation is working for 3d polygons as the internal snip function also drops the z coordinates.
+
+The original java source uses a simple canvas projection of the polygon. So no help. all of my polygons are in the same plane, but it's not the XY Plane,
+so I think I have to get the normal of the polygon plane (I just feed them into a plane to do so) and rotate them into the XY-Plane. I can now do the triangulation
+and if this works I can rotate the result back into the old position. Sounds like a plane?
+Steps:
+1. Calculate Polygon Normal
+Use [Newell's method](https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal) to extend the triangle normal calculation to a polygon
+2. Rotate plane to the XY-Plane
+https://math.stackexchange.com/questions/1167717/transform-a-plane-to-the-xy-plane (phew)
+https://stackoverflow.com/a/19215137 (lloks good, gl based, doing the same thing as I)
+
+3. Tesselate
+4. Inverse Rotate the plane
+
+
+**Got this nailed!🙏**
+Astonishing exactly as I thought. Rotate on XY, tesselate. But I don't event need to rotate back as I only need the indices- as the algorithm is not creating any new vertices (like delaunay would do if I read that correctly).
+I now integrated the triangulation into the polygon oyt of the mesh.
+
+THis yields to two new working figures:
++ Waterbomb
++ Crown.
+
+Both had a render error but were correct otherwise as I could tell from the crease view.
+Now back to the analysis of the vertices/poylgons.
+
+
+
 ## 170610
 Ok. I feel like I am late to the party. But today I recognized that the Java Origami App has an diagnostics mode
 where I can output the vertices and polygons. I discovered this when I started it the first time in IntelliJ because I finally wanted to compare the internal data to my data.

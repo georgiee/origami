@@ -128,8 +128,8 @@ function planeToPlane(mathPlane, plane){
 }
 
 
-function getPlaneMesh(mathPlane){
-  let plane = new THREE.Mesh(new THREE.PlaneGeometry(100,100,10,10), new THREE.MeshBasicMaterial({wireframe: true, side:THREE.DoubleSide}));
+function getPlaneMesh(mathPlane, size = 100) {
+  let plane = new THREE.Mesh(new THREE.PlaneGeometry(size,size,10,10), new THREE.MeshBasicMaterial({wireframe: true, side:THREE.DoubleSide}));
   return planeToPlane(mathPlane, plane);
 }
 

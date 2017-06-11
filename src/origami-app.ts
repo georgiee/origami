@@ -5,6 +5,7 @@ import Origami from './origami';
 import * as Panel from './panel';
 import { Playbook } from './playbook';
 import * as playbooks from './playbooks/index';
+import { testNewell } from './test-newell';
 
 export class OrigamiApp {
   private world;
@@ -18,9 +19,10 @@ export class OrigamiApp {
 
     this.build();
     this.test();
-
     Panel.initOrigami(this.origami);
 
+    // testNewell(this.world);
+    // console.log(THREE.ShapeUtils.triangulate([v1, v2, v3] as any, false));
   }
 
   public test() {

@@ -230,6 +230,11 @@ export class OrigamiModel {
       return points;
     }
 
+    public isStrictlyNonDegenerate(polygonIndex) {
+      const polygon = new Polygon(this.data.getVerticesForPolygon(polygonIndex));
+      return polygon.isStrictlyNonDegenerate();
+    }
+
     public isNonDegenerate(polygonIndex) {
       const polygon = new Polygon(this.data.getVerticesForPolygon(polygonIndex));
       return polygon.isNonDegenerate();

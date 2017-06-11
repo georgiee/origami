@@ -5,7 +5,7 @@ import * as Rx from 'rxjs/Rx';
 import * as playbooks from './playbooks/index';
 
 // const PLAYBOOKS = { ...playbooks.working, ...playbooks.pending, ...playbooks.raw};
-const PLAYBOOKS = { ...playbooks.working, ...playbooks.pending};
+const PLAYBOOKS = { ...playbooks.working, ...playbooks.testing};
 export class Playbook {
   private panelFolder;
   private instructions;

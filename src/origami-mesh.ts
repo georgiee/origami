@@ -19,7 +19,10 @@ class OrigamiMesh extends THREE.Object3D {
 
     // creates a combined mesh of front, back and wireframe display
     const geometry = this.toGeometry();
-    const mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, this.materials);
+    // const mesh = THREE.SceneUtils.createMultiMaterialObject(geometry, this.materials);
+    const mesh = new THREE.Mesh(geometry, new THREE.MeshNormalMaterial({
+      side: THREE.DoubleSide
+    }));
 
     const pointGeometry = new THREE.Geometry();
     const lines = new THREE.LineSegments(this.toLineGeometry(), new THREE.LineBasicMaterial());
@@ -41,7 +44,7 @@ class OrigamiMesh extends THREE.Object3D {
 
     return middle;
   }
-  
+
   private init() {
     this.group = new THREE.Group();
     this.add(this.group);
@@ -65,13 +68,13 @@ class OrigamiMesh extends THREE.Object3D {
   private toLineGeometry() {
     const combinedGeometry = new THREE.Geometry();
     let counter = 1;
-    
+
     const polygonInstances = this.shape.model
       .getPolygonWrapped()
       .filter((polygon) => {
         return (polygon.isNonDegenerate() === false || polygon.size < 3) === false;
       });
-    
+
     polygonInstances.forEach((polygon: Polygon) => {
       const geometry = new THREE.Geometry();
       const vertices = polygon.getPoints();
@@ -88,6 +91,7 @@ class OrigamiMesh extends THREE.Object3D {
   }
 
   private toGeometry() {
+    console.group('geometry');
     const combinedGeometry = new THREE.Geometry();
 
     const polygonInstances = this.shape.model
@@ -95,8 +99,16 @@ class OrigamiMesh extends THREE.Object3D {
       .filter((polygon) => {
         return (polygon.isNonDegenerate() === false || polygon.size < 3) === false;
       });
-    
+
     polygonInstances.forEach((polygon: Polygon) => {
+
+      if (polygon.isStrictlyNonDegenerate() === false) {
+        console.log('--- skip this', polygon)
+        return; // next
+      }
+
+      console.log('--- render this', polygon)
+
       const geometry = new THREE.Geometry();
       const vertices = polygon.getPoints();
       const triangles = THREE.ShapeUtils.triangulate(vertices, true);
@@ -108,6 +120,8 @@ class OrigamiMesh extends THREE.Object3D {
 
       combinedGeometry.merge(geometry, new THREE.Matrix4());
     });
+
+    console.groupEnd();
 
     return combinedGeometry;
   }

@@ -1,16 +1,48 @@
+## 170611
+That airplane nearly worked when I put in the values of a DIN A4 paper. only the tip was somehow off. But I don't care. I focus on the square so I want to use a square example to check and fix
+my algorithms. By the way so far working (maybe among others, but those are the ones I know of)
+
++ Pinwheel
++ Catamaran
++ Miura
++ Boat
+
+I will now check the butterlfy step by step. I will use my shiny new debug function (Key D) together with the diagnostics of the Java application.
+To output my vertices and polygons I use `console.group` which makes it very comfortable to look at.
+
+Analysis of the butterlfy. First of all I get an polygonIndex out of range error from my code. This means my internal polygon/vertices structure is off. The given playbook tries to select a non existing polygon. Happens at 27/32. So I will start my analysis around there. We are talking about 67 Polygons and 178 Vertices in my code to check 🤓 But first I really had to display the current step in the java timeline slider so I can finally see (step/total step) and don't have to count all the time as this gets ridiculous when looking at 30+ steps.
+
+After looking at the butterfly I quickly decided to search for another not working model with a little less steps and vertices. I wanted to try the whale. But includes cutting which I don't support and never want to as it's against the origami thinking for me. That whale bugged me already in real life when I was supposed to cut it 😤 Ok next: FishBase. Don't work. Why? It's so few steps and still?
+I quickly look into the extracted json and see a mutilation fold. Which must be wrong. Maybe V1 File Format error? I always ignored that. Back to the ruby files for a moment. Pheww.
+
+Ok, in my ruby convert script I always expected a paper color block. That was missing for the fishbase. I will now regenerate all models and check if there a differences. I found exactly three: all of them are bases. Updated and inserted. Fishbase is working now.
+
+I checked some models. Crown is small. I test with that now.
+
+Analysis:
+32/47 vs 28/37 so somehow I get 4 more polygons. Let's check where.
++ Step 1/7 (FOLD_ROTATION): Same.
++ Step 2/7 (FOLD_ROTATION): Same.
++ Step 3/7 (FOLD_REFLECTION): Same. Only the rendering is off. My double material is only displayed one one side.
++ Step 4/7 (FOLD_REFLECTION): Nice still the same
++ Step 5/7 (FOLD_REFLECTION): 13/22 vs 15/18. So I have two polygons less?
+
+Ok two things to fix before I continue: Rendering &then the polygon difference.
+The rendering is caused by my lack of the function `isStrictlyNonDegenerate` which is present in the original source when drawing. So let's check that out.
+
 ## 170610
 Ok. I feel like I am late to the party. But today I recognized that the Java Origami App has an diagnostics mode
 where I can output the vertices and polygons. I discovered this when I started it the first time in IntelliJ because I finally wanted to compare the internal data to my data.
-Now I will compare the results of all my methods to origian ones. I still need to set breakpoints in the Java source to see last cut polygon pairs and that all but ncie to know that the author even thought if this debug feature. But I just found a problem: It is only outputting the planar/2d vertices from the creasign pattern. I want to compare my real vertices in space. So that's the first customization I will do on the original origami code.
+Now I will compare the results of all my methods to original ones. I still need to set breakpoints in the Java source to see last cut polygon pairs and that all but ncie to know that the author even thought if this debug feature. But I just found a problem: It is only outputting the planar/2d vertices from the creasing pattern. I want to compare my real vertices in space. So that's the first customization I will do on the original origami code.
 
 Results for the boat:
 
-+ Step 1/9 (FOLD_REFLECTION) Ok that wasn't hart. Horziontal Reflect. Everything matches.
-+ Step 2/9 (FOLD_REFLECTION) Bottom right corner to the center. Fien too. I only see a floating error at vertex 4.
++ Step 1/9 (FOLD_REFLECTION) Ok that wasn't hart. Horizontal Reflect. Everything matches.
++ Step 2/9 (FOLD_REFLECTION) Bottom right corner to the center. Fine too. I only see a floating error at vertex 4.
 + Step 3/9 (FOLD_REFLECTION) Same with the left corner. Same rounding error there. Vertices Count, Polygon Indices, Everything matches.
 + Step 4/9 (FOLD_ROTATION) Yes. Same same.
 + Step 5/9 (CREASE). Creasing is on the outside border. So I didn't expect any new vertices and polygons. Let's see what happens. Creasing is changing the cut history.
-+ Step 6/9 (FOLD_REFLECTION_P on index 5). here comes the difference. Well I already knew this. It's clearly visible in the UI that my app wasn't able to flip out the polygon in question. It jsut flipped everything.
++ Step 6/9 (FOLD_REFLECTION_P on index 5). here comes the difference. Well I already knew this. It's clearly visible in the UI that my app wasn't able to flip out the polygon in question. It just flipped everything.
 
 Now I will examine step 5/9 and 6/9. I bet it's something with the polygon selection algorithm and maybe the innocent JS floating errors are the problem?
 So what I alright knew: My selection selects everything, but it should only be vertices [5,7]. Alright let's go down the rabbit hole again. I will debug the select algorithm in both applications.

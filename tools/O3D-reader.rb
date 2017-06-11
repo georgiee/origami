@@ -13,22 +13,26 @@ def convert_file(filename)
     f.read(1).unpack('C').first.to_s(16)
     f.read(1).unpack('C').first.to_s(16)
     # version 
-    f.read(1).unpack('C').first.to_s(16)
+    version = f.read(1).unpack('C').first.to_s(16)
+    puts "version #{version}"
     # number of payloads --> 1
-    f.read(1).unpack('C').first.to_s(16)
+    payloads = f.read(1).unpack('C').first
+    puts "payloads #{payloads}"
     
     #paper type --> N (SQUARE, Origmai.java)
-    f.read(1).unpack('C').first.to_s(16)
-
+    paper = f.read(1).unpack('C').first
+    puts "paper --> #{paper.chr}"
     # 0 if paper type not custm
     f.read(1).unpack('C').first.to_s(16)
 
-    # paper color -> 0x43 (C) + three values 
-    f.read(1).unpack('C').first.to_s(16)
-    f.read(1).unpack('C').first.to_s(16)
-    f.read(1).unpack('C').first.to_s(16)
-    f.read(1).unpack('C').first.to_s(16)
 
+    if payloads != 0x63
+        # paper color -> 0x43 (C) + three values 
+        f.read(1).unpack('C').first.to_s(16)
+        f.read(1).unpack('C').first.to_s(16)
+        f.read(1).unpack('C').first.to_s(16)
+        f.read(1).unpack('C').first.to_s(16)
+    end
     #commands from here
     puts "start commands after #{f.pos} bytes"
     i = -1;

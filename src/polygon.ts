@@ -2,26 +2,55 @@ import * as math from './math';
 import * as THREE from 'three';
 
 export class Polygon {
-  points;
-  points2d;
-  indices;
-  
+  public points;
+  public points2d;
+  public indices;
+
   constructor(points = [], indices = []) {
       this.points = points.concat([]);
       this.indices = indices.concat([]);
   }
-  
-  getPoints() {
+
+  public getPoints() {
     return this.points;
   }
-  
-  getPoints2d() {
+
+  public getPoints2d() {
     return this.points2d;
   }
 
-  isNonDegenerate(){
+  public isStrictlyNonDegenerate(): boolean {
+    if (this.size < 3) {
+      return false;
+    }
+
+    // nope, this is for contour only, ignores z and gets wrong area for us
+    // const area = THREE.ShapeUtils.area(this.points);
+
+    const points = this.points;
+    const l = this.size;
+    const basePoint = this.points[0];
+
+    for (let i = 0; i < l; i++) {
+      const pointA = points[i];
+      for (let j = 0; j < l; j++) {
+        const pointB = points[j];
+        const directionA = pointA.clone().sub(basePoint);
+        const directionB = pointB.clone().sub(basePoint);
+        const lengthCross = new THREE.Vector3().crossVectors(directionA, directionB).length()
+        // console.log('lengthCross ---> ', lengthCross, this.indices[i], this.indices[j]);
+        if (lengthCross > 0) { // not perpendicular.
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  public isNonDegenerate(){
     const size = this.size;
-    
+
     if(size > 1){
         for(let i = 0; i < size; i++){
             if(this.points[0].distanceTo(this.points[i]) > 0){
@@ -32,8 +61,8 @@ export class Polygon {
 
     return false;
   }
-  
-  getPreviousCuts(cuts,i, j){
+
+  public getPreviousCuts(cuts,i, j){
     let polygonIndices = this.indices;
 
     const equal = (node, index1, index2) => {
@@ -45,11 +74,11 @@ export class Polygon {
         return node.result;
       }
     }
-    
+
     return null;
   }
-  
-  cut(plane, previousCuts = []){
+
+  public cut(plane, previousCuts = []){
     const size = this.size;
     let indices = this.indices
 
@@ -120,12 +149,12 @@ export class Polygon {
     }
 
   }
-  
-  canCut(plane) {
+
+  public canCut(plane) {
     if(this.isNonDegenerate() === false) {
       return false;
     }
-    
+
     let inner = false;
     let outer = false;
     let normal = plane.normal;
@@ -150,7 +179,7 @@ export class Polygon {
     return false;
   }
 
-  get size() {
+  public get size() {
       return this.points.length;
   }
 }

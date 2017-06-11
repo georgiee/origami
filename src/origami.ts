@@ -7,7 +7,7 @@ import Ruler from './ruler/ruler';
 import {World, getInstance as getWorld } from './world';
 import {Snapper} from './ruler/snapper';
 import * as Panel from './panel';
-import { squarePaperModel } from './paper-formats';
+import * as paperFormats from './paper-formats';
 
 export default class Origami extends THREE.Object3D {
   private shape: OrigamiShape;
@@ -22,7 +22,7 @@ export default class Origami extends THREE.Object3D {
       this.shape = new OrigamiShape();
       this.init();
     }
-    
+
     public getRuler() {
       return this.ruler;
     }
@@ -37,7 +37,8 @@ export default class Origami extends THREE.Object3D {
     }
 
     public reset() {
-      this.shape.reset(squarePaperModel.clone());
+      // this.shape.reset(paperFormats.dinA4());
+      this.shape.reset(paperFormats.square());
       this.ruler.reset();
 
       this.update();
@@ -82,7 +83,7 @@ export default class Origami extends THREE.Object3D {
       }else {
         this.shape.reflect(plane || this.currentPlane);
       }
-      
+
       this.update();
     }
 

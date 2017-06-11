@@ -40,7 +40,7 @@ export class CreaseViewer {
     renderer.render( this.scene, this.camera );
     renderer.setScissorTest( false );
   }
-  
+
   private handleMouseClick({clientX, clientY}) {
     const x = clientX - this.rendererWidth + this.size + PADDING;
     const y = clientY - this.rendererHeight + this.size + PADDING;

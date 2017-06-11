@@ -1,3 +1,34 @@
+## 170610
+Ok. I feel like I am late to the party. But today I recognized that the Java Origami App has an diagnostics mode
+where I can output the vertices and polygons. I discovered this when I started it the first time in IntelliJ because I finally wanted to compare the internal data to my data.
+Now I will compare the results of all my methods to origian ones. I still need to set breakpoints in the Java source to see last cut polygon pairs and that all but ncie to know that the author even thought if this debug feature. But I just found a problem: It is only outputting the planar/2d vertices from the creasign pattern. I want to compare my real vertices in space. So that's the first customization I will do on the original origami code.
+
+Results for the boat:
+
++ Step 1/9 (FOLD_REFLECTION) Ok that wasn't hart. Horziontal Reflect. Everything matches.
++ Step 2/9 (FOLD_REFLECTION) Bottom right corner to the center. Fien too. I only see a floating error at vertex 4.
++ Step 3/9 (FOLD_REFLECTION) Same with the left corner. Same rounding error there. Vertices Count, Polygon Indices, Everything matches.
++ Step 4/9 (FOLD_ROTATION) Yes. Same same.
++ Step 5/9 (CREASE). Creasing is on the outside border. So I didn't expect any new vertices and polygons. Let's see what happens. Creasing is changing the cut history.
++ Step 6/9 (FOLD_REFLECTION_P on index 5). here comes the difference. Well I already knew this. It's clearly visible in the UI that my app wasn't able to flip out the polygon in question. It jsut flipped everything.
+
+Now I will examine step 5/9 and 6/9. I bet it's something with the polygon selection algorithm and maybe the innocent JS floating errors are the problem?
+So what I alright knew: My selection selects everything, but it should only be vertices [5,7]. Alright let's go down the rabbit hole again. I will debug the select algorithm in both applications.
+
+YES! Got it. I was too strict with my test if a vertex is on a plane inside the selection method.
+```
+  //old: if (Math.abs(distance) > 0.0001) {
+  if (Math.abs(distance) > 1) {
+    selection.push(i);
+    break;
+  }
+```
+Now I the boat is working. Next journey will be the butterly or airplane. Both are running through with no index error but the result looks off.
+Let's start with the airplane.
+
+Ok airplane done. Wrong paper format. But I will take this as a tet and put in the other paper format.
+
+
 ## 170605
 Another day, another bug catched 🤓
 Look at this:
@@ -40,11 +71,11 @@ I wonder what is the *perfect* way to align my object to the camera to get the p
 New day, new stupid bug. I am in the process of refactoring and want to put the cut method into a polygon class.
 Process is good, it's a lot of cross testing to see if the results are the same as before without the parts ripped out of the shape class.
 
-But I wasted an hour hunting down a bug where my vertices2d went crazy very early. I knew it 
+But I wasted an hour hunting down a bug where my vertices2d went crazy very early. I knew it
 must be somtehing in the new Polygon class or Model Class where I manage all global vertices and polygons.
 I created a new method amendVertices2d to update the 2d vertices for the creasing view in a separate function
 instead of being baked in the cut method.
-This method  defines `v1`, `v2` and `vertex2D_1`,`vertex2D_1`. Yeah stupid naming and that was the reason for the 
+This method  defines `v1`, `v2` and `vertex2D_1`,`vertex2D_1`. Yeah stupid naming and that was the reason for the
 bug. Those are retrieved from the global vertices array with index. Same index means same vertext in 3d and 2d.
 I have the methods getVertex and getVertex2d in place to do so. Guess what? I retrieved both with getVertex2d. So it went nuts
 pretty quickly. I had those errors. It is just because you're not focussed enough.
@@ -95,7 +126,7 @@ for( let i = 0, l = polygonIndices.length; i < l) {
 
 currentIndex and followIndex will hold the actual pointers to the vertices. To always get a pair I use modulo. But I use it on the wrong dimension. I should modulo the accessor of the `polygonIndices` array - otherwise I get some unrelated vertex not beloinging to the current polygon.
 
---- 
+---
 I started with the refactoring. Created a new model to hold my polygons, vertices and vertices2d. Nothing more.
 I recognized that I created a polygonList to do the same before. But I rememeber that I introduced bugs with this so I just reverted everything. I must have forgotten that file. So now: More carefully working on this. My goal is to get a nice class compound to work with polygons & points. Both with indices and the actual value. I plan to try out some es6 generator patterns to easily loop over all or parts of them.
 

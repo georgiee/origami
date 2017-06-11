@@ -19,7 +19,7 @@ export class Playbook {
       previous: null
     }
   } as any;
-  
+
   constructor(private origami: Origami) {
     this.initPanel();
   }
@@ -27,7 +27,7 @@ export class Playbook {
   public set(instructions) {
     this.setNewInstructions(instructions);
   }
-  
+
   public next() {
     if (this.currentIndex + 1 <= this.instructions.length) {
       this.play(this.currentIndex + 1);
@@ -43,6 +43,9 @@ export class Playbook {
     if (count === this.currentIndex) {
       return;
     }
+    if (count === -1) {
+      count = this.instructions.length;
+    }
 
     this.currentIndex = count;
     this.panelData.index = count;
@@ -50,7 +53,7 @@ export class Playbook {
     this.instructions
     .slice(0, this.currentIndex)
     .forEach((data, index) => this.runCommand(data, index));
-    
+
     updateDisplay();
   }
 
@@ -60,7 +63,7 @@ export class Playbook {
 
     // tslint:disable-next-line:max-line-length
     console.warn(`run ${index + 1}/${this.instructions.length} - ${data.command} ${data.polygonIndex !== undefined ? data.polygonIndex : ''}`, plane);
-    
+
     ruler.show(plane);
 
     switch (data.command) {
@@ -101,7 +104,7 @@ export class Playbook {
 
     return plane;
   }
-  
+
   private initPanel() {
     this.panelFolder = gui.addFolder('Playbook');
     this.panelFolder.closed = false;
@@ -113,13 +116,13 @@ export class Playbook {
         this.handlePlaybookChanged(key);
       });
   }
-  
+
   private handlePlaybookChanged(name) {
     if (name === 'custom') {
       const controller = this.panelFolder.add(this.panelData, 'custom');
       this.panelData.controllers.custom = controller;
       this.setNewInstructions([]);
-      
+
       controller.onChange((value) => {
         try {
           const instructions = JSON.parse(value);
@@ -142,7 +145,7 @@ export class Playbook {
       this.panelData.controllers.custom = null;
     }
   }
-  
+
   private removePlaybookController() {
     if (this.panelData.controllers.next) {
       this.panelFolder.remove(this.panelData.controllers.next);
@@ -155,26 +158,26 @@ export class Playbook {
     }
 
     if (this.panelData.controllers.progress) {
-      this.panelFolder.remove(this.panelData.controllers.progress); 
+      this.panelFolder.remove(this.panelData.controllers.progress);
       this.panelData.controllers.progress = null;
     }
   }
-  
+
   private setNewInstructions(data) {
       this.removePlaybookController();
       this.instructions = data;
       this.panelData.index = 0;
       this.panelData.controllers.next = this.panelFolder.add(this, 'next');
       this.panelData.controllers.previous = this.panelFolder.add(this, 'previous');
-      
+
       this.updateProgressHandler();
   }
-  
+
   private updateProgressHandler() {
     this.panelData.controllers.progress = this.panelFolder
       .add(this.panelData, 'index', 0, this.instructions.length)
       .listen();
-    
+
     const source = Rx.Observable.create((observer) => {
       this.panelData.controllers.progress.onChange((value) => observer.next(value));
     });
@@ -185,5 +188,5 @@ export class Playbook {
       }
     );
   }
-  
+
 }

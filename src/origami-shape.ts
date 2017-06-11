@@ -23,8 +23,13 @@ export class OrigamiShape {
 
   constructor() {
     this.model = new OrigamiModel();
+    window.addEventListener('keydown', (event) => {
+      if ( event.keyCode === 68 ) { // Key: D
+        this.model.diagnostics();
+      }
+    });
   }
-  
+
   public resetCutHistory() {
     this.cutpolygonNodes = [];
     this.cutpolygonPairs = [];
@@ -46,14 +51,14 @@ export class OrigamiShape {
   public cut(plane: THREE.Plane) {
     const polygons = this.model.getPolygons();
 
-    polygons.forEach((polygon, index) => {      
+    polygons.forEach((polygon, index) => {
       this.cutPolygon(index, plane);
     });
   }
 
   public cutPolygon(index, plane) {
     const polygon = new Polygon(this.model.getPolygonVertices(index), this.model.data.getPolygon(index));
-    
+
     if (polygon.canCut(plane) === false) {
       // console.warn('cant cut polygon #', index);
       return false;
@@ -62,15 +67,15 @@ export class OrigamiShape {
 
       this.cutpolygonPairs.push([index, this.model.getPolygons().length]);
       this.lastCutPolygons.push(this.getPolygon(index));
-      
+
       const cutResult = polygon.cut(plane, this.cutpolygonNodes);
-      
+
       // this will update our overall model with new indices, vertices and polygons
       const newCutPolygonNodes = this.model.processCutResult(index, cutResult);
       this.cutpolygonNodes = this.cutpolygonNodes.concat(newCutPolygonNodes);
     }
   }
-  
+
   public reflect(plane) {
     this.model.shrink();
     this.resetCutHistory();
@@ -96,9 +101,9 @@ export class OrigamiShape {
         if (polygon.indexOf(index) !== -1) {
           const vertexReflected = this.reflectVertex(vertex, plane);
           vertex.copy(vertexReflected);
-          
+
           // break the loop
-          return false; 
+          return false;
         }
 
         return true;
@@ -166,7 +171,7 @@ export class OrigamiShape {
           const v2 = vertex
             .clone().sub( referencePoint )
             .applyAxisAngle( axis, angle * Math.PI / 180 ).add( referencePoint );
-          
+
           vertex.copy(v2);
         }
       });
@@ -181,7 +186,7 @@ export class OrigamiShape {
     const foldingpoints = this.getVertices().filter((vertex, index) => {
       const distance = plane.distanceToPoint(vertex);
       if (Math.abs(distance) < 0.01) {
-        
+
         for (let i = 0; i < selection.length; i++) {
           const polygon = this.getPolygon(selection[i]);
           return polygon.indexOf(index) !== -1;
@@ -242,7 +247,7 @@ export class OrigamiShape {
               .clone().sub( referencePoint )
               .applyAxisAngle( axis, angle * Math.PI / 180 )
               .add( referencePoint );
-            
+
             vertex.copy(v2);
             break;
           }
@@ -283,7 +288,7 @@ export class OrigamiShape {
                 const vertex = this.getVertex(polygon[ii]);
                 const distance = plane.distanceToPoint(vertex);
 
-                if (Math.abs(distance) > 0.0001) {
+                if (Math.abs(distance) > 1) {
                   selection.push(i);
                   break;
                 }

@@ -10,7 +10,7 @@ import * as pinwheel from './working/pinwheel.json';
 import * as catamaran from './working/catamaran.json';
 
 const working = {
-  pinwheel, catamaran, miura
+  pinwheel, catamaran, miura, ...raw
 };
 
 const pending = {

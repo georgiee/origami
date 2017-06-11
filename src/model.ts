@@ -10,41 +10,64 @@ const SNAP_INTERVALS = [1 / 2];
 
 export class OrigamiModel {
     public data: OrigamiGeometryData;
-    
+
     constructor(data = null) {
       this.data = data || new OrigamiGeometryData();
     }
-    
+
+    public diagnostics() {
+        console.log('Vertices Count', this.data.vertices.length);
+        console.log('Polygon Count', this.data.polygons.length);
+
+        console.group('Vertices 2D:');
+        this.data.vertices2d.map((vertex: THREE.Vector3, index) => {
+          console.log(index + ':', vertex.x, vertex.y, vertex.z);
+        });
+        console.groupEnd();
+
+        console.group('Vertices:');
+        this.data.vertices.map((vertex: THREE.Vector3, index) => {
+          console.log(index + ':', vertex.x, vertex.y, vertex.z);
+        });
+        console.groupEnd();
+
+        console.group('Polygons:');
+        this.data.polygons.map((polygon: number[]) => {
+          console.log(polygon);
+        });
+        console.groupEnd();
+    }
+
     public processCutResult(index, result) {
       const countBefore = this.data.verticesCount;
-      
+
       result = new CutResult(result);
       result.updateReferences(countBefore);
-      
+
       // 1. add all new vertices and update references
       // to point to the correct global vertex index
       this.data.addVertices(...result.newVertices);
-      
+
       result.cutpolygonNodes.forEach((node) => {
         this.amendVertices2d(node.v1, node.v2, node.result);
       });
-      
+
       this.data.setPolygon(index, result.newpoly1);
       this.data.addPolygon(result.newpoly2);
 
       return result.cutpolygonNodes;
     }
-    
+
     public reset(polygons = [], vertices = [], vertices2d = []) {
       this.data.polygons = polygons;
       this.data.vertices = vertices;
       this.data.vertices2d = vertices2d;
     }
-    
+
     public replaceAllPolygons(polygons) {
         this.data.polygons = polygons;
     }
-    
+
     public clone() {
       const polygons = this.data.polygons.concat([]);
       const vertices = this.data.vertices.map((v) => v.clone());
@@ -52,7 +75,7 @@ export class OrigamiModel {
 
       const model = new OrigamiModel();
       model.reset(polygons, vertices, vertices2d);
-      
+
       return model;
     }
 
@@ -97,7 +120,7 @@ export class OrigamiModel {
     while (index > this.data.getPolygons().length) {
       this.data.addPolygon([]);
      }
-    
+
     this.data.replacePolygon(index, tmp);
 
     console.log('shrinkWithIndex', countBefore, '->', this.data.getPolygons().length);
@@ -106,11 +129,11 @@ export class OrigamiModel {
     public getPolygonVertices(index) {
       return this.data.getVerticesForPolygon(index);
     }
-    
+
     public getPolygonVertices2d(index) {
       return this.data.getVertices2dForPolygon(index);
     }
-    
+
     public findPolygon2D(point) {
       const polygons = this.data.getPolygons();
       const vertices2d = this.data.getVertices2d();
@@ -129,7 +152,7 @@ export class OrigamiModel {
 
     public getPointOnOrigami(point) {
       const polygonIndex = this.findPolygon2D(point);
-      
+
       if (polygonIndex < 0) {
         return null;
       }
@@ -216,11 +239,11 @@ export class OrigamiModel {
       const polygons = this.data.getPolygons();
       return polygons;
     }
-    
+
     // Return all raw polygons wrapped in a Polygon class to access polygon scoped methods
     public getPolygonWrapped(): Polygon[] {
       const polygons = this.getPolygons();
-      
+
       return polygons.map((indices, polygonIndex) => {
         const polygon = new Polygon();
         polygon.points = this.data.getVerticesForPolygon(polygonIndex);
@@ -247,7 +270,7 @@ export class OrigamiModel {
         (vertex2D1.y * weight1 + vertex2D2.y * weight2) / (weight1 + weight2),
         0
       );
-      
+
       this.data.addVertex2d(vector2d);
     }
 }

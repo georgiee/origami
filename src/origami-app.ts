@@ -27,8 +27,8 @@ export class OrigamiApp {
 
   public test() {
     const playbook = new Playbook(this.origami);
-    playbook.set(playbooks.testing.crane);
-    playbook.play(3);
+    playbook.set(playbooks.testing.birdbase);
+    playbook.play(4);
 
     // plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(200.0,0.0,0.0), new THREE.Vector3(200.0,0.0,0.0));
     // this.origami.reflect(new THREE.Plane(new THREE.Vector3(1,0.0,0.0), 0));

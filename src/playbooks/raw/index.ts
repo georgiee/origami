@@ -1,5 +1,6 @@
 import * as airplane from './airplane.ori.decoded_commands.json';
 import * as boat from './boat.ori.decoded_commands.json';
+import * as birdbase from './birdbase.ori.decoded_commands.json';
 import * as waterbomb from './bomb.ori.decoded_commands.json';
 import * as waterbombbase from './bombbase.ori.decoded_commands.json';
 import * as butterfly from './butterfly.ori.decoded_commands.json';
@@ -39,6 +40,7 @@ import * as yakko from './yakko.ori.decoded_commands.json';
 export {
     airplane,
     boat,
+    birdbase,
     waterbomb,
     waterbombbase,
     butterfly,

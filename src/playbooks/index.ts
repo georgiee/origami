@@ -16,6 +16,7 @@ const working = {
 
 // some included to examine
 const testing = {
+  birdbase: raw.birdbase,
   butterfly: raw.butterfly, // index error
   waterbomb: raw.waterbomb, // creasing good. some render problems (132/140) vs (92/164)
   chair: raw.chair, // creasing good. some render problems (102/240) vs (132/99)

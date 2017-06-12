@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import utils from './utils';
 import World from './world';
 import { OrigamiModel } from './model';
+import * as plainMath from './plain-math';
 
 import { Polygon } from './polygon';
 
@@ -83,8 +84,9 @@ export class OrigamiShape {
 
     this.getVertices().forEach( (vertex) => {
       if (this.vertexPosition(vertex, plane) === VERTEX_POSITION.FRONT) {
-        const vertexReflected = this.reflectVertex(vertex, plane);
-        vertex.copy(vertexReflected);
+        // const vertexReflected = this.reflectVertex(vertex, plane);
+        const vertexReflected2 = plainMath.reflection(vertex, plane);
+        vertex.copy(vertexReflected2);
       }
     });
 
@@ -260,6 +262,7 @@ export class OrigamiShape {
 
   public reflectVertex(vertex, plane) {
     const projected = plane.projectPoint(vertex);
+    console.log('basepoint', projected);
     const v2 = new THREE.Vector3().subVectors(projected, vertex);
     const newPos = projected.clone().add(v2);
     return newPos;

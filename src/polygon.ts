@@ -1,5 +1,6 @@
 import * as math from './math';
 import * as THREE from 'three';
+import * as plainMath from './plain-math';
 
 function* range(begin, end, interval = 1) {
     for (let i = begin; i < end; i += interval) {
@@ -168,8 +169,12 @@ export class Polygon {
             const direction = vertex.clone().sub(vertex2);
             const line = new THREE.Line3(vertex, vertex2);
 
+            // console.log('plnae+line', plane, line.clone())
             if (plane.intersectsLine(line)) {
               const meet = plane.intersectLine(line);
+              const meet2 = plainMath.linePlaneIntersection(line.start, direction, plane);
+              console.log('meet', meet, 'meet2', meet2);
+
               newVertices.push(meet);
 
               newpoly1.push({added: newVertices.length - 1 });

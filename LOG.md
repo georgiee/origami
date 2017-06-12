@@ -1,3 +1,208 @@
+## 170612
+Ok, lets make a party with the numbers. I am at step 4/11 of the birdbase which precedes the crane so it is the same problem but with few numbers. I have the same polygon count and indices structure. But my vertices are off.
+
+My vertices:
+
+```
+model.ts:24 0: -0.4889242561108683 1.1824076233992675 0
+model.ts:24 1: -0.4889242561108683 1.1824076233992675 0
+model.ts:24 2: -0.48892425611094875 1.1824076233992675 0
+model.ts:24 3: -0.4889242561108683 1.1824076233992675 0
+model.ts:24 4: 141.10490406730753 142.43108117723594 0
+model.ts:24 5: 200 200 0
+model.ts:24 6: 141.10490406730753 142.43108117723594 0
+model.ts:24 7: -2.8421709430404e-14 199.99999999999997 0
+model.ts:24 8: 0 200 0
+model.ts:24 9: 200 83.39206939206366 0
+model.ts:24 10: 200 83.39206939206368 0
+```
+
+Java vertices:
+```
+vertex 0: -0.17282384728231767 0.41723367031505054 0.0
+vertex 1: -0.17282384728231767 0.41723367031505054 0.0
+vertex 2: -0.17282384728231767 0.41723367031505054 0.0
+vertex 3: -0.17282384728231767 0.41723367031505054 0.0
+vertex 4: 141.24853102498457 141.83859127266714 0.0
+vertex 5: 200.0 200.0 0.0
+vertex 6: 141.24853102498457 141.83859127266714 0.0
+vertex 7: 0.0 200.0 0.0
+vertex 8: 0.0 200.0 0.0
+vertex 9: 200.0 83.08712343182636 0.0
+vertex 10: 200.0 83.08712343182636 0.0
+```
+`-0.17282384728231767` vs `-0.4889242561108683`  common ?
+
+So pretty annoying differences already at step 4, this will sum up fast and I don't wonder anymore why polygons and vertices are so different in later steps. What about steps 1-3. i can show you with step 3:
+
+My set of vertices:
+
+```
+model.ts:24 1: 0: 0 0 0
+model.ts:24 1: 0 0 0
+model.ts:24 2: -5.684341886080802e-14 -5.684341886080802e-14 0
+model.ts:24 3: 0 0 0
+model.ts:24 4: 200 -2.8421709430404004e-14 0
+model.ts:24 5: 200 200 0
+model.ts:24 6: 200 0 0
+model.ts:24 7: -2.8421709430404e-14 199.99999999999997 0
+model.ts:24 8: 0 200 0
+```
+
+Java's set of vertices:
+```
+vertex 0: 0.0 0.0 0.0
+vertex 1: 0.0 0.0 0.0
+vertex 2: 0.0 0.0 0.0
+vertex 3: 0.0 0.0 0.0
+vertex 4: 200.0 0.0 0.0
+vertex 5: 200.0 200.0 0.0
+vertex 6: 200.0 0.0 0.0
+vertex 7: 0.0 200.0 0.0
+vertex 8: 0.0 200.0 0.0
+```
+
+Ok. Let's see how to fix this. Maybe introduce a general less precision, so everythign smaller than 0.0000001 is 0 ?
+I mean I have there numbers like -2.8421709430404e-14. That's ridic. I just looked into tje java sources and I found the part with the number compression. But it's only used for the preview, so it's not the source the my differences. I will now look into the calculations. My plane is normalized. The plane in the java application. That might be a good reason as my numbers get very small because of the normalization. Abd we are talking only about three reflection steps. Let's go back to step 1. The very first reflection.
+
+My set:
+```
+0: 0: 0 0 0
+1: 400 0 0
+2: -5.684341886080802e-14 -5.684341886080802e-14 0
+3: 0 400 0
+```
+Java's set:
+```
+0: 0: 0 0 0
+1: 400 0 0
+2: 0 0 0
+3: 0 400 0
+```
+
+And there is not even a cut happening. It's just the reflection.
+
+input:
+vertex = Vector3 {x: 400, y: 400, z: 0},
+projected/basepoint calculated {x: 199.99999999999997, y: 199.99999999999997, z: -0}
+(calculated with three's plane through `plane.projectPoint(vertex)`)
+result:
+-5.684341886080802e-14, -5.684341886080802e-14, 0
+
+plane:
+normal: 0.7071067811865476, 0.7071067811865476, 0
+cosntant: -282.842712474619
+
+Proejction is one with this in three:
+```
+    var perpendicularMagnitude = this.distanceToPoint( point );
+		var result = optionalTarget || new Vector3();
+		return result.copy( this.normal ).multiplyScalar( perpendicularMagnitude );
+```
+
+java is doing this:
+
+
+```
+  double[] basepoint = line_plane_intersection(v, pnormal, ppoint, pnormal);
+  return sum(basepoint, vector(basepoint, v));
+```
+
+```
+static public double[] line_plane_intersection(double[] lpoint, double[] ldir, double[] ppoint, double[] pnormal) {
+
+        double D = ppoint[0] * pnormal[0] + ppoint[1] * pnormal[1] + ppoint[2] * pnormal[2];
+
+        double X = lpoint[0];
+        double Y = lpoint[1];
+        double Z = lpoint[2];
+        double U = ldir[0];
+        double V = ldir[1];
+        double W = ldir[2];
+        double A = pnormal[0];
+        double B = pnormal[1];
+        double C = pnormal[2];
+        double t = -(A * X + B * Y + C * Z - D) / (A * U + B * V + C * W);
+
+        return new double[]{X + t * U, Y + t * V, Z + t * W};
+    }
+```
+
+So I will try the following:
+Maintain the original, non normalized plane and use the plain algorithms from java. My
+goal was to use the normalized and threejs way until now. But regarding the playback of the java folding rules it might be better using the plain algorithms.
+
+
+1. Result
+basepoint with the same algorithm but the normalized plane:
+200.00000000000006, 200.00000000000006, 0
+
+2. Raw Plane Data.
+By providing the raw non-normalized plane data in the same function I get 200, 200, 0
+Surprise, suprise. I mean the normale is (200,200,0) instead of 0.7071067811865476. So no wonder 🙄
+
+I will plug in this function for the reflection, and I will do the same for finding the intersection of a plane and a polygon line in the cutting function. Maybe that helps.
+
+Reflection: Worked.
+
+Next challenge cut:
+I want to get to -0.17282384728231767  instead of  -0.48892425611086665
+
+I have a first not so round meet point 83.39206939206368 vs 83.08712343182636
+
+And a plane with this
+"ppoint": [ 141.00421142578125, 58.99737548828125, 0],
+"pnormal": [ 141.00421142578125, -341.00262451171875, 0 ]
+
+
+
+Ah really??
+The input data already differs:
+My json
+
+```
+"command": "FOLD_REFLECTION",
+"ppoint": [
+    141.00421142578125,
+    58.99737548828125,
+    0
+],
+"pnormal": [
+    141.00421142578125,
+    -341.00262451171875,
+    0
+]
+```
+
+internal numbers of java:
+
+ 0 = 141.33494567871094
+ 1 = 58.787261962890625
+ 2 = 0.0
+pnormal = {double[3]@3016}
+ 0 = 141.33494567871094
+ 1 = -341.2127380371094
+
+
+No wonder it won't align. So back to my conversion scripts. And this time I have the java sources running - which I didn't bother to do so before.
+I will process birdbase.ori. I see the same numbers in the java IO (OrigamiIO#read_gen2 > Origami#addCommand)
+
+Youuuuu nifty little bug 👹.
+
+I found one in my conversion script by comparing every byte with the java IO processing.
+I found that I forgot to shift the fraction part. So instead of a base integer value of  21951 I only had 276 which makes a huge difference even when transformed into the fraction part of a number.
+
+So this is wrong:
+
+```
+frac =  (values[2]) + values[3]
+```
+
+this is correct within my conversion script. I will convert all again. My convert-all.sh script is already paing off 🤓
+```
+frac =  (values[2] << 8) + values[3]
+```
+
 ## 170611
 That airplane nearly worked when I put in the values of a DIN A4 paper. only the tip was somehow off. But I don't care. I focus on the square so I want to use a square example to check and fix
 my algorithms. By the way so far working (maybe among others, but those are the ones I know of)

@@ -58,9 +58,13 @@ def convert_file(filename)
 end
 
 def convert_number(values)
+    puts "convert_number #{values}"
     int = force_overflow_signed(values[0] << 8)+ values[1]
-    frac =  (values[2]) + values[3]
+    puts "convert_number int#{int}"
+    frac =  (values[2] << 8) + values[3]
+    puts "convert_number frac #{frac}"
     value = int + sgn(int) * frac.to_f/256/256
+    puts "convert_number #{value}"
     
     value
 end
@@ -79,6 +83,7 @@ end
 def parse_command(bytes)
     puts "\n\n ** processing command *** \n\n"
     puts "--- #{bytes.unpack("@0H8")} #{bytes.unpack("@4H8")} #{bytes.unpack("@8H8")} #{bytes.unpack("@12H8")} #{bytes.length}" 
+    # C: 8-bit unsigned 
     header = bytes.unpack("@0c4")
     header2 = bytes.unpack("@0H8").shift
     xbytes = bytes.unpack("@4C4")

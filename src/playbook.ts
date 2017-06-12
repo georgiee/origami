@@ -106,10 +106,16 @@ export class Playbook {
   }
 
   private getPlane({pnormal, ppoint}) {
-    const normal = new THREE.Vector3().fromArray(pnormal).normalize();
+    const normal = new THREE.Vector3().fromArray(pnormal);
     const coplanar = new THREE.Vector3().fromArray(ppoint);
-    const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(normal, coplanar);
+    const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(normal.clone().normalize(), coplanar);
 
+    (plane as any).__raw = {
+      normal,
+      coplanar
+    };
+
+    console.log('plane from command', pnormal, ppoint, plane);
     return plane;
   }
 

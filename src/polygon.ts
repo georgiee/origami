@@ -172,8 +172,8 @@ export class Polygon {
             // console.log('plnae+line', plane, line.clone())
             if (plane.intersectsLine(line)) {
               const meet = plane.intersectLine(line);
-              const meet2 = plainMath.linePlaneIntersection(line.start, direction, plane);
-              console.log('meet', meet, 'meet2', meet2);
+              // const meet2 = plainMath.linePlaneIntersection(line.start, direction, plane);
+              // console.log('meet', meet, 'meet2', meet2);
 
               newVertices.push(meet);
 

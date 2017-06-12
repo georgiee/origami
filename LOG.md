@@ -203,6 +203,28 @@ this is correct within my conversion script. I will convert all again. My conver
 frac =  (values[2] << 8) + values[3]
 ```
 
+
+😃😃😃😃😃😃
+Ohhhhhh my god.
+😃😃😃😃😃😃
+
+Yes I still get some models with polygon index errors.
+But I have the crane working and also the mouse.
+194/123 vs 194/123
+(yes totally the same now)
+
+The last created polygon has the same indices,
+The last created vertex looks like this
+mine: 214.72179188021966 18.172396704381896 0
+theirs: 214.72179188021966 18.172396704381896 0
+
+This is freaking awesome. It proves that my algorithms are pretty solid.
+I now have to find out why so many other origami figures have index errors.
+
+I quickly looked into the butterly. Step 19/32 to 20/32.
+It's the first flap at the back rotated down. So we have a crease (at 19) and a fold rotation with index (at 20).
+But nothing gets rotated event it gets rotated in the java version. Excellent point to investigate.
+
 ## 170611
 That airplane nearly worked when I put in the values of a DIN A4 paper. only the tip was somehow off. But I don't care. I focus on the square so I want to use a square example to check and fix
 my algorithms. By the way so far working (maybe among others, but those are the ones I know of)

@@ -19,19 +19,19 @@ export class OrigamiModel {
         console.log('Vertices Count', this.data.vertices.length);
         console.log('Polygon Count', this.data.polygons.length);
 
-        console.group('Vertices 2D:');
+        console.groupCollapsed('Vertices 2D:');
         this.data.vertices2d.map((vertex: THREE.Vector3, index) => {
           console.log(index + ':', vertex.x, vertex.y, vertex.z);
         });
         console.groupEnd();
 
-        console.group('Vertices:');
+        console.groupCollapsed('Vertices:');
         this.data.vertices.map((vertex: THREE.Vector3, index) => {
           console.log(index + ':', vertex.x, vertex.y, vertex.z);
         });
         console.groupEnd();
 
-        console.group('Polygons:');
+        console.groupCollapsed('Polygons:');
         this.data.polygons.map((polygon: number[]) => {
           console.log(polygon);
         });

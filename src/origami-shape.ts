@@ -84,9 +84,10 @@ export class OrigamiShape {
 
     this.getVertices().forEach( (vertex) => {
       if (this.vertexPosition(vertex, plane) === VERTEX_POSITION.FRONT) {
-        // const vertexReflected = this.reflectVertex(vertex, plane);
-        const vertexReflected2 = plainMath.reflection(vertex, plane);
-        vertex.copy(vertexReflected2);
+        const vertexReflected = this.reflectVertex(vertex, plane);
+        vertex.copy(vertexReflected);
+        // /const vertexReflected2 = plainMath.reflection(vertex, plane);
+        // vertex.copy(vertexReflected2);
       }
     });
 

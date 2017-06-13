@@ -47,20 +47,12 @@ export class Playbook {
       count = this.instructions.length;
     }
 
-    console.log(count, this.currentIndex);
-    // if ((count - this.currentIndex) !== 1 ) {
-      this.currentIndex = count;
-      this.panelData.index = count;
-      this.origami.reset();
-      this.instructions
-      .slice(0, this.currentIndex)
-      .forEach((data, index) => this.runCommand(data, index));
-    // } else {
-    //   // we can increment forward steps
-    //   const data = this.instructions[this.currentIndex];
-    //   this.currentIndex = count;
-    //   this.runCommand(data, this.currentIndex);
-    // }
+    this.currentIndex = count;
+    this.panelData.index = count;
+    this.origami.reset();
+    this.instructions
+    .slice(0, this.currentIndex)
+    .forEach((data, index) => this.runCommand(data, index));
 
     updateDisplay();
   }
@@ -70,7 +62,7 @@ export class Playbook {
     const plane = this.getPlane(data);
 
     // tslint:disable-next-line:max-line-length
-    console.warn(`run ${index + 1}/${this.instructions.length} - ${data.command} ${data.polygonIndex !== undefined ? data.polygonIndex : ''}`, plane);
+    console.warn(`run ${index + 1}/${this.instructions.length} - ${data.command} ${data.polygonIndex !== undefined ? data.polygonIndex : ''} ${ data.phi ? data.phi : ''}`);
 
     ruler.show(plane);
 
@@ -83,8 +75,6 @@ export class Playbook {
 
       case 'FOLD_CREASE': this.crease(plane); break;
     }
-
-    this.origami.stats();
   }
 
   private foldRotation(plane, angle, index = null) {
@@ -115,7 +105,6 @@ export class Playbook {
       coplanar
     };
 
-    console.log('plane from command', pnormal, ppoint, plane);
     return plane;
   }
 
@@ -152,7 +141,10 @@ export class Playbook {
       const data = PLAYBOOKS[name];
       this.setNewInstructions(data);
     }
+
+    this.play(-1);
   }
+
   private removeCustomController() {
     if (this.panelData.controllers.custom) {
       this.panelFolder.remove(this.panelData.controllers.custom);

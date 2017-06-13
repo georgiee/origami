@@ -25,7 +25,7 @@ export class OrigamiShape {
   constructor() {
     this.model = new OrigamiModel();
     window.addEventListener('keydown', (event) => {
-      if ( event.keyCode === 68 ) { // Key: D
+      if ( event.keyCode === 66 ) { // Key: B
         this.model.diagnostics();
       }
     });
@@ -127,7 +127,7 @@ export class OrigamiShape {
 
     const foldingpoints = this.getVertices().filter((vertex) => {
       const distance = plane.distanceToPoint(vertex);
-      return parseFloat(distance.toFixed(2)) === 0;
+      return Math.abs(distance) < 1;
     });
 
     const referencePoint = foldingpoints[0];
@@ -184,16 +184,42 @@ export class OrigamiShape {
   public foldIndex(plane: THREE.Plane, angle = 0, polygonIndex = -1) {
     const selection = this.polygonSelect(plane, polygonIndex);
 
-    const foldingpoints = this.getVertices().filter((vertex, index) => {
-      const distance = plane.distanceToPoint(vertex);
-      if (Math.abs(distance) < 0.01) {
+    const vertices = this.getVertices();
+    let foldingpoints = [];
 
-        for (let i = 0; i < selection.length; i++) {
-          const polygon = this.getPolygon(selection[i]);
-          return polygon.indexOf(index) !== -1;
+    for (let index = 0, l = vertices.length; index < l; index++) {
+      const vertex = vertices[index];
+      const distance = plane.distanceToPoint(vertex);
+
+      if (Math.abs(distance) < 1) {
+        for (let j = 0; j < selection.length; j++) {
+          const polygon = this.getPolygon(selection[j]);
+
+          if (polygon.indexOf(index) !== -1) {
+            foldingpoints.push(vertex);
+            break;
+          }
         }
       }
-    });
+
+    }
+
+    if(polygonIndex == 122){
+      debugger;
+    }
+
+    // debugger;
+
+    // foldingpoints = this.getVertices().filter((vertex, index) => {
+    //   const distance = plane.distanceToPoint(vertex);
+    //   if (Math.abs(distance) < 1) {
+
+    //     for (let i = 0; i < selection.length; i++) {
+    //       const polygon = this.getPolygon(selection[i]);
+    //       return polygon.indexOf(index) !== -1;
+    //     }
+    //   }
+    // });
 
     const referencePoint = foldingpoints[0];
     let maxDistance = 0;
@@ -263,7 +289,6 @@ export class OrigamiShape {
 
   public reflectVertex(vertex, plane) {
     const projected = plane.projectPoint(vertex);
-    console.log('basepoint', projected);
     const v2 = new THREE.Vector3().subVectors(projected, vertex);
     const newPos = projected.clone().add(v2);
     return newPos;

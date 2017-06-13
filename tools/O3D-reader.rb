@@ -84,7 +84,7 @@ def parse_command(bytes)
     puts "\n\n ** processing command *** \n\n"
     puts "--- #{bytes.unpack("@0H8")} #{bytes.unpack("@4H8")} #{bytes.unpack("@8H8")} #{bytes.unpack("@12H8")} #{bytes.length}" 
     # C: 8-bit unsigned 
-    header = bytes.unpack("@0c4")
+    header = bytes.unpack("@0C4")
     header2 = bytes.unpack("@0H8").shift
     xbytes = bytes.unpack("@4C4")
     ybytes = bytes.unpack("@8C4")

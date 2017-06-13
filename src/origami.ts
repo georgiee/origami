@@ -31,11 +31,6 @@ export default class Origami extends THREE.Object3D {
       this.creasing.showPolygons([index]);
     }
 
-    public stats() {
-        console.info('Polygon Count: ', this.shape.model.getPolygons().length);
-        console.info('Vertices Count: ', this.shape.getVertices().length);
-    }
-
     public reset() {
       // this.shape.reset(paperFormats.dinA4());
       this.shape.reset(paperFormats.square());

@@ -1,3 +1,16 @@
+## 170613
+Butterlfy Time.
+
+Fold Rotation foldingpoints algorithm always returned a single foldingpoint.
+Now angle is not correct. 106 where it should be -150. I bet my conversion script again 🤓
+YES! Again some stupid error. I read the apprprpiate part of the command header with ruby `c` instead of `C`
+which reads it signed instead of unsigned. Event that I need it signed the sign is encoded in the command flag not the angle itself.
+Fixed! Got the butterlfy working! And the pigeon! And the seahorse! And the fortune! And the frog! And and, I think I have now over 18 working models and only today I could add more than 5 because of the foldingpoint fix.
+
+Buuut there is one gotcha. When I add the fix the crane's wings are not folded correctly anymore.
+I will monitor the folding method when doing the crane to debug it.
+
+
 ## 170612
 Ok, lets make a party with the numbers. I am at step 4/11 of the birdbase which precedes the crane so it is the same problem but with few numbers. I have the same polygon count and indices structure. But my vertices are off.
 
@@ -221,9 +234,9 @@ theirs: 214.72179188021966 18.172396704381896 0
 This is freaking awesome. It proves that my algorithms are pretty solid.
 I now have to find out why so many other origami figures have index errors.
 
-I quickly looked into the butterly. Step 19/32 to 20/32.
+I quickly looked into the butterfly. Step 19/32 to 20/32.
 It's the first flap at the back rotated down. So we have a crease (at 19) and a fold rotation with index (at 20).
-But nothing gets rotated event it gets rotated in the java version. Excellent point to investigate.
+But nothing gets rotated even it gets rotated in the java version. Excellent point to investigate.
 
 ## 170611
 That airplane nearly worked when I put in the values of a DIN A4 paper. only the tip was somehow off. But I don't care. I focus on the square so I want to use a square example to check and fix

@@ -16,24 +16,21 @@ export class OrigamiModel {
     }
 
     public diagnostics() {
-        console.log('Vertices Count', this.data.vertices.length);
-        console.log('Polygon Count', this.data.polygons.length);
-
-        console.groupCollapsed('Vertices 2D:');
+        console.groupCollapsed(`Vertices 2D (${this.data.vertices2d.length}):`);
         this.data.vertices2d.map((vertex: THREE.Vector3, index) => {
           console.log(index + ':', vertex.x, vertex.y, vertex.z);
         });
         console.groupEnd();
 
-        console.groupCollapsed('Vertices:');
+        console.groupCollapsed(`Vertices (${this.data.vertices.length}):`);
         this.data.vertices.map((vertex: THREE.Vector3, index) => {
           console.log(index + ':', vertex.x, vertex.y, vertex.z);
         });
         console.groupEnd();
 
-        console.groupCollapsed('Polygons:');
-        this.data.polygons.map((polygon: number[]) => {
-          console.log(polygon);
+        console.groupCollapsed(`Polygons (${this.data.polygons.length}):`);
+        this.data.polygons.map((polygon: number[], index) => {
+          console.log(index + ':', polygon);
         });
         console.groupEnd();
     }
@@ -96,13 +93,13 @@ export class OrigamiModel {
           counter++;
         }
       });
-      console.info('merge previous', cutpolygonPairs.length, 'cleared: ', counter, this.data.getPolygons().length);
+      // console.info('merge previous', cutpolygonPairs.length, 'cleared: ', counter, this.data.getPolygons().length);
     }
 
   public shrink() {
     const countBefore = this.data.getPolygons().length;
     this.replaceAllPolygons(this.data.getPolygons().filter((polygon) => polygon.length > 0));
-    console.log('shrink', countBefore, '->', this.data.getPolygons().length);
+    // console.log('shrink', countBefore, '->', this.data.getPolygons().length);
   }
 
   public shrinkWithIndex(index) {
@@ -123,7 +120,7 @@ export class OrigamiModel {
 
     this.data.replacePolygon(index, tmp);
 
-    console.log('shrinkWithIndex', countBefore, '->', this.data.getPolygons().length);
+    // console.log('shrinkWithIndex', countBefore, '->', this.data.getPolygons().length);
   }
 
     public getPolygonVertices(index) {

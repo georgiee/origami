@@ -4,39 +4,55 @@ import * as test from './test.json';
 import * as boat from './pending/boat.json';
 
 const working = {
+  fishbase: raw.fishbase,
+  birdbase: raw.birdbase,
+  waterbombbase: raw.waterbombbase,
   pinwheel: raw.pinwheel,
   catamaran: raw.catamaran,
   miura: raw.miura,
-  fishbase: raw.fishbase,
   boat: raw.boat,
-  waterbombbase: raw.waterbombbase,
-  crown: raw.crown // still: 32/47 vs 28/37
-
+  crown: raw.crown,
+  crane: raw.crane,
+  mouse: raw.mouse,
+  butterfly: raw.butterfly, // index error
+  waterbomb: raw.waterbomb,
+  frog: raw.frog,
+  dragon: raw.dragon,
+  pigeon: raw.pigeon,
+  fortune: raw.fortune,
+  seahorse: raw.seahorse,
+  yakko: raw.yakko, //Yakko-san
+  pine: raw.pine
 };
 
 // some included to examine
 const testing = {
-  birdbase: raw.birdbase,
-  butterfly: raw.butterfly, // index error
-  waterbomb: raw.waterbomb, // creasing good. some render problems (132/140) vs (92/164)
-  chair: raw.chair, // creasing good. some render problems (102/240) vs (132/99)
-  dragon: raw.dragon, // huuuge and mostly shit 849/1609 vs 194/821 (plus ploygon index error)
-  goldfish: raw.goldfish, // index error
-  lily: raw.lily, // index error
+  phoenix: raw.phoenix, // So sweet but the tail is wrong?
+  rose: raw.rose, // yes nearly! soem flaps are missing
+  table: raw.table, // the legs are missing
+  chair: raw.chair, // run 37/49 - FOLD_ROTATION  -90 not rotating
+  sanbow: raw.sanbow, // Candybox, very off
+  helicopter: raw.helicopter, // nearly
+  pelican: raw.pelican, // Somehow broken?
+  lily: raw.lily, // last rotation not working
+  glynn: raw.glynnbox, // Sth. very wrong here. Gift box (Robin Glynn)
+  kabuto: raw.kabuto, // Samurai Helmet, nearly
+  kazaribox: raw.kazaribox, // Somethign is very wrong.
+  leporello: raw.leporello, // Just ignore, not in Java included
+  masubox: raw.masubox, // Seems easy, but broken
   ...raw
 };
 
 // excluded
 const excluded = {
-  whale: raw.whale, // cutting.
-  airplane: raw.airplane // din a4 (okayish when paper format is changed)
+  airplane: raw.airplane, // din a4 (okayish when paper format is changed)
+  goldfish: raw.goldfish, // mutilation
+  whale: raw.whale // mutilation
 };
 
 export {
-  raw,
   working,
-  testing,
-  test
+  testing
 };
 
 // dina 4

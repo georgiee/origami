@@ -27,7 +27,7 @@ export class OrigamiApp {
 
   public test() {
     const playbook = new Playbook(this.origami);
-    playbook.set(playbooks.working.crane);
+    playbook.set(playbooks.testing.rose);
 
     playbook.play(-1);
 

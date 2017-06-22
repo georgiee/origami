@@ -1,9 +1,63 @@
+## 170622
+Long break after being busy in regular work and in analog life with learning Japanese and other stuff 🎎. Lucky me I have a carefully written log to get back into my project pretty easy.
+Ok I'm now parallel debugging my own application vs. the Java application again. I placed some debug points around polygonIndex. That's the index where the models go into different destinations.
+
+I see that the amount of folding points is the same, the collected indices of folding points is the same and well yeah event the max distance of all involved points is the same. This is a very good sign. I currentyl got the following output in the Java application.
+
+```
+polygonSelect: 123 [123, 5, 85, 89, 97, 99, 103, 109]
+internalRotationFold: 123
+collin: true 66.08730115834754
+```
+
+vs my browser output:
+```
+maxDistance 66.08730115834749 origami-shape.ts:205
+collin false origami-shape.ts:206
+```
+
+This is amazing, because it shows that the whole foldingpoint and distance caluclation is totally fine. Something is wrong at the self collision test (collin flag).
+
+🤓 BUG FIXED 🤓
+Nailed it again.
+
+My application before:
+```
+if (v1.dot(v2) > v3.length()) {
+  collin = false;
+  break;
+}
+```
+
+Mine after:
+```
+if (v1.cross(v2).length() > v3.length()) {
+  collin = false;
+  break;
+}
+```
+
+That's again just stupid. In the original java source it reads as vector_product and I somehow
+thought it's the dot product. But it was the cross product of the two involved vectors. As the whle foldingpoint stuff never worked before (I never collected more than two points, see the days before) I never noticed that error. Fixed.
+
+I immediately saw that this was the fix as my crane finally worked again after the backlash. I also tried the Phoenix but no luck. Some other bug is nested there. It's amazing how many bugs are in the code but despite of all this some models just work. Sure, sometimes they are just not calling the bugged functions or don't use the bugged numbers from a wrong conversion. But even with all the bugs I fixed some models still worked. Thank god because this was a huge motivation.
+Okay. So now I commti this bug and have a glimpse on the Phoenix or maybe some other not working model. But I slowly reach the point where I can say to myself: Well done, building is done. The following points would be:
+
++ Start audio-reactive rendering ( I want this sooooo badly but I have discipline and want to fix the model stuff before 🙏)
++ Undo/Redo. At the moment I rely on prepared playbooks from the Java application. But to get serious with modelling, I really need undo/redo. Maybe with the command pattern or by using redux. Redux feels over engineered. But it is always so much fun 😍
+
+Ok I'm looking at the rose model right now. There are some flaps missing still.
+Step 17/18 is the first appearance of this effect but there are two more flaps in the wrong direction. Either another conversion error so that the angle is wrong in the beginning or some implementation thing. I have the hope that this is related to the Phoenix as he also shows signs of wrong direction folding. Let's see.
+
+
+
+
 ## 170613
 Butterlfy Time.
 
 Fold Rotation foldingpoints algorithm always returned a single foldingpoint.
 Now angle is not correct. 106 where it should be -150. I bet my conversion script again 🤓
-YES! Again some stupid error. I read the apprprpiate part of the command header with ruby `c` instead of `C`
+YES! Again some stupid error. I read the appropriate part of the command header with ruby `c` instead of `C`
 which reads it signed instead of unsigned. Event that I need it signed the sign is encoded in the command flag not the angle itself.
 Fixed! Got the butterlfy working! And the pigeon! And the seahorse! And the fortune! And the frog! And and, I think I have now over 18 working models and only today I could add more than 5 because of the foldingpoint fix.
 

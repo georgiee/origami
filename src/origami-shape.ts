@@ -136,16 +136,17 @@ export class OrigamiShape {
 
     // start self-collision testing
     let collin = false;
+
+
     foldingpoints.forEach((vertex) => {
       const distance = referencePoint.distanceTo(vertex);
       if (distance > 0) {
         collin = true;
         // 1. ok found at least two points on the plane to rotate around
-      }
-
-      if (distance > maxDistance) {
-        farpoint = vertex;
-        maxDistance = distance;
+        if (distance > maxDistance) {
+          farpoint = vertex;
+          maxDistance = distance;
+        }
       }
     });
 
@@ -159,7 +160,7 @@ export class OrigamiShape {
       const v2 = farpoint.clone().sub(foldingPoint);
       const v3 = referencePoint.clone().sub(farpoint);
 
-      if (v1.dot(v2) > v3.length()) {
+      if (v1.cross(v2).length() > v3.length()) {
         collin = false;
         break;
       }
@@ -186,6 +187,7 @@ export class OrigamiShape {
 
     const vertices = this.getVertices();
     let foldingpoints = [];
+    let foldingpointsIndices = [];
 
     for (let index = 0, l = vertices.length; index < l; index++) {
       const vertex = vertices[index];
@@ -197,6 +199,7 @@ export class OrigamiShape {
 
           if (polygon.indexOf(index) !== -1) {
             foldingpoints.push(vertex);
+            foldingpointsIndices.push(index)
             break;
           }
         }
@@ -204,29 +207,13 @@ export class OrigamiShape {
 
     }
 
-    if(polygonIndex == 122){
-      debugger;
-    }
-
-    // debugger;
-
-    // foldingpoints = this.getVertices().filter((vertex, index) => {
-    //   const distance = plane.distanceToPoint(vertex);
-    //   if (Math.abs(distance) < 1) {
-
-    //     for (let i = 0; i < selection.length; i++) {
-    //       const polygon = this.getPolygon(selection[i]);
-    //       return polygon.indexOf(index) !== -1;
-    //     }
-    //   }
-    // });
-
     const referencePoint = foldingpoints[0];
     let maxDistance = 0;
     let farpoint;
 
     // start self-collision testing
     let collin = false;
+    let farpointIndex = -1;
     foldingpoints.forEach((vertex, index) => {
 
       const distance = referencePoint.distanceTo(vertex);
@@ -234,9 +221,9 @@ export class OrigamiShape {
         collin = true;
         // 1. ok found at least two points on the plane to rotate around
       }
-
       if (distance > maxDistance) {
         farpoint = vertex;
+        farpointIndex = foldingpointsIndices[index];
         maxDistance = distance;
       }
     });
@@ -252,7 +239,7 @@ export class OrigamiShape {
       const v2 = farpoint.clone().sub(foldingPoint);
       const v3 = referencePoint.clone().sub(farpoint);
 
-      if (v1.dot(v2) > v3.length()) {
+      if (v1.cross(v2).length() > v3.length()) {
         collin = false;
         break;
       }

@@ -1,30 +1,28 @@
 import * as THREE from 'three';
-import { OrigamiCreases } from './origami-creases';
+import { OrigamiCreases } from './../origami/creases';
 
 const PADDING = 20;
 export class CreaseViewer {
+  public creases: OrigamiCreases;
   private size: number;
   private objectSize: number;
   private scene: THREE.Scene;
   private camera;
-  private creases: OrigamiCreases;
-
   private rendererWidth;
   private rendererHeight;
-  constructor(size = 400) {
+
+  constructor(size = 400, creases) {
+    this.creases = creases;
     this.size = size;
     this.objectSize = 400; // largest side of the object to display
 
     this.createScene();
     this.createCamera();
-    this.createCreaseObject();
+
+    this.scene.add(this.creases);
 
     this.handleMouseClick = this.handleMouseClick.bind(this);
     document.addEventListener('dblclick', this.handleMouseClick);
-  }
-
-  public getObject() {
-    return this.creases;
   }
 
   public render(renderer) {
@@ -47,15 +45,6 @@ export class CreaseViewer {
 
     const ratio = this.objectSize / this.size;
     this.creases.selectPolygonWithPoint(new THREE.Vector2(x * ratio, y * ratio));
-  }
-
-  private createCreaseObject() {
-    this.creases = new OrigamiCreases();
-    this.scene.add(this.creases);
-  }
-
-  private setSape(shape) {
-    this.creases.shape = shape;
   }
 
   private createScene() {

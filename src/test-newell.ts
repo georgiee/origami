@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Polygon } from './polygon';
-import utils from './utils';
+import { Polygon } from './origami/core/polygon';
+import utils from './shared/utils';
 
 // Here I test an algorith to rotate plane polygon onto the XY Plane so
 // I can properly triangulate- which won't handle the z component

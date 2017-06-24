@@ -1,12 +1,8 @@
 import * as THREE from 'three';
-import math from './math';
 import * as _ from 'lodash';
-import utils from './utils';
-import World from './world';
-import { OrigamiModel } from './model';
-import * as plainMath from './plain-math';
-
-import { Polygon } from './polygon';
+import { OrigamiModel } from './core/model';
+import * as plainMath from './core/plain-math';
+import { Polygon } from './core/polygon';
 
 const LEGACY = true;
 
@@ -93,7 +89,7 @@ export class OrigamiShape {
 
   public reflectIndex(plane, polygonIndex) {
     const selection = this.polygonSelect(plane, polygonIndex);
-    if (polygonIndex === 54){
+    if (polygonIndex === 54) {
       // debugger;
     }
 

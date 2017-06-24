@@ -34,6 +34,7 @@ export default class RulerHelper extends THREE.Object3D {
 
   show(){
     this.add(this.lineMesh);
+    console.log('show line mesh')
   }
 
   createMarker(size = 5, color = 0xffffff){

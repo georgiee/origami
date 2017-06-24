@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrigamiModel } from './model';
-import { OrigamiGeometryData } from './origami-geometry-data';
+import { OrigamiGeometryData } from './geometry-data';
 
 export function square() {
   const square = new OrigamiGeometryData();

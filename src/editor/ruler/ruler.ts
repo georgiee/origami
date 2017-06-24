@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import utils from '../utils';
-import math from '../math';
-import {World} from '../world';
+import utils from '../../shared/utils';
+import math from '../../shared/math';
+import {World} from '../../shared/world';
 import RulerHelper from './ruler-helper';
 import MouseControls from './mouse-controls';
 import PlaneHelper from './plane-helper';
@@ -40,7 +40,7 @@ export default class Ruler extends THREE.Object3D {
 
     this.dispatchEvent({type: 'enabled'});
   }
-  
+
   private getRulerPoint(mouseX, mouseY) {
     this.snapper.findNearestFromMouse(mouseX, mouseY);
 
@@ -70,7 +70,6 @@ export default class Ruler extends THREE.Object3D {
     this.calculatePlane();
     this.planeHelper.fromPlane(this.currentPlane);
 
-    console.log('new plane: ', this.currentPlane);
     this.disable();
     this.dispatchEvent({type: 'completed', plane: this.currentPlane});
   }
@@ -149,7 +148,7 @@ export default class Ruler extends THREE.Object3D {
 
     this.endPoint = new THREE.Vector2(x, y);
     this.endPointProjected = this.getProjectedPosition(x, y);
-    
+
     this.update();
   }
 

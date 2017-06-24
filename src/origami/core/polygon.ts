@@ -1,4 +1,4 @@
-import * as math from './math';
+import * as math from './../../shared/math';
 import * as THREE from 'three';
 import * as plainMath from './plain-math';
 

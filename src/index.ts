@@ -1,9 +1,9 @@
-import * as Panel from './panel';
-import { OrigamiApp } from './origami-app';
+import { OrigamiEditor } from './editor/origami-editor';
+import { OrigamiDemo } from './demo/demo';
 
-function run(){
-  Panel.create();
-  const origamiApp = new OrigamiApp();
+function run() {
+  // const demo = new OrigamiDemo();
+  const editor = new OrigamiEditor();
 }
 
-window.addEventListener('load', run)
+window.addEventListener('load', run);

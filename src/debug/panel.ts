@@ -3,9 +3,9 @@ const guiData = {};
 
 let attached = false;
 let gui;
-let origami;
+let editor;
 let currentPlane;
-
+let origami;
 function crease() {
   origami.crease(currentPlane);
 }
@@ -24,10 +24,10 @@ function center() {
   origami.center();
 }
 function resetCamera() {
-  origami.resetCamera();
+  editor.resetCamera();
 }
 function reset() {
-  origami.reset();
+  editor.reset();
 }
 
 const methods = { crease, fold, reflect, center, resetCamera, reset };
@@ -44,12 +44,12 @@ export function create() {
   gui = attach();
 }
 
-export function initOrigami(instance) {
-  origami = instance;
-  const ruler = origami.getRuler();
-
+export function initOrigamiEditor(instance, ruler) {
+  editor = instance;
+  origami = editor.getOrigami();
   ruler.addEventListener('completed', (event: any) => {
     currentPlane = event.plane;
+    console.log('new plan', currentPlane)
   });
 }
 

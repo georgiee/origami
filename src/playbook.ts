@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import Origami from './origami';
-import { gui, updateDisplay } from './panel';
+import Origami from './origami/origami';
+import { gui, updateDisplay } from './debug/panel';
 import * as Rx from 'rxjs/Rx';
 import * as playbooks from './playbooks/index';
 
@@ -11,6 +11,7 @@ export class Playbook {
   private panelFolder;
   private instructions;
   private currentIndex = 0;
+  private ruler;
   private panelData =  {
     custom: '',
     index: 0,
@@ -21,8 +22,9 @@ export class Playbook {
     }
   } as any;
 
-  constructor(private origami: Origami) {
+  constructor(private origami: Origami, ruler) {
     this.initPanel();
+    this.ruler = ruler;
   }
 
   public set(instructions) {
@@ -71,13 +73,12 @@ export class Playbook {
   }
 
   public runCommand(data, index) {
-    const ruler = this.origami.getRuler();
     const plane = this.getPlane(data);
 
     // tslint:disable-next-line:max-line-length
     console.warn(`run ${index + 1}/${this.instructions.length} - ${data.command} ${data.polygonIndex !== undefined ? data.polygonIndex : ''} ${ data.phi ? data.phi : ''}`);
 
-    ruler.show(plane);
+    this.ruler.show(plane);
 
     switch (data.command) {
       case 'FOLD_REFLECTION': this.foldReflection(plane); break;
@@ -93,14 +94,14 @@ export class Playbook {
   private foldRotation(plane, angle, index = null) {
     this.origami.fold(plane, angle, index );
     if (index !== null && index !== undefined) {
-      this.origami.highlightPolygon(index);
+      // this.origami.highlightPolygon(index);
     }
   }
 
   private foldReflection(plane, index = null) {
     this.origami.reflect(plane, index);
     if (index !== null && index !== undefined) {
-      this.origami.highlightPolygon(index);
+      // this.origami.highlightPolygon(index);
     }
   }
 

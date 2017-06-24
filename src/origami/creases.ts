@@ -1,22 +1,20 @@
 import * as THREE from 'three';
 import * as chroma from 'chroma-js';
-import utils from './utils';
-import { distanceSquaredToLineSegment } from './math';
-import * as math from './math';
-
-import World from './world';
-import { OrigamiShape } from './origami-shape';
+import utils from './../shared/utils';
+import * as math from './../shared/math';
+import { OrigamiShape } from './../origami/shape';
 
 export class OrigamiCreases extends THREE.Object3D {
-  public shape: OrigamiShape;
+  private shape: OrigamiShape;
   private currentView: THREE.Object3D;
   private polygonMarker: THREE.Object3D;
   private selectedPolygon: number = -1;
   private highlightedVertices;
   private edgePreview: THREE.Group = new THREE.Group();
 
-  constructor() {
+  constructor(shape) {
     super();
+    this.shape = shape;
     this.init();
   }
 
@@ -47,7 +45,7 @@ export class OrigamiCreases extends THREE.Object3D {
       this.remove(this.polygonMarker);
       point = null;
     }
-    
+
     this.dispatchEvent({type: 'polygon-selected', index: this.selectedPolygon, point });
   }
 
@@ -81,7 +79,7 @@ export class OrigamiCreases extends THREE.Object3D {
     this.highlightedVertices = this.createHighlightedVertices(vertices);
     this.add(this.highlightedVertices);
   }
-  
+
   private init() {
     this.polygonMarker = utils.createSphere();
   }

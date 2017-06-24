@@ -1,8 +1,8 @@
-import { polygonContains } from './math';
+import { polygonContains } from './../../shared/math';
 import { Polygon } from './polygon';
 import * as THREE from 'three';
 import * as _ from 'lodash';
-import { OrigamiGeometryData } from './origami-geometry-data';
+import { OrigamiGeometryData } from './geometry-data';
 import { CutResult } from './cut-result';
 
 // const SNAP_INTERVALS = [1/2,1/3,1/4,2/3,3/4];

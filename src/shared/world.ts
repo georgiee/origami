@@ -1,8 +1,7 @@
 import * as THREE from 'three';
-import { CreaseViewer } from './crease-viewer';
 import * as Rx from 'rxjs';
 
-import OrthographicTrackballControls from './vendor/orthographic-trackback-controls';
+import OrthographicTrackballControls from './../vendor/orthographic-trackback-controls';
 
 // flip the camera to mathc opengl environments.
 // This app uses raw playbooks from such an environment
@@ -11,7 +10,6 @@ import OrthographicTrackballControls from './vendor/orthographic-trackback-contr
 const FLIP_CAMERA = true;
 
 export class World extends THREE.EventDispatcher {
-  public creaseViewer: CreaseViewer;
   public orthoTrackballControls;
   public camera;
 
@@ -19,19 +17,23 @@ export class World extends THREE.EventDispatcher {
   private scene: THREE.Scene;
   private renderer;
   private container;
+  private render$;
 
   constructor() {
     super();
     this.container = document.createElement( 'div' );
     document.body.appendChild( this.container );
     this.render = this.render.bind(this);
-
+    this.render$ = new Rx.Subject();
     this.init();
+  }
+  public getRenderer() {
+    return this.renderer;
   }
 
   public center(point: THREE.Vector3) {
     this.controls.reset();
-    
+
     if (FLIP_CAMERA) {
       this.controls.move(-point.x, -point.y);
     }else {
@@ -81,7 +83,7 @@ export class World extends THREE.EventDispatcher {
   }
 
   private createResizeObserver() {
-    
+
     const getWindowSize = function(){
       return {width: window.innerWidth, height: window.innerHeight};
     };
@@ -106,10 +108,10 @@ export class World extends THREE.EventDispatcher {
     const height = 1000 / ratio;
 
     const camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, -10000, 10000 );
-    
+
     this.camera = camera;
     // must be far enough away otherwise the raycast with the ruler might fail sometimes.
-    this.camera.position.z = 1000; 
+    this.camera.position.z = 1000;
 
     if (FLIP_CAMERA) {
       this.camera.up.set( 0, -1, 0 );
@@ -141,7 +143,6 @@ export class World extends THREE.EventDispatcher {
     // let camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
     this.scene = scene;
 
-    this.creaseViewer = new CreaseViewer(250);
     this.createRenderer();
     this.createCamera();
     this.createResizeObserver();
@@ -158,9 +159,9 @@ export class World extends THREE.EventDispatcher {
     renderer.clear(0xffffff);
     renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.render( this.scene, this.camera );
-    this.creaseViewer.render(renderer);
 
-    this.dispatchEvent({type: 'render'});
+    // this.dispatchEvent({type: 'render', attachment: this.renderer});
+    this.render$.next(this.renderer);
   }
 
   private render() {

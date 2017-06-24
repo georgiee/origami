@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { OrigamiShape } from './../origami-shape';
+import { OrigamiShape } from './../../origami/shape';
 
 import { throttle } from 'lodash';
-import utils from './../utils';
-import World from './../world';
+import utils from './../../shared/utils';
+import World from './../../shared/world';
 
 const THRESHOLD = 0.05;
 const THRESHOLD_CLEAR = 0.1;

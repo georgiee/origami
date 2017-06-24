@@ -1,10 +1,9 @@
 import * as THREE from 'three';
-import { OrigamiShape } from './origami-shape';
+import { OrigamiShape } from './shape';
 import * as chroma from 'chroma-js';
-import World from './world';
-import { Polygon } from './polygon';
+import { Polygon } from './core/polygon';
 
-class OrigamiMesh extends THREE.Object3D {
+export class OrigamiMesh extends THREE.Object3D {
   private materials;
   private group;
   private currentGeometry;
@@ -122,5 +121,3 @@ class OrigamiMesh extends THREE.Object3D {
   }
 
 }
-
-export default OrigamiMesh;

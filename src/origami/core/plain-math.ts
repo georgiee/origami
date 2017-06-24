@@ -18,32 +18,41 @@ export function line_plane_intersection(lpoint, ldir, ppoint, pnormal) {
 export function linePlaneIntersection(point, dir, plane) {
   const lpoint = point.toArray();
   const ldir = dir.toArray();
-
   const rawPlaneData = (plane as any).__raw;
-  // const pnormal = plane.normal.toArray();
-  // const ppoint = plane.coplanarPoint().toArray();
 
-  const pnormal = rawPlaneData.normal.toArray();
-  const ppoint = rawPlaneData.coplanar.toArray();
+  let pnormal = plane.normal.toArray();
+  let ppoint = plane.coplanarPoint().toArray();
+
+  if (rawPlaneData) {
+    pnormal = rawPlaneData.normal.toArray();
+    ppoint = rawPlaneData.coplanar.toArray();
+  }
 
   return line_plane_intersection(lpoint, ldir, ppoint, pnormal);
 }
 
 export function reflection(vertex, plane: THREE.Plane) {
+  // This raw data comes fro mthe playbooks.
+  // We need to work with the non normalized data to get the same results
+  // As in the source application of the playbooks.
   const rawPlaneData = (plane as any).__raw;
 
-  const pnormal = plane.normal.toArray();
-  const ppoint = plane.coplanarPoint().toArray();
+  let pnormal = plane.normal.toArray();
+  let ppoint = plane.coplanarPoint().toArray();
+  let basepoint = line_plane_intersection(vertex.toArray(), pnormal, ppoint, pnormal);
 
-  const basepoint = line_plane_intersection(vertex.toArray(), pnormal, ppoint, pnormal);
-  const basepoint2 = line_plane_intersection(
-    vertex.toArray(),
-    rawPlaneData.normal.toArray(),
-    rawPlaneData.coplanar.toArray(),
-    rawPlaneData.normal.toArray()
-  );
+  if (rawPlaneData) {
+    pnormal = rawPlaneData.normal.toArray();
+    ppoint = rawPlaneData.coplanar.toArray();
+    basepoint = line_plane_intersection(
+      vertex.toArray(),
+      rawPlaneData.normal.toArray(),
+      rawPlaneData.coplanar.toArray(),
+      rawPlaneData.normal.toArray()
+    );
+  }
 
-  const base = new THREE.Vector3().fromArray(basepoint2);
+  const base = new THREE.Vector3().fromArray(basepoint);
   const direction = new THREE.Vector3().subVectors(base, vertex);
 
   return base.add(direction);

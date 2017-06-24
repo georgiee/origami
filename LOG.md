@@ -1,3 +1,234 @@
+## 170624 - Part 2
+I have the idea to make the current appearance an editor view
+and to extarct or wrap the other parts (aka runtime) to use it in other contexts.
+
+I'm not sure about the final product but let's see.
+
+## 170624 - Part 1
+Ok back to the foldingpoints thingy.
+Recap: Flaps in the rose are sometimes rotated in the opposite direction.
+Analysis so far:
++ Phi✅
++ Selection✅
++ Foldingpoints✅
++ Rotation Axis👎
+
+Rotation Axis calculation wrong (surprise surprise) as the farpoint is picked wrong.
+
+Mine is Index 106 with value of (151,200,0)
+Java's one is Index 97 with value of (200, 151, 0).
+
+Is 200 vs 151 just a coincidence or are we back at some precision problems
+so that my pair has a different distance than the Java's one. Because the farpoint is calculated by distance and I can imagine that my point is really the farpoint with a difference of some very small numbers. Let's see.
+
+
+Oh I'm confused. I thought I was looking at step 19-20
+but the wrong -24 for z comes into play with step 17/18 🙄
+
+Ok so that's the analysis log which shows the error:
+
+```
+1. test farpoint with distance: 0 and maxDistance: 0
+
+2. test farpoint with distance: 34.448797437084735 and maxDistance: 0
+--> new farpoint Vector3 {x: 200, y: 151.28204345703125, z: 0} 97
+
+3. test farpoint with distance: 34.448797437084714 and maxDistance: 34.448797437084735
+4. test farpoint with distance: 0 and maxDistance: 34.448797437084735
+
+5. test farpoint with distance: 34.44879743708478 and maxDistance: 34.448797437084735
+--> new farpoint Vector3 {x: 151.28204345703122, y: 200.00000000000003, z: 0} 106
+
+6. test farpoint with distance: 34.44879743708476 and maxDistance: 34.44879743708478
+```
+
+Test Nr. 2 is good. That's the result I expect as the Java version has the same.
+Test Nr. 5 is the bad one. Why does this slip through?
+Apparently because 34.44879743708478 is larger than 34.448797437084735
+
+Yes it is by -4.263256414560601e-14
+
+So, mathematically ok. But I want the same result as the Java version which gets this distances for the involved points:
+```
+
+96 -> 96 : 0
+97 -> 96: 34.448797437084735
+99 -> 96: 34.448797437084735
+105 -> 96: 0
+106 -> 96: 34.448797437084735
+109 -> 96: 34.448797437084735
+
+vs my list
+96 -> 96: 0
+97 -> 96: 34.448797437084735
+99 -> 96: 34.448797437084714
+105 -> 96: 0
+106 -> 96: 34.44879743708478
+109 -> 96: 34.44879743708476
+
+Reason for the 99/96 difference is this:
+Mine: 99 =
+x:199.99999999999997,
+y:151.28204345703125,
+z:0
+
+Java: 99 =
+0 = 200.0
+1 = 151.28204345703125
+2 = 0.0
+
+Both, 96:
+x:175.64102172851562,
+y:175.64102172851562,
+z:0
+
+What happens is this:
+Java:
+(200.0 - 175.64102172851562), (151.28204345703125 - 175.64102172851562), (0.0 - 0.0)
+to form the new vector: between the points:
+(24.358978271484375, -24.358978271484375, 0) which yields to the length of
+34.448797437084735
+
+Mine:
+(199.99999999999997 - 175.64102172851562), (151.28204345703125 - 175.64102172851562), (0.0 - 0.0)
+to form the new vector: between the points:
+(24.358978271484375, -24.358978271484375, 0) which yields to the length of
+34.448797437084714
+
+```
+
+So at some point I got 199.99999999999997 for the x component of point 99.
+let's look at the vertices list for both form the beginning.
+
+I'm asking myself why I'm doing this. But I think the precision problem exists for both JavaScript and Java doesn't it ?
+
+So on the first step I already hit this:
+```
+
+Mine:
+200.00000000000003 200.00000000000003 0
+
+Java
+200.0 200.0 0.0
+
+```
+If both languages behave the same on my system I think I can find the place where this happens.
+I use threejs and maybe there are some additional or less things calculated so that the numbers diverse? We are looking at the cutting and reflection methods.
+
+
+My version:
+```
+In comes this:
+Vertex is: (0,0,0)
+Plane (not normalized to compare but it's actually normalized);
+Plane: coplanar: 100,100,0 normal: -100,-100,0
+```
+
+In Java we see the same values coming in,
+but other results. I am now looking at my code and see that I already messed with
+the reflection operation and created a direct port of the reflection algorithm from
+the Java sources - which uses the raw plane parameters instead of the normalized one. I quickly activate this method. And guess what? Same vertex in result.
+
+I create it on day 170612, 12 days ago where I discovered that the plane values where wrong coming from my conversion script. This distracted me from the effects of my new reflection method.
+
+I quickly enabled my `fix`. Two of three flaps are good now. One not. Really? What else could be wrong... It's step 21/22.
+
+Let's look at the vertices on step 21.
+
+Vertex 6 & 7 are different.
+6: 200 199.99999999999994 0
+7: 200.00000000000006 200 0
+
+in Java both are 200, 200, 0
+Let's go back to where those are modified. Maybe I can replace another function to use the not normalize plane parameters. And indeed I still have the reflect with polygon index using the old method. Let's try.
+
+ No didn't help.
+
+ I see those values appear in step 2 & 3 already.
+ So let's look at step 2.
+
+ 400 199.99999999999994 0
+
+ This actually comes from the cut operation. So I close the reflection case for now.
+
+ I see just now I alos have a plain math function already in place there too.
+ plainMath.linePlaneIntersection. Maybe I already fixed it there too? It's uncommented so let's activate it.
+
+Oh boy, I am looking at this:
+```
+meet Vector3 {x: 400, y: 199.99999999999994, z: 0} meet2 (3) [400, 200, 0]
+```
+meet2 is the result form the ported algorithm. Let's see what happens.
+
+I did not expect this: It gets worse. Now 4 flaps on the wrong side.
+
+Stpe 1 shows me those new vertices from the cut - they were good before
+
+```
+4: 200.00000000000006 0 0
+5: 0 200.00000000000006 0
+```
+
++ (0,0,0) comes in
++ Plane is as follows: (100,100,0), (-100,-100,0)
++ Inside my ported `line_plane_intersection` is see a normalized normal. Shouldn't be here.
+
+I fixed this part of my code- wasn't using any of the raw data. Stupid me, as it's the file where I collect exactly those functions.
+
+```
+// const pnormal = plane.normal.toArray();
+// const ppoint = plane.coplanarPoint().toArray();
+
+const pnormal = rawPlaneData.normal.toArray();
+const ppoint = rawPlaneData.coplanar.toArray();
+```
+
+I now run the full playbook again. And.
+
+🎉🎉🎉🎉 DONE.
+Phewww. I couldn't debug that rose model any longer
+
+
+I quickly check the other models. My heart dropped as many weren't working
+but I quickly recognized that I changed something on my playbook in the past hour that could have caused this. Reverting the change fixes them.
+I actually wanted to to some incremental building in the playbook, at least when going forward. At the moment I just re-run  everything when I change the step.
+
+So nbew models working with this fix are:
++ Rose
++ Table (I never saw the legs)
++ Chair ( One part didn't rotate out)
++ Sanbow ( Many parts weren't rotated out)
++ Helicopter (was in my broken list, can't remember why)
++ Pelican (Was wrongly folded but recognizable before)
++ Glynn Box
++ Kabuto
++ Kazaribox
++ Masubox
++ Owl
+
+😍 This is freaking awesome 😍
+With this update I have now 30 models working.
+Three are left to fix, four are excluded as they are not based on square paper
+
+The three to fix are:
+Lily, Phoenix and Omegastar
+
+Omegastar has 127 steps, Phoenix 63 and the Lily 55.
+The omegstar looks very bad, phoenix has still the tail wrong and the lily is only missing one of four petals correctly rotated. Let's see.
+
+Step 52-53 is missing the third petal. The fourth is good again.
+
+FOLD_REFLECTION_P on polygon index 54 don't do anything.
+
+This time I'm debugging the reflection with a polygin index. This is easier than the folding. So as it's a index based operation check the selection. I get the list:
+
+54. Period. Little small. Let's see what we should really get.
+
+Hmm somehow that polygon index is not appearing in Java but other's that I don't have and I wonder what is happening just now? Ok I can't even get the breakpoints working for the fiel reading operation. Time to stop. At least with this part.
+
+
+I will now look into the rendering and audio or do some refactoring. Basically relaxing compared to the madness I solved today 🤓
+
 ## 170622
 Long break after being busy in regular work and in analog life with learning Japanese and other stuff 🎎. Lucky me I have a carefully written log to get back into my project pretty easy.
 Ok I'm now parallel debugging my own application vs. the Java application again. I placed some debug points around polygonIndex. That's the index where the models go into different destinations.
@@ -49,9 +280,44 @@ Okay. So now I commti this bug and have a glimpse on the Phoenix or maybe some o
 Ok I'm looking at the rose model right now. There are some flaps missing still.
 Step 17/18 is the first appearance of this effect but there are two more flaps in the wrong direction. Either another conversion error so that the angle is wrong in the beginning or some implementation thing. I have the hope that this is related to the Phoenix as he also shows signs of wrong direction folding. Let's see.
 
+My app shows me the step in question with the following short information currently
+```
+FOLD_ROTATION_P 112 -135
+```
+Java says the same. So let's look into the folding operation and the plane involved.
+Ok I just debugged 112. Every result is the same. So maybe it's upside down and I onnly have two correct results 😅 I check now polygon selection Nr. 121 between step 20/21.
+
+So same angle of -135 in both applications.
+
+Stats at step 20 are polygons 134/ vertices 122 for both.
+Selection is also the same: 112, 97, 99, 105, 108, 111
+
+Let's find the wrong vertex. It's the tip only so it's only one vertex.
+
+Funny it's the very first vertex to rotate.
+```
+200, 200, 0 -> 158, 158, -24 //JS
+200, 200, 0 -> 158, 158, +24 //Java
+```
+
+axis vs. dirvec)
+dirvec has the following value: -24.359, 24.359, 0
 
 
+axis is my internal name, value is (it's normalized but real values are mixeup too, and match the 24.359 values
+0.7071067811865475, -0.7071067811865475, 0
 
+The flags are mixed up.
+So something is wrong with base point vs farpoint where the axis is calculated.
+Farpoint is wrong. 200x151 vs 151x200. So it's mixeup already from the foldingpoints part?
+
+Ok actually both of those points exist. But somehow the farpoint algorithm is picking the wrong
+at this place:
+```
+foldingpoints.forEach((fp, index) => {
+  ...
+})
+```
 ## 170613
 Butterlfy Time.
 
@@ -762,3 +1028,7 @@ My collection of debug moments:
 + Create your own polygon list class and make the most basic function (containsIndex to find a vertex) returning wrong results
 + I read this down the rabbit hole: Plane with normal and cosntant is called http://mathworld.wolfram.com/HessianNormalForm.html
 + `if(index)` bite me as index could and should be zero and this test was intended as an undefined test 🤦‍♀️
+
+
+## Ideas
++ Rendering: Vertex displacement in shader. To get some noise into the model.

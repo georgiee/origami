@@ -86,8 +86,6 @@ export class OrigamiShape {
       if (this.vertexPosition(vertex, plane) === VERTEX_POSITION.FRONT) {
         const vertexReflected = this.reflectVertex(vertex, plane);
         vertex.copy(vertexReflected);
-        // /const vertexReflected2 = plainMath.reflection(vertex, plane);
-        // vertex.copy(vertexReflected2);
       }
     });
 
@@ -95,6 +93,9 @@ export class OrigamiShape {
 
   public reflectIndex(plane, polygonIndex) {
     const selection = this.polygonSelect(plane, polygonIndex);
+    if (polygonIndex === 54){
+      // debugger;
+    }
 
     this.getVertices().forEach((vertex, index) => {
       selection.every( (selectedPolygon) => {
@@ -136,7 +137,6 @@ export class OrigamiShape {
 
     // start self-collision testing
     let collin = false;
-
 
     foldingpoints.forEach((vertex) => {
       const distance = referencePoint.distanceTo(vertex);
@@ -186,8 +186,8 @@ export class OrigamiShape {
     const selection = this.polygonSelect(plane, polygonIndex);
 
     const vertices = this.getVertices();
-    let foldingpoints = [];
-    let foldingpointsIndices = [];
+    const foldingpoints = [];
+    const foldingpointsIndices = [];
 
     for (let index = 0, l = vertices.length; index < l; index++) {
       const vertex = vertices[index];
@@ -199,7 +199,7 @@ export class OrigamiShape {
 
           if (polygon.indexOf(index) !== -1) {
             foldingpoints.push(vertex);
-            foldingpointsIndices.push(index)
+            foldingpointsIndices.push(index);
             break;
           }
         }
@@ -214,19 +214,36 @@ export class OrigamiShape {
     // start self-collision testing
     let collin = false;
     let farpointIndex = -1;
-    foldingpoints.forEach((vertex, index) => {
+    foldingpoints.forEach((fp, index) => {
 
-      const distance = referencePoint.distanceTo(vertex);
+      const distance = fp.distanceTo(referencePoint);
+      if (polygonIndex === 54) {
+        console.log(`${foldingpointsIndices[index]} -> ${foldingpointsIndices[0]}: ${distance}`);
+        // console.log('test farpoint', distance, 'fp to reference', 'maxDistance:', maxDistance)
+        // debugger;
+        // console.log(phi)
+      }
+
       if (distance > 0) {
         collin = true;
         // 1. ok found at least two points on the plane to rotate around
+        if (distance > maxDistance) {
+          farpoint = fp;
+          farpointIndex = foldingpointsIndices[index];
+
+          if (polygonIndex === 54) {
+            // console.log('new farpoint', farpoint, farpointIndex);
+          }
+
+          maxDistance = distance;
+        }
       }
-      if (distance > maxDistance) {
-        farpoint = vertex;
-        farpointIndex = foldingpointsIndices[index];
-        maxDistance = distance;
-      }
+
     });
+
+    if (polygonIndex === 112 ) {
+      //  debugger;
+    }
 
     for (let i = 1; i < foldingpoints.length; i++) {
       const foldingPoint = foldingpoints[i];
@@ -247,6 +264,8 @@ export class OrigamiShape {
 
     if (collin) {
       // this.showPoint(referencePoint, 0xff0000);
+      console.log('referencePoint', referencePoint);
+      console.log('farpoint', farpoint);
 
       const axis = referencePoint.clone().sub(farpoint).normalize();
       this.getVertices().forEach((vertex, index) => {
@@ -275,10 +294,16 @@ export class OrigamiShape {
   }
 
   public reflectVertex(vertex, plane) {
-    const projected = plane.projectPoint(vertex);
-    const v2 = new THREE.Vector3().subVectors(projected, vertex);
-    const newPos = projected.clone().add(v2);
-    return newPos;
+
+    // that's using a ported algorithm to use the not normalized plane values
+    // and prevent precision errors.
+    const result =  plainMath.reflection(vertex, plane);
+    return result;
+    // that's the three js way
+    // const projected = plane.projectPoint(vertex);
+    // const v2 = new THREE.Vector3().subVectors(projected, vertex);
+    // const newPos = projected.clone().add(v2);
+    // return newPos;
   }
 
   public polygonSelect(plane, index) {
@@ -288,7 +313,6 @@ export class OrigamiShape {
         const selectedPolygon = this.getPolygon(selection[j]);
         if (selectedPolygon === undefined) {
           throw new Error('Selected Polygon Index out of bounds (happens because of mismatching polygon indices. ');
-          // debugger;
         }
         for (let i = 0; i < this.model.getPolygons().length; i++) {
           if (selection.indexOf(i) === -1) {

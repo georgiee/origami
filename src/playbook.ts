@@ -7,6 +7,7 @@ import * as playbooks from './playbooks/index';
 // const PLAYBOOKS = { ...playbooks.working, ...playbooks.pending, ...playbooks.raw};
 const PLAYBOOKS = { ...playbooks.working, ...playbooks.testing};
 export class Playbook {
+  private newModel = false;
   private panelFolder;
   private instructions;
   private currentIndex = 0;
@@ -47,12 +48,24 @@ export class Playbook {
       count = this.instructions.length;
     }
 
+    const delta = count - this.currentIndex;
+
     this.currentIndex = count;
     this.panelData.index = count;
-    this.origami.reset();
-    this.instructions
-    .slice(0, this.currentIndex)
-    .forEach((data, index) => this.runCommand(data, index));
+
+    if (delta > 0 && this.newModel === false) {
+      // partial run
+      this.instructions
+      .slice(this.currentIndex - delta, this.currentIndex)
+      .forEach((data, index) => this.runCommand(data, this.instructions.indexOf(data)));
+    } else {
+      // full run
+      this.newModel = false;
+      this.origami.reset();
+      this.instructions
+      .slice(0, this.currentIndex)
+      .forEach((data, index) => this.runCommand(data, index));
+    }
 
     updateDisplay();
   }
@@ -171,6 +184,7 @@ export class Playbook {
 
   private setNewInstructions(data) {
       this.removePlaybookController();
+      this.newModel = true;
       this.instructions = data;
       this.panelData.index = 0;
       this.panelData.controllers.next = this.panelFolder.add(this, 'next');

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrigamiShape } from './../origami-shape';
 
-import { throttle }  from 'lodash';
+import { throttle } from 'lodash';
 import utils from './../utils';
 import World from './../world';
 
@@ -12,16 +12,17 @@ export class Snapper extends THREE.Object3D {
   private mouseScreenCoords = new THREE.Vector3();
   private point: THREE.Points;
   private lastSnappedPoint: THREE.Vector3;
+  private lastSnappedPointIndex = -1;
 
-  constructor(private shape: OrigamiShape){
+  constructor(private shape: OrigamiShape ) {
     super();
 
     this.handleMouseMove = throttle(this.handleMouseMove.bind(this), 100);
 
-    let geometry = new THREE.Geometry();
-    geometry.vertices.push(new THREE.Vector3(0,0, 0));
+    const geometry = new THREE.Geometry();
+    geometry.vertices.push(new THREE.Vector3(0, 0, 0));
 
-    let material = new THREE.PointsMaterial({
+    const material = new THREE.PointsMaterial({
       sizeAttenuation: false,
       size: 10, color: 0xffb6c1});
     this.point = new THREE.Points( geometry, material );
@@ -29,75 +30,75 @@ export class Snapper extends THREE.Object3D {
 
     this.hide();
   }
-  start(){
+
+  public start() {
     document.addEventListener('mousemove', this.handleMouseMove);
   }
 
-  handleMouseMove({clientX, clientY}){
+  public show() {
+    this.point.visible = true;
+  }
+
+  public hide() {
+    this.point.visible = false;
+  }
+
+  public hasSnaped() {
+    return this.lastSnappedPoint !== null;
+  }
+
+  public getSnappedPosition() {
+    return this.lastSnappedPoint;
+  }
+
+  public findNearestFromMouse(clientX, clientY) {
+    const world = World.getInstance();
+    const {x, y} = utils.mouseToDeviceCoordinates(clientX, clientY, world.domElement);
+
+    this.findNearestVertex(x, y);
+  }
+
+  private handleMouseMove({clientX, clientY}) {
     this.findNearestFromMouse(clientX, clientY);
 
-    if(this.hasSnaped()){
+    if (this.hasSnaped()) {
       this.show();
-    }else {
+    } else {
       this.hide();
     }
   }
 
-  hasSnaped(){
-    return this.lastSnappedPoint!==null;
-  }
-
-  getSnappedPosition(){
-    return this.lastSnappedPoint;
-  }
-
-  findNearestFromMouse(clientX, clientY){
-    let world = World.getInstance();
-    let {x, y} = utils.mouseToDeviceCoordinates(clientX, clientY, world.domElement);
-
-    return this.findNearestVertex(x, y);
-  }
-
-  findNearestVertex(screenX, screenY){
-    let world = World.getInstance();
-    let vertices = this.shape.model.getAlignmentPoints();
-    let screenCoords = new THREE.Vector3(screenX, screenY, 0)
-    let matched = false;
-    let vertexFound;
+  private findNearestVertex(screenX, screenY) {
+    const world = World.getInstance();
+    const vertices = this.shape.model.getAlignmentPoints();
+    const screenCoords = new THREE.Vector3(screenX, screenY, 0);
+    const matched = false;
 
     this.lastSnappedPoint = null;
 
-    for(let vertex of vertices){
-      let projection = vertex.clone().project(world.camera);
+    for (const vertex of vertices){
+      const projection = vertex.clone().project(world.camera);
       projection.z = 0;
 
-      let distance = projection.distanceTo(screenCoords);
+      const distance = projection.distanceTo(screenCoords);
 
-      if(distance < THRESHOLD){
+      if (distance < THRESHOLD) {
         this.updatePosition(vertex);
         this.lastSnappedPoint = vertex.clone();
+        this.lastSnappedPointIndex = this.shape.model.data
+          .getVertices().indexOf(vertex);
+
         break;
       }
     }
-    return vertexFound;
   }
 
-  updatePosition(point){
-    let geometry:any = this.point.geometry;
-    let v = geometry.vertices[geometry.vertices.length - 1];
+  private updatePosition(point) {
+    const geometry: any = this.point.geometry;
+    const v = geometry.vertices[geometry.vertices.length - 1];
     v.copy(point);
 
     geometry.verticesNeedUpdate = true;
-    //console.log('test', new THREE.Vector3(25,25,0).applyMatrix4(this.modelViewMatrix));
-    //this.point.position.set(point.x, point.y, point.z);
-  }
-
-  show(){
-    this.point.visible = true;
-  }
-
-  hide(){
-    this.point.visible = false;
   }
 
 }

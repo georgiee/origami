@@ -19,6 +19,7 @@ export class OrigamiApp {
 
     this.build();
     this.test();
+
     Panel.initOrigami(this.origami);
 
     // testNewell(this.world);
@@ -27,8 +28,7 @@ export class OrigamiApp {
 
   public test() {
     const playbook = new Playbook(this.origami);
-    playbook.set(playbooks.testing.rose);
-
+    playbook.set(playbooks.working.catamaran);
     playbook.play(-1);
 
     // plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(200.0,0.0,0.0), new THREE.Vector3(200.0,0.0,0.0));

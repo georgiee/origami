@@ -171,10 +171,12 @@ export class Polygon {
 
             // console.log('plnae+line', plane, line.clone())
             if (plane.intersectsLine(line)) {
-              const meet = plane.intersectLine(line);
-              // const meet2 = plainMath.linePlaneIntersection(line.start, direction, plane);
-              // console.log('meet', meet, 'meet2', meet2);
+              // three js way
+              // const meet = plane.intersectLine(line);
 
+              // Using the not normalized plane
+              const meetRaw = plainMath.linePlaneIntersection(line.start, direction, plane);
+              const meet = new THREE.Vector3(meetRaw[0], meetRaw[1], meetRaw[2]);
               newVertices.push(meet);
 
               newpoly1.push({added: newVertices.length - 1 });
@@ -185,7 +187,6 @@ export class Polygon {
           }
         }
       }
-
       // console.groupEnd();
     }
 

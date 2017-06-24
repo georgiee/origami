@@ -20,8 +20,11 @@ export function linePlaneIntersection(point, dir, plane) {
   const ldir = dir.toArray();
 
   const rawPlaneData = (plane as any).__raw;
-  const pnormal = plane.normal.toArray();
-  const ppoint = plane.coplanarPoint().toArray();
+  // const pnormal = plane.normal.toArray();
+  // const ppoint = plane.coplanarPoint().toArray();
+
+  const pnormal = rawPlaneData.normal.toArray();
+  const ppoint = rawPlaneData.coplanar.toArray();
 
   return line_plane_intersection(lpoint, ldir, ppoint, pnormal);
 }

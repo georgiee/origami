@@ -1,3 +1,40 @@
+## 170626
+Short evening with Origami. I just wanted to get started with the world rendering.
+I take the hemisphere example with the [flamingo from threejs](https://threejs.org/examples/webgl_lights_hemisphere.html)
+as my guide for the very first version. It's a nice look.
+
+I want to get the z-fighting fixed. Due to the algorithm I have many faces laying on each other with no distance.
+When rendering different colors you can see the z-fighting.
+
+There is a polygonOffset available for materials in three.js but to use it I need to first have my front an back materials assigned
+and I don't know yet if my normals are always pointing outwards- whatever this should mean 🤓
+
+I quickly created a color palette assignment to the phases but somehow only the second half is rendered in the scene.
+This would mean the other faces are not visible or obscured by other faces. As aI said quickly, I should look into this
+to know what happens
+
+Well so that's the next challenge. Maybe there are other solutions solely within the shader but I doubt it
+as I need at least some information what's facing the user.
+
+Other things to fix:
++ Better color palette to use with chroma-js
++ Proper center the OrigamiModel. I think I have everything already in place to calculate it
++ Display the normals to get an idea of the current state
+
+Other Ideas to checkout:
+1. Build a graph of polygons during the folding. This might help during the animation but also could help me
+to get the facing direction somehow? I have seen a nice graph visualizer in python when I did Advent of Code. Maybe this helps
+me to visualize what I am doing - I really need to see the graph.
+
+2. Some fancy shading offsets combined with the polygon offset. Might look super weird, maybe super cool?
+Worth to checkout!
+I also want to create a rougher surface as outlined before somewhere in the logs.
+I think during the triangulation step I really could do this baked into the mesh. Otherwise I try something in the shader.
+I want to get a look like the Flamingo for the beginning- after that I can go where ever I want.
+
+Source of the polygonOffset thing is this btw:
+https://github.com/benpurdy/threejs-decals/blob/master/example/decals.js#L50-L51
+
 ## 170624 - Part 2
 I have the idea to make the current appearance an editor view
 and to extarct or wrap the other parts (aka runtime) to use it in other contexts.

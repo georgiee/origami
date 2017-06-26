@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import Origami from './origami/origami';
+import { Origami } from './origami/origami';
 import { gui, updateDisplay } from './debug/panel';
 import * as Rx from 'rxjs/Rx';
 import * as playbooks from './playbooks/index';
@@ -22,7 +22,7 @@ export class Playbook {
     }
   } as any;
 
-  constructor(private origami: Origami, ruler) {
+  constructor(private origami: Origami, ruler = null) {
     this.initPanel();
     this.ruler = ruler;
   }
@@ -78,7 +78,9 @@ export class Playbook {
     // tslint:disable-next-line:max-line-length
     console.warn(`run ${index + 1}/${this.instructions.length} - ${data.command} ${data.polygonIndex !== undefined ? data.polygonIndex : ''} ${ data.phi ? data.phi : ''}`);
 
-    this.ruler.show(plane);
+    if (this.ruler) {
+      this.ruler.show(plane);
+    }
 
     switch (data.command) {
       case 'FOLD_REFLECTION': this.foldReflection(plane); break;

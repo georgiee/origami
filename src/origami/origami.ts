@@ -6,7 +6,7 @@ import * as paperFormats from './core/paper-formats';
 import { EventEmitter } from 'events';
 import { OrigamiCreases } from './creases';
 
-export default class Origami extends THREE.Object3D {
+export class Origami extends THREE.Object3D {
   public events$ = new EventEmitter();
   private creases: OrigamiCreases;
 
@@ -29,6 +29,10 @@ export default class Origami extends THREE.Object3D {
 
     public getShape() {
       return this.shape;
+    }
+
+    public getMesh() {
+      return this.mesh;
     }
 
     public reset() {

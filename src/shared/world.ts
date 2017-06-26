@@ -53,7 +53,7 @@ export class World extends THREE.EventDispatcher {
     return this.renderer.domElement;
   }
 
-  private add(object) {
+  public add(object) {
     this.scene.add(object);
   }
 

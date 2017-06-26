@@ -21,7 +21,9 @@ var config = {
     module: {
         rules: [
             { enforce: 'pre', test: /\.ts$/, exclude: ["node_modules"], loader: 'ts-loader' },
-            { test: /\.html$/, loader: "html-loader" }
+            { test: /\.html$/, loader: "html-loader" },
+            { test: /\.(glsl|vs|fs)$/, loader: 'shader-loader' },
+
         ]
     },
     resolve: {

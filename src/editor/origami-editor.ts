@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import World from './../shared/world';
-import Origami from './../origami/origami';
+import { Origami } from './../origami/origami';
 import * as Panel from './../debug/panel';
 import { Playbook } from './../playbook';
 import * as playbooks from './../playbooks/index';

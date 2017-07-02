@@ -3,11 +3,19 @@ import OrthographicTrackballControls from './../vendor/orthographic-trackback-co
 const OrbitControls = require('./../vendor/three-orbit-controls')(THREE);
 import * as Rx from 'rxjs';
 
+import { Subject } from 'rxjs/Subject';
+import { Observable } from 'rxjs/Observable';
+
 export class BasicWorld {
+  public renderSubject = new Subject();
+  public render$ = Observable.from(this.renderSubject);
+
+  public resizeSubject = new Subject();
+  public resize$ = Observable.from(this.resizeSubject);
+  public renderer: THREE.WebGLRenderer;
   private scene: THREE.Scene;
   private orthoTrackballControls;
   private controls:any;
-  private renderer: THREE.WebGLRenderer;
   private camera: THREE.Camera;
   private container;
 
@@ -55,15 +63,20 @@ export class BasicWorld {
   private render() {
     window.requestAnimationFrame( this.render );
     // this.orthoTrackballControls.update();
+
     this.step();
+
   }
 
   private step() {
     const renderer = this.renderer;
 
     renderer.clear();
+
     renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.render( this.scene, this.camera );
+
+    this.renderSubject.next(this.renderer);
   }
 
   private createControls() {
@@ -113,6 +126,7 @@ export class BasicWorld {
     const cameraWidth = 1000;
     const cameraHeight = 1000 / ratio;
 
+    this.resizeSubject.next();
     // const camera = this.camera;
     // camera.left = -cameraWidth / 2;
     // camera.right = cameraWidth / 2;

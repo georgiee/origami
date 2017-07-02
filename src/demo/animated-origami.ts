@@ -1,4 +1,5 @@
 import { OrigamiShape } from './../origami/shape';
+import { OrigamiMesh } from './../origami/mesh';
 import * as THREE from 'three';
 import { Polygon } from '../origami/core/polygon';
 import * as chroma from 'chroma-js';
@@ -16,9 +17,19 @@ export class AnimatedOrigami extends THREE.Object3D {
     super();
     this.init();
   }
-
   private init() {
-    console.log('init');
+    this.addSolidMesh();
+    this.addLines()
+  }
+
+  private addLines() {
+    const origamiMesh = new OrigamiMesh(this.shape);
+    const geometry = origamiMesh.getLineGeometry();
+    const lines = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial());
+    this.add(lines);
+  }
+
+  private addSolidMesh() {
     const combinedGeometry = new THREE.Geometry();
 
     const polygonInstances = this.shape.model
@@ -44,6 +55,7 @@ export class AnimatedOrigami extends THREE.Object3D {
       geometry.computeFaceNormals();
 
       combinedGeometry.merge(geometry, new THREE.Matrix4());
+
     });
 
     const material = new THREE.MeshPhongMaterial( {
@@ -58,9 +70,10 @@ export class AnimatedOrigami extends THREE.Object3D {
       // polygonOffsetFactor: -1
     } );
 
-
     const mesh = new THREE.Mesh(combinedGeometry, material);
+    const normals = new THREE.FaceNormalsHelper( mesh, 50, 0x00ff00, 1 );
 
     this.add(mesh);
+    this.add(normals);
   }
 }

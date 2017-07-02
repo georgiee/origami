@@ -6,6 +6,7 @@ import { AnimatedOrigami } from './animated-origami';
 
 import { OrigamiWorld } from './origami-world';
 import * as THREE from 'three';
+import * as test01 from './test/01-animate-geoemtry-vector';
 
 export class OrigamiDemo {
   private world: OrigamiWorld;
@@ -16,16 +17,19 @@ export class OrigamiDemo {
   }
 
   private init() {
-    this.test();
+    // this.test1();
+    this.test2();
   }
 
+  private test2() {
+    test01.run(this.world);
+  }
 
-  private test() {
-
+  private test1() {
     const origami = new Origami();
     const playbook = new Playbook(origami);
     playbook.set(playbooks.working.crane);
-    playbook.play(-1);
+    playbook.play(2);
 
     const shape = origami.getShape();
     const animatedOrigami = new AnimatedOrigami(shape);

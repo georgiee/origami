@@ -1,3 +1,57 @@
+## 170702
+Ok today I updated the readme and created a gh-branch to host my images for the Readme. I also want to provide a web version
+of the current project process. But it is as usually. I think it's not ready and I would waste time to prepare it to fit my idea of being ready 😄
+Nobody is waiting for it so I just will give me some more time to do so.
+
+Last time I worked on the rendering/view stuff. I quickly hit some already known obstacles. The z-fighting stuff. So I will do two things today. Display the normals on the face
+just now what are the current calculations and maybe try a cherry pick approach to render the proper faces only. This would work for the beginning but will catch me when I will work on the square to model aniamtions I guess. Anyway, I have to start somewhere.
+
+Plan is:
+1. Normals
+2. Cherry pick faces and render.
+
+Ok so the normals look fine. I just played step 1 & 2 of the crane where the problem already appears. I get a face that is facing the camera and another one on top. No chance in deciding which one is nearer yet. So after googling I'm reading now this:
+
+[Rendering method for flat Origami](https://pdfs.semanticscholar.org/89a6/4cf11636c8dfbeb9e3cdccaf3f8481adfc36.pdf)
+
+While googling I found this, which matches my idea of folding aesthetics:
+[Folding Example](https://www.facebook.com/kvadrat.agency/videos/1786114468372124/)
+
+Aaaaand screw my plan. I want to animate! I will build something small,
+a square that folds in the middle controlled over time liek I just have seen in the linked example.
+
+**Tweening**<br>
+So I picked a random tweening library just to see what else is there beyond GSAP as I didn't use
+those libraries for a long time. I found poptime. Looked promising in the beginning but in the end,
+it stands more in the way then it helps.
+
+**Shadows**<br>
+The threejs hemisphere example I used to build my basic scene aready contained a shadow setup. But I ripped it out back then.
+Today I included all the missing parts again. A proper shadow map and camera setup (together with a camera helper) and set proper receive/cast properties to all involved parties.
+
+After animating my vertex I found that the shadow looked off.
+I quickly found an answer (from WestLangley a very active threejs contributor)
+>  If you are modifying the geometry positions in the vertex shader, and you are casting shadows, you need to specify a custom depth material so the shadows will respond to the modified positions.
+
+Well and threejs itself tells us in the documentation:
+> Custom depth material to be used by this material in depth based computation. If a material uses any custom logic to position the vertices (animation, displacement other than the default texture based, instancing...) the depth material should also include that logic in order to make effects like shadows and SSAO work. Defining this property allows the WebGLRenderer to use this instance of the material instead of the internal cache. Default is *undefined*.
+
+So that's the reason. I will look into this the next time. Should be easy, according to this nice discussion:
+[https://github.com/mrdoob/three.js/issues/1509](https://github.com/mrdoob/three.js/issues/1509)
+
+**Parametric Geometry**
+Wow, I just found this accidentally while browsing the threejs source
+within the cloth example. This reminds me of my parametric exercises in the shader world. A mind bending time.
+[http://prideout.net/blog/?p=44](http://prideout.net/blog/?p=44)
+[https://threejs.org/examples/webgl_animation_cloth.html](https://threejs.org/examples/webgl_animation_cloth.html)
+
+
+
+Pretty exhausted. Learned a lot about shadows today.
+But I have still not my simple animated example working where I animate a single vertex.
+I think something is wrong with the overall setup as the shadow maps shows only the debug sphere I added.
+
+
 ## 170626
 Short evening with Origami. I just wanted to get started with the world rendering.
 I take the hemisphere example with the [flamingo from threejs](https://threejs.org/examples/webgl_lights_hemisphere.html)
@@ -6,15 +60,11 @@ as my guide for the very first version. It's a nice look.
 I want to get the z-fighting fixed. Due to the algorithm I have many faces laying on each other with no distance.
 When rendering different colors you can see the z-fighting.
 
-There is a polygonOffset available for materials in three.js but to use it I need to first have my front an back materials assigned
-and I don't know yet if my normals are always pointing outwards- whatever this should mean 🤓
+There is a polygonOffset available for materials in three.js but to use it I need to first have my front an back materials assigned and I don't know yet if my normals are always pointing outwards- whatever this should mean 🤓
 
-I quickly created a color palette assignment to the phases but somehow only the second half is rendered in the scene.
-This would mean the other faces are not visible or obscured by other faces. As aI said quickly, I should look into this
-to know what happens
+I quickly created a color palette assignment to the phases but somehow only the second half is rendered in the scene. This would mean the other faces are not visible or obscured by other faces. As aI said quickly, I should look into this to know what happens
 
-Well so that's the next challenge. Maybe there are other solutions solely within the shader but I doubt it
-as I need at least some information what's facing the user.
+Well so that's the next challenge. Maybe there are other solutions solely within the shader but I doubt it as I need at least some information what's facing the user.
 
 Other things to fix:
 + Better color palette to use with chroma-js
@@ -1069,3 +1119,6 @@ My collection of debug moments:
 
 ## Ideas
 + Rendering: Vertex displacement in shader. To get some noise into the model.
+
+## Links
++ [THREE.JS Advanced Tips : Shadow](http://blog.edankwan.com/post/three-js-advanced-tips-shadow)

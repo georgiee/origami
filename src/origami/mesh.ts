@@ -43,6 +43,12 @@ export class OrigamiMesh extends THREE.Object3D {
 
     return middle;
   }
+  public getLineGeometry(): THREE.Geometry {
+    return this.toLineGeometry();
+  }
+  public getGeometry(): THREE.Geometry {
+    return this.toGeometry();
+  }
 
   private init() {
     this.group = new THREE.Group();

@@ -22,6 +22,7 @@ export class BackdropScene extends THREE.Scene implements IWorldScene {
     const { renderer } = world;
 
     renderer.shadowMap.enabled = true;
+    renderer.shadowMap.renderSingleSided = false;
     renderer.shadowMap.renderReverseSided = false;
   }
 
@@ -64,7 +65,7 @@ export class BackdropScene extends THREE.Scene implements IWorldScene {
     const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
     dirLight.color.setHSL( 0.1, 1, 0.95 );
     dirLight.position.set( 0, 0, 1 );
-    dirLight.position.multiplyScalar( 500 );
+    dirLight.position.multiplyScalar( 1000 );
     this.add( dirLight );
 
     this.dirLight = dirLight;
@@ -88,6 +89,6 @@ export class BackdropScene extends THREE.Scene implements IWorldScene {
     camera.right = d;
     camera.top = d;
     camera.bottom = -d;
-    camera.far = 1000;
+    camera.far = 1200;
   }
 }

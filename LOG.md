@@ -2,6 +2,82 @@
 Back to the basics. I want to create a reusable World class so I can
 extend it for all of my prototype with different scenes and light setups.
 
+Yeah that looks good.
++ New World class to hold the camera, renderer and a control
++ This world accepts a scene as a parameter. I can now pass in basic scenes. This annoyed me the most when creating new stuff in threejs. I always had to create a new setup building grounds and whatever. And most of the time I integrated that stuff at the world level. This meant it would be on the same level as creating the renderer & camera which felt wrong.
++ Added some RxJS magic to build resize and render callbacks.
+
+Now I can do this:
+
+```
+const scene = new FoggyGroundScene();
+const world = new World(scene);
+world.run();
+```
+
+And I have a foggy scenery (the one from the threejs hemisphere example) up and running.
+From this point following I can extend the world with whatever object I have.
+
+```
+const mesh = new THREE.Mesh(new THREE.SphereGeometry(100), new THREE.MeshNormalMaterial());
+world.add(mesh);
+```
+
+Love it already. Really relaxes my mind.
+
+Second thing I did, as I was tinkering with shadows again. How to add the ShadowViewer properly?
+It needs access to the renderer so I could use the render subscription. But this time I decided
+to integrate it in the world itself. I can do now:
+
+```
+world.showShadowmap(myCustomScene.light);
+```
+
+Light might be a custom property in one of my scenes and I can easily visualize that light now. Sweet!
+
+I just created two examples with dynamic meshes with shadows. Boy was I wrog yesterday. Of course I don't need a custom depth material yet. I mena all of my positions are being calculated outside of a shader so the default depth shader absolutely knows
+where my object is. The problem yesterday was simpler: I had some of my faces rendered because of THREE.DoubleSide in the material (I do this frequently for convenience during testing). What I didn't realize, my faces might have been pointing into the wrong direction. The default settings of the WebGLShadowMap is rendering only one side even with two sides in the material activated.
+
+You can see it in the sources of threejs
+
+```
+this.renderReverseSided = true;
+this.renderSingleSided = true;
+
+//...
+
+var side = material.side;
+if ( scope.renderSingleSided && side == DoubleSide ) {
+  side = FrontSide;
+}
+
+if ( scope.renderReverseSided ) {
+  if ( side === FrontSide ) side = BackSide;
+  else if ( side === BackSide ) side = FrontSide;
+}
+
+result.side = side;
+```
+
+By setting the configuration as follows
+```
+renderer.shadowMap.renderSingleSided = false;
+renderer.shadowMap.renderReverseSided = false;
+```
+It will have a shadow with every side. Setting `renderReverseSided` to false has an impact on casting and receiving objects. You will need a bias. Check the threejs docs for the according notice.
+
+
+I also added a PR to threejs as the ShadowMapViewer from the examples didn't habe a proper resizing.
+And beside the good progress with my world & shadows. I contacted the guys behind [Folding Example][kvadrat-origami-fb]
+and got an very quick answer. Alexander was very helpful. It's really manual and a lot of work behind the animation. No fancy math. But I think it might help my thinking in getting a nice animation someday.
+But first I will continue on the groundwork with the environment, shadows etc combined with my Origami Models. I also have to continue work on the z-fighting thing which I postponed yesterday to get my hands on animations & shadows.
+
+I still have the idea of creating a binary graph from my folding history of a origami model. With that I should be able to from full model to square paper with a full set of vertices (which would be required to make a morphing between the steps).
+
+But I still don't know if I want some morphing or do it manually. With morphing I won't get any rotation of vertices like a real paper would I fold it. The vertices would simple move in a straight line to new position. Instead of morphing I could maybe use catmull curve thing to attract my vertices during morphing in the direction of the normal.
+
+The more manual way would be to incorporate the folding step. Reflection? Rotate the involved vertices around the axis with 180deg.
+
 ## 170702
 Ok today I updated the readme and created a gh-branch to host my images for the Readme. I also want to provide a web version
 of the current project process. But it is as usually. I think it's not ready and I would waste time to prepare it to fit my idea of being ready 😄
@@ -19,7 +95,7 @@ Ok so the normals look fine. I just played step 1 & 2 of the crane where the pro
 [Rendering method for flat Origami](https://pdfs.semanticscholar.org/89a6/4cf11636c8dfbeb9e3cdccaf3f8481adfc36.pdf)
 
 While googling I found this, which matches my idea of folding aesthetics:
-[Folding Example](https://www.facebook.com/kvadrat.agency/videos/1786114468372124/)
+[Folding Example][kvadrat-origami-fb]
 
 Aaaaand screw my plan. I want to animate! I will build something small,
 a square that folds in the middle controlled over time liek I just have seen in the linked example.
@@ -1131,3 +1207,4 @@ My collection of debug moments:
 [shadow-advanced]: http://blog.edankwan.com/post/three-js-advanced-tips-shadow
 [light-camera-box]: https://japhr.blogspot.de/2013/03/threejs-directional-light-shadow-boxes.html
 [hessian-normal]: http://mathworld.wolfram.com/HessianNormalForm.html
+[kvadrat-origami-fb]: https://www.facebook.com/kvadrat.agency/videos/1786114468372124/

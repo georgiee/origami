@@ -38,7 +38,7 @@ export function run(world) {
 
   // top left to bottom right
   const axis = new THREE.Vector3(0, 400, 0)
-    .sub(new THREE.Vector3(400,0,0)).normalize(); // (-1,1,0);
+    .sub(new THREE.Vector3(400, 0, 0)).normalize(); // (-1,1,0);
 
   // center of the square
   const pivot = new THREE.Vector3(200, 200, 0);
@@ -63,17 +63,15 @@ export function run(world) {
   sphere.position.set(0, 150, 0);
 
   const updateVectorRotation = (vector) => (progress) => {
-    const v2 = rotateVectorAround(vector.clone(), pivot, axis, -Math.PI / 2 * progress)
+    const v2 = rotateVectorAround(vector.clone(), pivot, axis, -Math.PI / 2 * progress);
     sphere.position.copy(v2);
     vCurrent.copy(v2);
 
     requestGeometryUpdate();
   };
 
-
-
-
   const depthMaterialTemplate = new THREE.MeshDepthMaterial();
+  // tslint:disable-next-line:variable-name
   const RGBADepthPacking = 3201;
   (depthMaterialTemplate as any).depthPacking = RGBADepthPacking;
   // (sphere as any).customDepthMaterial = depthMaterialTemplate
@@ -97,7 +95,6 @@ export function run(world) {
     onUpdate: updateVectorRotation(vStart)
   }).start();
 
-
   function requestGeometryUpdate() {
     geometry.computeFaceNormals();
     geometry.computeVertexNormals();
@@ -107,7 +104,7 @@ export function run(world) {
 }
 
 function getGeometry() {
-  const vertices =[
+  const vertices = [
     new THREE.Vector3(400, 0, 0),
     new THREE.Vector3(0, 0, 0),
     new THREE.Vector3(0, 400, 0),
@@ -123,4 +120,3 @@ function getGeometry() {
 
   return geometry;
 }
-

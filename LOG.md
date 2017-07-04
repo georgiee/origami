@@ -1,3 +1,22 @@
+## 170705
+I found [THAT][[origami-render-01] and [THIS][origami-render-02]
+Two pdf files with science about rendering origamis from around 2008/2009.
+
+ I then found [ORIPA][oripa] which is the java application from the first PDF.
+ You can basically create origami models from creasing patterns alone.
+
+ But the awesome thing is: That Java application (where I have to sources accessible on github) can
+ actually calculate and output the matrix expression of overlap relation of polygons.
+
+ if you export the obj file you get vertices, polygons and the matrix.
+ I could use the output if the count of polygons matches and I somehow can match them.
+
+ But I could actually do the calculation myself and provide the matrix for every model I have in place.
+ That sounds awesome as I would get the matrix telling me which polygon/face is on top at any given time.
+ With this information, I'm sure I can get the rendering problem fixed. Either in a shader or in a custom
+ depth buffer implementation (like `webgl_camera_logarithmicdepthbuffer.html` in the threejs examples).
+
+
 ## 170704
 Back to the basics. I want to create a reusable World class so I can
 extend it for all of my prototype with different scenes and light setups.
@@ -1208,3 +1227,6 @@ My collection of debug moments:
 [light-camera-box]: https://japhr.blogspot.de/2013/03/threejs-directional-light-shadow-boxes.html
 [hessian-normal]: http://mathworld.wolfram.com/HessianNormalForm.html
 [kvadrat-origami-fb]: https://www.facebook.com/kvadrat.agency/videos/1786114468372124/
+[origami-render-01]: https://pdfs.semanticscholar.org/89a6/4cf11636c8dfbeb9e3cdccaf3f8481adfc36.pdf
+[origami-render-02]: https://s3.amazonaws.com/uploads.uservoice.com/assets/076/277/876/original/origami_rendering2009.pdf?AWSAccessKeyId=AKIAJF4UXUF6KJMEJFQQ&Expires=1523240397&Signature=R9NDJt3vz1Oq1ZuYTsaaDPVCBKA%3D
+[oripa]: https://github.com/oripa/oripa

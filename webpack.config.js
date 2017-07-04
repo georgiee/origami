@@ -28,7 +28,7 @@ var config = {
     },
     resolve: {
         extensions: [".ts", ".js"],
-        modules: [path.resolve('./src'), 'node_modules']
+        modules: [path.resolve('./src'), 'node_modules'],
     },
     plugins: [
         new webpack.DefinePlugin({

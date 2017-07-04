@@ -7,19 +7,22 @@ import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Observable';
 
 export class BasicWorld {
-  public renderSubject = new Subject();
-  public render$ = Observable.from(this.renderSubject);
-
-  public resizeSubject = new Subject();
-  public resize$ = Observable.from(this.resizeSubject);
+  public render$: Observable<any>;
+  public resize$: Observable<any>;
   public renderer: THREE.WebGLRenderer;
+
+  private renderSubject = new Subject();
+  private resizeSubject = new Subject();
   private scene: THREE.Scene;
   private orthoTrackballControls;
-  private controls:any;
+  private controls: any;
   private camera: THREE.Camera;
   private container;
 
   constructor() {
+    this.render$ = Observable.from(this.renderSubject);
+    this.resize$ = Observable.from(this.resizeSubject);
+
     this.container = document.createElement( 'div' );
     document.body.appendChild( this.container );
     this.render = this.render.bind(this);
@@ -121,10 +124,10 @@ export class BasicWorld {
   private resize(width, height) {
     this.renderer.setSize( width, height );
     this.renderer.setViewport(0, 0, width, height);
-    const ratio = width / height;
 
-    const cameraWidth = 1000;
-    const cameraHeight = 1000 / ratio;
+    const camera = this.camera as THREE.PerspectiveCamera;
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
 
     this.resizeSubject.next();
     // const camera = this.camera;

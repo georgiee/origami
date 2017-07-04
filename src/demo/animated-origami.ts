@@ -19,7 +19,7 @@ export class AnimatedOrigami extends THREE.Object3D {
   }
   private init() {
     this.addSolidMesh();
-    this.addLines()
+    this.addLines();
   }
 
   private addLines() {

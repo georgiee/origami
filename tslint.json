@@ -5,6 +5,7 @@
     ],
     "jsRules": {},
     "rules": {
+        "variable-name": [true, "check-format", "allow-leading-underscore"],
         "no-var-requires": false,
         "only-arrow-functions": [false],
         "no-trailing-whitespace": false,

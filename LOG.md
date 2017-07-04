@@ -1,3 +1,7 @@
+## 170704
+Back to the basics. I want to create a reusable World class so I can
+extend it for all of my prototype with different scenes and light setups.
+
 ## 170702
 Ok today I updated the readme and created a gh-branch to host my images for the Readme. I also want to provide a web version
 of the current project process. But it is as usually. I think it's not ready and I would waste time to prepare it to fit my idea of being ready 😄
@@ -1113,7 +1117,7 @@ My collection of debug moments:
 
 + floating round errors: distanceToPlane(vertex) is not always 0 event if the vertex is on the plane
 + Create your own polygon list class and make the most basic function (containsIndex to find a vertex) returning wrong results
-+ I read this down the rabbit hole: Plane with normal and cosntant is called http://mathworld.wolfram.com/HessianNormalForm.html
++ I read this down the rabbit hole: Plane with normal and cosntant is called [Hessian Normal][hessian-normal]
 + `if(index)` bite me as index could and should be zero and this test was intended as an undefined test 🤦‍♀️
 
 
@@ -1121,4 +1125,9 @@ My collection of debug moments:
 + Rendering: Vertex displacement in shader. To get some noise into the model.
 
 ## Links
-+ [THREE.JS Advanced Tips : Shadow](http://blog.edankwan.com/post/three-js-advanced-tips-shadow)
++ [THREE.JS Advanced Tips : Shadow][shadow-advanced]
++ [Three.js Directional Light Shadow Boxes][light-camera-box]
+
+[shadow-advanced]: http://blog.edankwan.com/post/three-js-advanced-tips-shadow
+[light-camera-box]: https://japhr.blogspot.de/2013/03/threejs-directional-light-shadow-boxes.html
+[hessian-normal]: http://mathworld.wolfram.com/HessianNormalForm.html

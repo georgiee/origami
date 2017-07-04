@@ -1,5 +1,12 @@
 {
   "compilerOptions": {
+    "baseUrl": ".", // This must be specified if "paths" is.
+    "paths": {
+      "*": [
+        "*",
+        "src/*"
+      ]
+    },
     "allowJs": true,
     "target": "es6",
     "sourceMap": true,

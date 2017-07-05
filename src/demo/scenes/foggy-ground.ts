@@ -15,6 +15,10 @@ export class FoggyGroundScene extends THREE.Scene  {
     this.init();
   }
 
+  get light() {
+    return this.dirLight;
+  }
+
   private init() {
     this.enableFog();
     this.addLights();

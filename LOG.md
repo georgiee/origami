@@ -1,21 +1,52 @@
 ## 170705
-I found [THAT][[origami-render-01] and [THIS][origami-render-02]
+I found [THAT][origami-render-01] and [THIS][origami-render-02]
 Two pdf files with science about rendering origamis from around 2008/2009.
 
- I then found [ORIPA][oripa] which is the java application from the first PDF.
- You can basically create origami models from creasing patterns alone.
+I then found [ORIPA][oripa] which is the java application from the first PDF.
+You can basically create origami models from creasing patterns alone.
 
- But the awesome thing is: That Java application (where I have to sources accessible on github) can
- actually calculate and output the matrix expression of overlap relation of polygons.
+But the awesome thing is: That Java application (where I have to sources accessible on github) can
+actually calculate and output the matrix expression of overlap relation of polygons.
 
- if you export the obj file you get vertices, polygons and the matrix.
- I could use the output if the count of polygons matches and I somehow can match them.
+if you export the obj file you get vertices, polygons and the matrix.
+I could use the output if the count of polygons matches and I somehow can match them.
 
- But I could actually do the calculation myself and provide the matrix for every model I have in place.
- That sounds awesome as I would get the matrix telling me which polygon/face is on top at any given time.
- With this information, I'm sure I can get the rendering problem fixed. Either in a shader or in a custom
- depth buffer implementation (like `webgl_camera_logarithmicdepthbuffer.html` in the threejs examples).
+Correction: Actually the format you have to choose is called *.ormat and is available when you watch the folded structure not the
+creasing pattern. It looks so awesome as it tightly correlates with the square of the creasing pattern. You can somehow see in ascii
+where the overlapping occurs. Looks beautiful and I hope I can somehow port the algorithm for my own purposes. The relevant code is in Folder.java.
+My biggest concern, it is only for flat-folded models. The models in this project are not folded down to a flat version.
 
+
+But I could actually do the calculation myself and provide the matrix for every model I have in place.
+That sounds awesome as I would get the matrix telling me which polygon/face is on top at any given time.
+With this information, I'm sure I can get the rendering problem fixed. Either in a shader or in a custom
+depth buffer implementation (like `webgl_camera_logarithmicdepthbuffer.html` in the threejs examples).
+
+Notes to the papers:
+1. Circle Relation is this
+> Some origami models such as a Twist Fold (Fig.2) have a circle or multiple circles in the overlapping order of faces. For example, the face (A) is on (B), (B) is on (C), (C) is on (D), and (D) is on (A) in the folded shape in Figure 2. In this case, we cannot say which face is located lowest or uppermost.
+2. This problem hits us, because flat folding are most of the created models
+> The problems we mentioned above exist in origami pieces that are folded flat.
+3. OR algorithm for flat-folded models can be used in non-flat models by combining a two buffer approach. One buffer for nearly flat faces lying on each other,
+the normal z-buffer can be used for any other state of the model (where no overlay can happen). Called ORZ method in `A Rendering Method for 3D Origami Models using Face Overlapping Relations`
+
+OOOOOK. So my plan now:
+Instead of porting the OR algorithm I will take an easy example with very few steps but overlapping parts. I think any origami base will do.
+I will try to export the creasing pattern and import it in ORIPA to get the appropriate OR (Overlap Relation) Matrix.
+
+With this I can test the buffer thing. If this succeeds I can try to no flat-fold the base and try to use the ORZ method.
+This is going to be a lot of work. Only for rendering. But this is crucial to have, so I leave the animation aside for now.
+
+Btw new idea:
+Let the user drag instead of entering an angle in the editor. Is this possible 🤔
+This is FOLIO doing. Was mentioned in one of the papers but I can't find anything to it?
+
+I also learned about Kawasaki's theorem to determine if an origami is flat foldable.
+
+Played around with some scene and created a very plain scene with the waterbombbase, one very easy
+folding with only 3 fold steps.
+
+So today I also updated the gh-pages and provided a first look on the stuff I do.
 
 ## 170704
 Back to the basics. I want to create a reusable World class so I can

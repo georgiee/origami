@@ -5,6 +5,8 @@
 
 Origami runtime folded and rendered in JavaScript with threejs. Take a look in the [LOG.md](https://github.com/georgiee/origami/blob/master/LOG.md) for what's happening at the moment.
 
+[georgiee.github.io/origami](https://georgiee.github.io/origami/)
+
 ## Project
 My goal is to create an editor & a view mode. You should be able to create or modify models within the editor. The view mode was my initial project goal. In view mode the origami model should react to audio by showing different colors and animate from square paper to full model.
 

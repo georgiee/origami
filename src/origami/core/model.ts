@@ -1,7 +1,6 @@
 import { polygonContains } from './../../shared/math';
 import { Polygon } from './polygon';
 import * as THREE from 'three';
-import * as _ from 'lodash';
 import { OrigamiGeometryData } from './geometry-data';
 import { CutResult } from './cut-result';
 

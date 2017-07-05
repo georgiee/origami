@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run server:dev",
+    "build": "NODE_ENV=production webpack --config ./webpack.config.js",
     "server": "npm run server:dev",
     "server:dev": "webpack-dev-server --config ./webpack.config.js --port 3000 --host 0.0.0.0 --hot --inline --progress --profile --watch --content-base dist/"
   },

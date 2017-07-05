@@ -33,8 +33,8 @@ export class CreaseViewer {
     const size = this.size;
 
     renderer.setScissorTest( true );
-    renderer.setViewport(rendererSize.width - size - PADDING, PADDING, size, size);
-    renderer.setScissor(rendererSize.width - size - PADDING, PADDING, size, size);
+    renderer.setViewport(rendererSize.width - size - PADDING, rendererSize.height - size - PADDING, size, size);
+    renderer.setScissor(rendererSize.width - size - PADDING, rendererSize.height - size - PADDING, size, size);
     renderer.render( this.scene, this.camera );
     renderer.setScissorTest( false );
   }

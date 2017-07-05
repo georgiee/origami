@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import * as _ from 'lodash';
 import { OrigamiModel } from './core/model';
 import * as plainMath from './core/plain-math';
 import { Polygon } from './core/polygon';

@@ -84,7 +84,7 @@ export class OrigamiEditor {
   private initPlaybook() {
     this.playbook = new Playbook(this.origami, this.ruler);
 
-    this.playbook.set(playbooks.working.catamaran);
+    this.playbook.set(playbooks.working.crane);
     this.playbook.play(-1);
   }
 

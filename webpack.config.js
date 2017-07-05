@@ -5,7 +5,7 @@ const nodeEnv = process.env.NODE_ENV || 'development';
 const isProd = nodeEnv === 'production';
 
 var config = {
-    devtool: isProd ? 'hidden-source-map' : 'cheap-eval-source-map',
+    devtool: isProd ? 'source-map' : 'cheap-eval-source-map',
     context: path.resolve('./src'),
     entry: {
         app: './index.ts'
@@ -42,5 +42,7 @@ var config = {
         })
     ]
 };
+
+
 
 module.exports = config;

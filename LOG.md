@@ -1,3 +1,13 @@
+## 180113
+Back in the project today. I lost motivation after reading paper after paper about the origami theory last July.
+In the meantime I focused on my analog origami folding skills. I now own beautiful books by Robert J. Lang about Origami design and Shuzo Fujimoto's master piece about origami tesselation.
+I learned many new models by watching and reading Sara Adam's happyfolding.com. My favorite models todya are the [hyndrangea](https://www.youtube.com/watch?v=zu5F0Hmd3ZA), [the clover tesselation](https://www.youtube.com/watch?v=474PmBXekK8&t), I learned a [nice unicorn](https://www.youtube.com/watch?v=uSucN4qcY9I), a [heart in a heart](https://www.youtube.com/watch?v=lW-ocuUNXBA), a [beautiful butterfly](https://www.youtube.com/watch?v=X_7te7WanRY) and many more so that the time went by quickly without touching my codebase here.
+
+So today is all about papers to get my hands dirty again. I added two new papers I found,
+and added some new sources of projects I found in the last weeks.
+
+My challenge is not to get the folding reflected in code. That's okay I think but to get the fundamental rendering problem of two and more faces in origami being mathematical on the same plane which will of course cause flickering as described in my last entry from 2017. The other problem was about animating the faces which could get easier once I have a better mathematical understanding of the underlying parts in origami.
+
 ## 170705
 I found [THAT][origami-render-01] and [THIS][origami-render-02]
 Two pdf files with science about rendering origamis from around 2008/2009.

@@ -29,4 +29,4 @@ Heavily based on [Origami Editor 3d (Java)](http://origamieditor3d.sourceforge.n
 as I'm porting, converting, refactoring with other project goals in mind. But I would never ever be able to do so without the mentioned project. I'm so glad that I found it and it's absolutely worth to check it out.
 
 ## Footnotes
-<a name="naming">1</a> *Origamizake*<br>I think this word doesn't exist in Japanese. It was my poor invention when I was drunk from sake and programmed on it. Take `雪見酒` (*yakumizake, sake drunk while viewing a snowy scene​*) and `花見酒` (*hanamizake, sake drunk while viewing cherry blossoms​*) and mix it with Origami to get `origamizake` (*Sake drunk while watching Origami*).
+<a name="naming">1</a> *Origamizake*<br>I think this word doesn't exist in Japanese. It was my poor invention when I was drunk from sake and programmed on it. Take `雪見酒` (*yukimizake, sake drunk while viewing a snowy scene​*) and `花見酒` (*hanamizake, sake drunk while viewing cherry blossoms​*) and mix it with Origami to get `origamizake` (*Sake drunk while watching Origami*).

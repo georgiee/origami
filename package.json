@@ -10,7 +10,7 @@
     "server:dev": "webpack-dev-server --config ./webpack.config.js --port 3000 --host 0.0.0.0 --hot --inline --progress --profile --watch --content-base dist/"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@types/lodash": "^4.14.62",
     "@types/three": "^0.84.15",
